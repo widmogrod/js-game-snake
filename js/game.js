@@ -10,6 +10,7 @@ define(['shape'], function(shape) {
         this.stage = new shape.CanvasStage(canvas);
         this.cube = new shape.CubeShape();
         this.stage.addChild(this.cube);
+        this.stage.addChild(new shape.EllipseShape(10,10, 70, 30));
     }
 
     TetrisGame.constructor = TetrisGame;
