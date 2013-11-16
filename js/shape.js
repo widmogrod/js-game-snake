@@ -63,17 +63,46 @@ define(function(){
     /**
      * Cube shape
      */
-    function CubeShape() {
+    function CubeShape(size) {
         this.state_ = this.STATE_CLEAN;
-        this.rectangles = [];
+        this.size = size || 10;
+        this.points = [];
+        this.points.push(new Point(0, 0, 0));
+        this.points.push(new Point(this.size, 0, 0));
+        this.points.push(new Point(0, this.size, 0));
+        this.points.push(new Point(0, this.size, this.size));
         this.currentState = this.STATE_CLEAN;
     }
     CubeShape.constructor = CubeShape;
     CubeShape.prototype = new Shape();
+    CubeShape.prototype.projection = function(projection) {
+        for(var i = 0, length = this.points.length; i < length; i++) {
+            projection.project(this.points[i]);
+        }
+        var self = this;
+        return {
+            rotateY : function(angle) {
+                self.state(self.STATE_DIRTY);
+                for(var i = 0, length = self.points.length; i < length; i++) {
+                    projection.rotateY(self.points[i], angle);
+                }
+            }
+        }
+    }
     CubeShape.prototype.render = function(stage) {
-        // stage.setTransform(0.4,0);
-        stage.fillStyle('#e3e3e3');
-        stage.fillRect(10,10,50,50);
+        var point;
+        stage.beginPath();
+        for(var i = 0, length = this.points.length; i < length; i++) {
+            point = this.points[i];
+            if (i == 0) {
+                stage.moveTo(point.xpos, point.ypos);
+            } else {
+                stage.lineTo(point.xpos, point.ypos);
+            }
+        }
+        stage.closePath();
+        stage.stroke();
+        stage.fill();
     }
 
     function EllipseShape(x, y, width, height) {
@@ -113,10 +142,15 @@ define(function(){
     CanvasStage.prototype.addChild = function(shape) {
         this.childs.push(shape);
     };
+    CanvasStage.prototype.clean = function() {
+        this.context.cleanRect(0,0,this.width, this.height);
+    }
     CanvasStage.prototype.update = function() {
         var child, state,
             i = 0,
             length = this.childs.length;
+
+        this.context.clearRect(0,0,this.width, this.height);
 
         for (; i < length; i++) {
             child = this.childs[i];
@@ -129,6 +163,24 @@ define(function(){
     };
     CanvasStage.prototype.fillRect = function(x, y, width, height) {
         this.context.fillRect(x, y, width, height);
+    }
+    CanvasStage.prototype.beginPath = function() {
+        this.context.beginPath();
+    }
+    CanvasStage.prototype.closePath = function() {
+        this.context.closePath();
+    }
+    CanvasStage.prototype.fill = function() {
+        this.context.fill();
+    }
+    CanvasStage.prototype.stroke = function() {
+        this.context.stroke();
+    }
+    CanvasStage.prototype.moveTo = function(x, y) {
+        this.context.moveTo(x, y);
+    }
+    CanvasStage.prototype.lineTo = function(x, y) {
+        this.context.lineTo(x, y);
     }
     CanvasStage.prototype.fillStyle = function(style) {
         this.context.fillStyle = style;
@@ -155,10 +207,39 @@ define(function(){
         this.context.setTransform(scalX || 1, skewX, skewY, scalY || 1, moveX || 0, 0);
     }
 
+    function Canvas3DStage(canvas, projection) {
+        this.context = canvas.getContext('2d');
+        this.width = canvas.width;
+        this.height = canvas.height;
+        this.childs = [];
+        this.projection = projection;
+    }
+    Canvas3DStage.constructor = Canvas3DStage;
+    Canvas3DStage.prototype = Object.create(CanvasStage.prototype);
+    Canvas3DStage.prototype.update = function() {
+        var child, state,
+            i = 0,
+            length = this.childs.length;
+
+
+        this.context.clearRect(0,0,this.width, this.height);
+
+        for (; i < length; i++) {
+            child = this.childs[i];
+            state = child.state();
+            if (child.STATE_RENDERED !== state) {
+                child.projection(this.projection);
+                child.render(this);
+                child.state(child.STATE_RENDERED);
+            }
+        }
+    }
+
     return {
         'Stage' : Stage,
         'Shape' : Shape,
         'CanvasStage' : CanvasStage,
+        'Canvas3DStage' : Canvas3DStage,
         'CubeShape' : CubeShape,
         'EllipseShape' : EllipseShape,
         'Point' : Point,
