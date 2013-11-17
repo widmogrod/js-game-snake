@@ -80,6 +80,11 @@ define(function(){
             '#262f6d'
         ];
 
+        this.init();
+    }
+    CubeShape.constructor = CubeShape;
+    CubeShape.prototype = new Shape();
+    CubeShape.prototype.init = function() {
         this.points = [];
         this.points.push(new Point(this.x, this.y, this.z));
         this.points.push(new Point(this.x + this.size, this.y, this.z));
@@ -94,7 +99,8 @@ define(function(){
         this.points.push(new Point(this.x + this.size, this.y, this.z));
         this.points.push(new Point(this.x + this.size, this.y + this.size, this.z));
         this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x + this.size, this.y, this.size));
+        this.points.push(new Point(this.x + this.size, this.y, this.z + this.size));
+
         this.points.push(new Point(this.x, this.y, this.z + this.size));
         this.points.push(new Point(this.x + this.size, this.y, this.z + this.size));
         this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
@@ -109,9 +115,14 @@ define(function(){
         this.points.push(new Point(this.x + this.size, this.y + this.size, this.z));
         this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
         this.points.push(new Point(this.x, this.y + this.size, this.z + this.size));
+
     }
-    CubeShape.constructor = CubeShape;
-    CubeShape.prototype = new Shape();
+    CubeShape.prototype.moveTo = function(point) {
+        this.x += point.x;
+        this.y += point.y;
+        this.z += point.z;
+        this.init();
+    }
     CubeShape.prototype.projection = function(projection) {
         for(var i = 0, length = this.points.length; i < length; i++) {
             projection.project(this.points[i]);
@@ -128,6 +139,7 @@ define(function(){
     }
     CubeShape.prototype.render = function(stage) {
         var point;
+
         for(var i = 0, length = this.points.length; i < length; i++) {
             point = this.points[i];
             if (i == 0) {
@@ -267,7 +279,8 @@ define(function(){
 
         for (; i < length; i++) {
             child = this.childs[i];
-            state = child.state();
+            // state = child.state();
+            state = child.STATE_DIRTY;
             if (child.STATE_RENDERED !== state) {
                 child.projection(this.projection);
                 child.render(this);
