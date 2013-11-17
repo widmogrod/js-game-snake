@@ -39,6 +39,14 @@ define(function(){
         point.x = x1;
         point.z = z1;
     }
+    Projection.prototype.rotateX = function(point, angle) {
+        var cos = Math.cos(angle), sin = Math.sin(angle),
+            y1 = point.y * cos - point.z * sin,
+            z1 = point.z * cos + point.y * sin;
+
+        point.y = y1;
+        point.z = z1;
+    }
 
     /**
      * Shape prototype
@@ -134,6 +142,18 @@ define(function(){
                 for(var i = 0, length = self.points.length; i < length; i++) {
                     projection.rotateY(self.points[i], angle);
                 }
+                self.x = self.points[0].x;
+                self.y = self.points[0].y;
+                self.z = self.points[0].z;
+            },
+            rotateX : function(angle) {
+                self.state(self.STATE_DIRTY);
+                for(var i = 0, length = self.points.length; i < length; i++) {
+                    projection.rotateX(self.points[i], angle);
+                }
+                self.x = self.points[0].x;
+                self.y = self.points[0].y;
+                self.z = self.points[0].z;
             }
         }
     }
