@@ -76,7 +76,7 @@ define(function(){
         this.x = x;
         this.y = y;
         this.z = z;
-        this.size = size || 10;
+        this.size = size / 2 || 10;
 
         this.colors = [
             '#f2b139',
@@ -94,35 +94,35 @@ define(function(){
     CubeShape.prototype = new Shape();
     CubeShape.prototype.init = function() {
         this.points = [];
-        this.points.push(new Point(this.x, this.y, this.z));
-        this.points.push(new Point(this.x + this.size, this.y, this.z));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z));
-        this.points.push(new Point(this.x, this.y + this.size, this.z));
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
 
-        this.points.push(new Point(this.x, this.y, this.z));
-        this.points.push(new Point(this.x, this.y + this.size, this.z));
-        this.points.push(new Point(this.x, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x, this.y, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
 
-        this.points.push(new Point(this.x + this.size, this.y, this.z));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
         this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x + this.size, this.y, this.z + this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
 
-        this.points.push(new Point(this.x, this.y, this.z + this.size));
-        this.points.push(new Point(this.x + this.size, this.y, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
         this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
 
-        this.points.push(new Point(this.x,this.y,this.z));
-        this.points.push(new Point(this.x + this.size, this.y, this.z));
-        this.points.push(new Point(this.x + this.size, this.y, this.z + this.size));
-        this.points.push(new Point(this.x, this.y, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
 
-        this.points.push(new Point(this.x, this.y + this.size,this.z));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
         this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
 
     }
     CubeShape.prototype.moveTo = function(point) {
