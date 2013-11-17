@@ -1,5 +1,4 @@
-define(['shape'], function(shape) {
-
+define(['shape', 'functional'], function(shape, f) {
     /**
      * Description
      *
@@ -9,10 +8,24 @@ define(['shape'], function(shape) {
         this.canvas = canvas;
         this.projection = new shape.Projection(1270, canvas.width / 2, canvas.height / 2);
         this.stage = new shape.Canvas3DStage(this.canvas, this.projection);
-        var boardWidth = (canvas.width / 2) +  (this.ROTATION_MARGIN);
-        this.cube = new shape.CubeShape(0, 0, -boardWidth / 2, this.CUBE_SIZE);
-        this.board = new shape.CubeShape(0, 0, 0, boardWidth);
+        this.boardWidth = (canvas.width / 2) +  (this.ROTATION_MARGIN);
+        this.cube = new shape.CubeShape(0, 0, -this.boardWidth / 2, this.CUBE_SIZE, '#f2b139');
+        this.board = new shape.CubeShape(0, 0, 0, this.boardWidth, '#f68928');
+
+        this.enemies = [];
+        this.enemies.push(new shape.CubeShape(
+            5 * this.CUBE_SIZE,
+            5 * this.CUBE_SIZE,
+           - 8 * this.CUBE_SIZE,
+            this.CUBE_SIZE,
+            '#ee312e'
+        ));
+
         this.stage.addChild(this.board);
+        var self = this;
+        f.forEach(this.enemies, function(item) {
+            self.stage.addChild(item);
+        });
         this.stage.addChild(this.cube);
     }
 
@@ -47,18 +60,39 @@ define(['shape'], function(shape) {
             this.rotationDirection = direction;
             if (this.angle < this.RIGHT_ANGLE) {
                 this.angle += this.ANGLE_STEP;
+
+                var self = this;
+                var projection = this.projection;
+                function each(array, func) {
+                    for (var i = 0, length = array.length; i < length; i++) {
+                        func(array[i])
+                    }
+                }
                 if (direction === this.DIRECTION_RIGHT) {
                     this.cube.projection(this.projection).rotateY(-this.ANGLE_STEP);
                     this.board.projection(this.projection).rotateY(-this.ANGLE_STEP);
+                    each(this.enemies, function(item){
+                        // console.log(item);
+                        item.projection(projection).rotateY(-self.ANGLE_STEP);
+                    });
                 } else if (direction === this.DIRECTION_LEFT) {
                     this.cube.projection(this.projection).rotateY(this.ANGLE_STEP);
                     this.board.projection(this.projection).rotateY(this.ANGLE_STEP);
+                    each(this.enemies, function(item){
+                        item.projection(projection).rotateY(self.ANGLE_STEP);
+                    });
                 } else if (direction == this.DIRECTION_DOWN) {
                     this.cube.projection(this.projection).rotateX(-this.ANGLE_STEP);
                     this.board.projection(this.projection).rotateX(-this.ANGLE_STEP);
+                    each(this.enemies, function(item){
+                        item.projection(projection).rotateX(-self.ANGLE_STEP);
+                    });
                 } else if (direction == this.DIRECTION_UP) {
                     this.cube.projection(this.projection).rotateX(this.ANGLE_STEP);
                     this.board.projection(this.projection).rotateX(this.ANGLE_STEP);
+                    each(this.enemies, function(item){
+                        item.projection(projection).rotateX(self.ANGLE_STEP);
+                    });
                 }
             } else {
                 // console.log('end rotation', this.angle);
@@ -82,22 +116,22 @@ define(['shape'], function(shape) {
 
             // console.log(x, y, this.tempDirection);
             if (this.rotationDirection == this.DIRECTION_RIGHT
-                || (this.tempDirection == this.DIRECTION_RIGHT && x > this.projection.x - this.ROTATION_MARGIN))
+                || (this.tempDirection == this.DIRECTION_RIGHT && x - this.CUBE_SIZE > this.projection.x - this.ROTATION_MARGIN))
             {
                 // console.log('A');
                 rotationDone = this.rotate(this.DIRECTION_RIGHT);
             } else if (this.rotationDirection == this.DIRECTION_LEFT
-                      || (this.tempDirection == this.DIRECTION_LEFT && x < -this.projection.x + this.ROTATION_MARGIN))
+                      || (this.tempDirection == this.DIRECTION_LEFT && x + this.CUBE_SIZE + this.CUBE_SIZE < -this.projection.x + this.ROTATION_MARGIN))
             {
                 // console.log('B');
                 rotationDone = this.rotate(this.DIRECTION_LEFT);
             } else if (this.rotationDirection == this.DIRECTION_UP
-                       || (this.tempDirection == this.DIRECTION_UP && y < -this.projection.y + this.ROTATION_MARGIN))
+                       || (this.tempDirection == this.DIRECTION_UP && y + this.CUBE_SIZE + this.CUBE_SIZE < -this.projection.y + this.ROTATION_MARGIN))
             {
                 // console.log('C');
                 rotationDone = this.rotate(this.DIRECTION_UP);
             } else if (this.rotationDirection == this.DIRECTION_DOWN
-                      || (this.tempDirection == this.DIRECTION_DOWN && y > this.projection.y - this.ROTATION_MARGIN))
+                      || (this.tempDirection == this.DIRECTION_DOWN && y - this.CUBE_SIZE > this.projection.y - this.ROTATION_MARGIN))
             {
                 // console.log('D');
                 rotationDone = this.rotate(this.DIRECTION_DOWN);
@@ -115,8 +149,11 @@ define(['shape'], function(shape) {
             this.direction = this.DIRECTION_RIGHT;
             this.position = new shape.Point(0, 0, 0);
             this.positions = [];
+            // this.enemies = [];
             this.positions.push(new shape.Point(0, 0, 0));
         },
+        'dropEnemies': function() {
+                    },
         'captureKeys' : function(e) {
             var d = this.direction;
             switch(true) {
@@ -140,6 +177,7 @@ define(['shape'], function(shape) {
                 requestAnimationFrame(update);
             }
             requestAnimationFrame(update);
+            this.dropEnemies();
             // this.update();
             // setInterval(this.move.bind(this), 200);
         }

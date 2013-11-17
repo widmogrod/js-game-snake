@@ -1,4 +1,4 @@
-define(function(){
+define(['functional'], function(f){
 
     function Point(x,y,z) {
         this.x = x;
@@ -71,7 +71,7 @@ define(function(){
     /**
      * Cube shape
      */
-    function CubeShape(x, y, z, size) {
+    function CubeShape(x, y, z, size, color) {
         this.state_ = this.STATE_CLEAN;
         this.x = x;
         this.y = y;
@@ -87,6 +87,8 @@ define(function(){
             '#1197a7',
             '#262f6d'
         ];
+        // var index = Math.round(Math.random() * this.colors.length)
+        this.color = color; // this.colors[index];
 
         this.init();
     }
@@ -159,6 +161,19 @@ define(function(){
     }
     CubeShape.prototype.render = function(stage) {
         var point;
+        // var renderOrder = [], index = -1, prevZ = 0;
+        // f.forEach(this.points, function(point, i){
+
+        //     if ((i + 4) % 4 == 0) {
+        //         prevZ = point.z;
+        //         renderOrder[++index] = prevZ;
+        //     }
+        //     if (prevZ < point.z) {
+        //         prevZ = point.z;
+        //     }
+        // });
+
+        // console.log(renderOrder)
 
         for(var i = 0, length = this.points.length; i < length; i++) {
             point = this.points[i];
@@ -168,7 +183,8 @@ define(function(){
             }
             else if ((i + 1) % 4 == 0) {
                 stage.lineTo(point.xpos, point.ypos);
-                stage.fillStyle(this.colors[((i + 1) / 4) - 1]);
+                // stage.fillStyle(this.colors[((i + 1) / 4) - 1]);
+                stage.fillStyle(this.color);
                 stage.closePath();
                 stage.fill();
                 stage.beginPath();
