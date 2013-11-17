@@ -63,15 +63,52 @@ define(function(){
     /**
      * Cube shape
      */
-    function CubeShape(size) {
+    function CubeShape(x, y, z, size) {
         this.state_ = this.STATE_CLEAN;
+        this.x = x;
+        this.y = y;
+        this.z = z;
         this.size = size || 10;
+
+        this.colors = [
+            '#f2b139',
+            '#f68928',
+            '#ee312e',
+            '#be3126',
+            '#bada55',
+            '#1197a7',
+            '#262f6d'
+        ];
+
         this.points = [];
-        this.points.push(new Point(0, 0, 0));
-        this.points.push(new Point(this.size, 0, 0));
-        this.points.push(new Point(0, this.size, 0));
-        this.points.push(new Point(0, this.size, this.size));
-        this.currentState = this.STATE_CLEAN;
+        this.points.push(new Point(this.x, this.y, this.z));
+        this.points.push(new Point(this.x + this.size, this.y, this.z));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z));
+        this.points.push(new Point(this.x, this.y + this.size, this.z));
+
+        this.points.push(new Point(this.x, this.y, this.z));
+        this.points.push(new Point(this.x, this.y + this.size, this.z));
+        this.points.push(new Point(this.x, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x, this.y, this.z + this.size));
+
+        this.points.push(new Point(this.x + this.size, this.y, this.z));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x + this.size, this.y, this.size));
+        this.points.push(new Point(this.x, this.y, this.z + this.size));
+        this.points.push(new Point(this.x + this.size, this.y, this.z + this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x, this.y + this.size, this.z + this.size));
+
+        this.points.push(new Point(this.x,this.y,this.z));
+        this.points.push(new Point(this.x + this.size, this.y, this.z));
+        this.points.push(new Point(this.x + this.size, this.y, this.z + this.size));
+        this.points.push(new Point(this.x, this.y, this.z + this.size));
+
+        this.points.push(new Point(this.x, this.y + this.size,this.z));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x, this.y + this.size, this.z + this.size));
     }
     CubeShape.constructor = CubeShape;
     CubeShape.prototype = new Shape();
@@ -91,18 +128,22 @@ define(function(){
     }
     CubeShape.prototype.render = function(stage) {
         var point;
-        stage.beginPath();
         for(var i = 0, length = this.points.length; i < length; i++) {
             point = this.points[i];
             if (i == 0) {
+                stage.beginPath();
                 stage.moveTo(point.xpos, point.ypos);
+            }
+            else if ((i + 1) % 4 == 0) {
+                stage.lineTo(point.xpos, point.ypos);
+                stage.fillStyle(this.colors[((i + 1) / 4) - 1]);
+                stage.closePath();
+                stage.fill();
+                stage.beginPath();
             } else {
                 stage.lineTo(point.xpos, point.ypos);
             }
         }
-        stage.closePath();
-        stage.stroke();
-        stage.fill();
     }
 
     function EllipseShape(x, y, width, height) {
