@@ -40,7 +40,7 @@ define(['shape', 'functional'], function(shape, f) {
         'ROTATION_MARGIN' : 80,
         'GAME_STEP': 20,
         'CUBE_SIZE': 20,
-        'speed': 1,
+        'speed': 2,
         'counter': 0,
         'angle': 0,
         'move': function() {
