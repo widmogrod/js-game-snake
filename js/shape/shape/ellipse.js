@@ -1,4 +1,4 @@
-define(function(){
+define(['shape/shape/interface'], function(Shape){
     "use strict";
 
     function EllipseShape(x, y, width, height) {

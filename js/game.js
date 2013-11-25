@@ -1,4 +1,17 @@
-define(['shape', 'functional'], function(shape, f) {
+define([
+    'shape/projection/projection',
+    'shape/stage/canvas3d',
+    'shape/shape/cube',
+    'shape/point',
+    'functional'
+],
+function(
+    Projection,
+    Canvas3DStage,
+    CubeShape,
+    Point,
+    f
+) {
     /**
      * Description
      *
@@ -6,14 +19,14 @@ define(['shape', 'functional'], function(shape, f) {
      */
     function TetrisGame(canvas) {
         this.canvas = canvas;
-        this.projection = new shape.Projection(1270, canvas.width / 2, canvas.height / 2);
-        this.stage = new shape.Canvas3DStage(this.canvas, this.projection);
+        this.projection = new Projection(1270, canvas.width / 2, canvas.height / 2);
+        this.stage = new Canvas3DStage(this.canvas, this.projection);
         this.boardWidth = (canvas.width / 2) +  (this.ROTATION_MARGIN);
-        this.cube = new shape.CubeShape(0, 0, -this.boardWidth / 2, this.CUBE_SIZE, '#f2b139');
-        this.board = new shape.CubeShape(0, 0, 0, this.boardWidth, '#f68928');
+        this.cube = new CubeShape(0, 0, -this.boardWidth / 2, this.CUBE_SIZE, '#f2b139');
+        this.board = new CubeShape(0, 0, 0, this.boardWidth, '#f68928');
 
         this.enemies = [];
-        this.enemies.push(new shape.CubeShape(
+        this.enemies.push(new CubeShape(
             5 * this.CUBE_SIZE,
             5 * this.CUBE_SIZE,
            - 8 * this.CUBE_SIZE,
@@ -147,10 +160,10 @@ define(['shape', 'functional'], function(shape, f) {
         'init': function() {
             this.tempDirection = this.DIRECTION_RIGHT;
             this.direction = this.DIRECTION_RIGHT;
-            this.position = new shape.Point(0, 0, 0);
+            this.position = new Point(0, 0, 0);
             this.positions = [];
             // this.enemies = [];
-            this.positions.push(new shape.Point(0, 0, 0));
+            this.positions.push(new Point(0, 0, 0));
         },
         'dropEnemies': function() {
                     },
@@ -177,7 +190,7 @@ define(['shape', 'functional'], function(shape, f) {
                 requestAnimationFrame(update);
             }
             requestAnimationFrame(update);
-            this.dropEnemies();
+            // this.dropEnemies();
             // this.update();
             // setInterval(this.move.bind(this), 200);
         }
