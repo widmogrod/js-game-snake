@@ -1,4 +1,6 @@
 define(['shape/stage/interface'], function(Stage){
+    "use strict";
+
     function CanvasStage(canvas) {
         this.context = canvas.getContext('2d');
         this.width = canvas.width;

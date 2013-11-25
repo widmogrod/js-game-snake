@@ -1,4 +1,5 @@
-define(['shape/shape'], function(Shape){
+define(['shape/shape/interface', 'shape/point'], function(Shape, Point){
+    "use strict";
 
     function RectShape(x, y, width, height, angle) {
         this.state_ = this.STATE_CLEAN;

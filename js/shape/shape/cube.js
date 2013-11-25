@@ -1,4 +1,6 @@
 define(['shape/shape/interface', 'shape/point'], function(Shape, Point) {
+    "use strict";
+
     /**
      * Cube shape
      */

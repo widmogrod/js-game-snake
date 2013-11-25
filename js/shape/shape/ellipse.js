@@ -1,4 +1,6 @@
 define(function(){
+    "use strict";
+
     function EllipseShape(x, y, width, height) {
         this.state_ = this.STATE_CLEAN;
         this.x = x;

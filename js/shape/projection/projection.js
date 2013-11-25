@@ -1,4 +1,6 @@
 define(['shape/projection/interface'], function(ProjectionInterface){
+    "use strict";
+
     function Projection(viewerAngle, x, y) {
         this.viewerAngle = viewerAngle;
         this.x = x;

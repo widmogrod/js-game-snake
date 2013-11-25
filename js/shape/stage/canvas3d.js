@@ -1,4 +1,6 @@
 define(['shape/stage/canvas'], function(CanvasStage){
+    "use strict";
+
     function Canvas3DStage(canvas, projection) {
         this.context = canvas.getContext('2d');
         this.width = canvas.width;

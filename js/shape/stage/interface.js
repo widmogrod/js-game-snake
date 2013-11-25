@@ -1,8 +1,11 @@
 define(function(){
+    "use strict";
+
     /**
      * Stage prototype
      */
     function Stage(context) {}
+
     Stage.prototype = {
         'update': function() {},
         'addChild': function() {},
