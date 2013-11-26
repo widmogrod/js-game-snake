@@ -15,7 +15,6 @@ define(['shape/stage/canvas'], function(CanvasStage){
             i = 0,
             length = this.childs.length;
 
-
         this.context.clearRect(0,0,this.width, this.height);
 
         for (; i < length; i++) {

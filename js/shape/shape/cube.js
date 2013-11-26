@@ -10,7 +10,7 @@ define(['shape/shape/interface', 'shape/point'], function(Shape, Point) {
         this.y = y;
         this.z = z;
         this.size = size / 2 || 10;
-        this.color = color;
+        this.color = color || '#333333';
         this.init();
     }
     CubeShape.constructor = CubeShape;
