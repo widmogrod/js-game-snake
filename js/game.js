@@ -2,13 +2,15 @@ define([
     'shape/projection/projection',
     'shape/stage/canvas3d',
     'shape/shape/cube',
-    'shape/point',
+    'shape/shape/rect',
+    'shape/point/point',
     'functional'
 ],
 function(
     Projection,
     Canvas3DStage,
     CubeShape,
+    RectShape,
     Point,
     f
 ) {
@@ -33,6 +35,7 @@ function(
             this.CUBE_SIZE,
             '#ee312e'
         ));
+        this.enemies.push(new RectShape(-140, -120, 0, 20, 40))
 
         this.stage.addChild(this.board);
         var self = this;
@@ -40,6 +43,8 @@ function(
             self.stage.addChild(item);
         });
         this.stage.addChild(this.cube);
+
+        this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
     }
 
     TetrisGame.constructor = TetrisGame;

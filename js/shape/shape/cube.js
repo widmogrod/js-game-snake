@@ -1,4 +1,4 @@
-define(['shape/shape/interface', 'shape/point'], function(Shape, Point) {
+define(['shape/shape/interface', 'shape/point/point'], function(Shape, Point) {
     "use strict";
 
     /**
