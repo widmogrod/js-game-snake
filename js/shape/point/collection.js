@@ -11,7 +11,7 @@ define(function(){
             this.points[this.count++] = point;
         },
         'first': function() {
-            this.points[0];
+            return this.points[0];
         },
         'each': function(callback) {
             for(var i = 0; i < this.count; i++) {

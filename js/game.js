@@ -128,9 +128,9 @@ function(
             var rotationDone = -1;
             this.counter += this.speed;
             // console.log(this.projection.x, this.cube.x);
-            // console.log(this.cube.x, this.cube.points[0].x);
-            var x = this.cube.points[0].x;
-            var y = this.cube.points[1].y;
+            // console.log(this.cube.points.x, this.cube.points.first().x);
+            var x = this.cube.points.first().x;
+            var y = this.cube.points.first().y;
 
             // console.log(x, y, this.tempDirection);
             if (this.rotationDirection == this.DIRECTION_RIGHT

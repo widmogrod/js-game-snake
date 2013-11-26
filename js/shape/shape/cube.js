@@ -1,4 +1,9 @@
-define(['shape/shape/interface', 'shape/point/point'], function(Shape, Point) {
+define([
+    'shape/shape/interface',
+    'shape/point/point',
+    'shape/point/collection'
+],
+function(Shape, Point, PointCollection) {
     "use strict";
 
     /**
@@ -11,94 +16,81 @@ define(['shape/shape/interface', 'shape/point/point'], function(Shape, Point) {
         this.z = z;
         this.size = size / 2 || 10;
         this.color = color || '#333333';
-        this.init();
+        this.points = new PointCollection(x, y, z);
+
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
+
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
+
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
+
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
+
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
+
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
+        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
+        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
     }
     CubeShape.constructor = CubeShape;
     CubeShape.prototype = new Shape();
-    CubeShape.prototype.init = function() {
-        this.points = [];
-        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
-        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
-        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
-
-        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
-        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
-        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
-
-        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
-
-        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
-        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
-
-        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z - this.size));
-        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z - this.size));
-        this.points.push(new Point(this.x + this.size, this.y - this.size, this.z + this.size));
-        this.points.push(new Point(this.x - this.size, this.y - this.size, this.z + this.size));
-
-        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z - this.size));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z - this.size));
-        this.points.push(new Point(this.x + this.size, this.y + this.size, this.z + this.size));
-        this.points.push(new Point(this.x - this.size, this.y + this.size, this.z + this.size));
-
-    }
     CubeShape.prototype.moveTo = function(point) {
-        this.x += point.x;
-        this.y += point.y;
-        this.z += point.z;
-        this.init();
+        this.points.moveBy(point.x, point.y, point.z);
+        this.x = this.points.center.x;
+        this.y = this.points.center.y;
+        this.z = this.points.center.z;
     }
     CubeShape.prototype.projection = function(projection) {
-        for(var i = 0, length = this.points.length; i < length; i++) {
-            projection.project(this.points[i]);
-        }
+        this.points.each(projection.project.bind(projection));
         var self = this;
         return {
             rotateY : function(angle) {
                 self.state(self.STATE_DIRTY);
-                for(var i = 0, length = self.points.length; i < length; i++) {
-                    projection.rotateY(self.points[i], angle);
-                }
-                self.x = self.points[0].x;
-                self.y = self.points[0].y;
-                self.z = self.points[0].z;
+                self.points.each(function(point){
+                    projection.rotateY(point, angle);
+                })
             },
             rotateX : function(angle) {
                 self.state(self.STATE_DIRTY);
-                for(var i = 0, length = self.points.length; i < length; i++) {
-                    projection.rotateX(self.points[i], angle);
-                }
-                self.x = self.points[0].x;
-                self.y = self.points[0].y;
-                self.z = self.points[0].z;
+                self.points.each(function(point){
+                    projection.rotateX(point, angle);
+                })
             }
         }
     }
     CubeShape.prototype.render = function(stage) {
-        var point;
-
-        for(var i = 0, length = this.points.length; i < length; i++) {
-            point = this.points[i];
+        var color = this.color;
+        this.points.each(function(point, i) {
             if (i == 0) {
                 stage.beginPath();
                 stage.moveTo(point.xpos, point.ypos);
             }
             else if ((i + 1) % 4 == 0) {
                 stage.lineTo(point.xpos, point.ypos);
-                stage.fillStyle(this.color);
+                stage.fillStyle(color);
                 stage.closePath();
                 stage.fill();
                 stage.beginPath();
             } else {
                 stage.lineTo(point.xpos, point.ypos);
             }
-        }
+        })
     }
 
     return CubeShape;
