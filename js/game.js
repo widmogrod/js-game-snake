@@ -35,7 +35,7 @@ function(
             this.CUBE_SIZE,
             '#ee312e'
         ));
-        this.enemies.push(new RectShape(-140, -120, 0, 20, 40))
+        this.enemies.push(new RectShape(-140, -120, 220, 20, 40))
 
         this.stage.addChild(this.board);
         var self = this;
