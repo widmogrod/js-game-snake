@@ -1,16 +1,16 @@
 define(['shape/projection/interface'], function(ProjectionInterface){
     "use strict";
 
-    function Projection(viewerAngle, x, y) {
-        this.viewerAngle = viewerAngle;
+    function Projection(distance, x, y) {
+        this.distance = distance;
         this.x = x;
         this.y = y;
     }
     Projection.constructor = Projection;
     Projection.prototype = new ProjectionInterface();
     Projection.prototype.project = function(point) {
-        if (point.z > -this.viewerAngle) {
-            var scale = this.viewerAngle / (this.viewerAngle + point.z);
+        if (point.z > -this.distance) {
+            var scale = this.distance / (this.distance + point.z);
             point.xpos = this.x + point.x * scale;
             point.ypos = this.y + point.y * scale;
         }

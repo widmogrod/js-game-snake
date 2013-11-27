@@ -1,7 +1,7 @@
 define(function(){
     "use strict";
 
-    function ProjectionInterface(viewerAngle, x, y) {}
+    function ProjectionInterface() {}
     ProjectionInterface.constructor = ProjectionInterface;
     ProjectionInterface.prototype = {
         'rotateX' : function(point, angle) {},
