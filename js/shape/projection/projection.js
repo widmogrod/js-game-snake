@@ -1,4 +1,4 @@
-define(['shape/projection/interface'], function(ProjectionInterface){
+define(['shape/projection/interface', 'shape/point/collection'], function(ProjectionInterface, PointCollection){
     "use strict";
 
     function Projection(distance, x, y) {
@@ -17,25 +17,25 @@ define(['shape/projection/interface'], function(ProjectionInterface){
     }
     Projection.prototype.rotateY = function(point, angle) {
         var cos = Math.cos(angle), sin = Math.sin(angle);
-
-        point.each(function(point){
+        function task(point){
             var x1 = point.x * cos - point.z * sin,
                 z1 = point.z * cos + point.x * sin;
 
             point.x = x1;
             point.z = z1;
-        })
+        }
+        point instanceof PointCollection ? point.each(task) : task(point);
     }
     Projection.prototype.rotateX = function(point, angle) {
         var cos = Math.cos(angle), sin = Math.sin(angle);
-
-        point.each(function(point) {
+        function task(point) {
             var y1 = point.y * cos - point.z * sin,
                 z1 = point.z * cos + point.y * sin;
 
             point.y = y1;
             point.z = z1;
-        })
+        }
+        point instanceof PointCollection ? point.each(task) : task(point);
     }
 
     return Projection;
