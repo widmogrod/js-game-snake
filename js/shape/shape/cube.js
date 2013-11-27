@@ -58,21 +58,6 @@ function(Shape, Point, PointCollection) {
     }
     CubeShape.prototype.projection = function(projection) {
         this.points.each(projection.project.bind(projection));
-        var self = this;
-        return {
-            rotateY : function(angle) {
-                self.state(self.STATE_DIRTY);
-                self.points.each(function(point){
-                    projection.rotateY(point, angle);
-                })
-            },
-            rotateX : function(angle) {
-                self.state(self.STATE_DIRTY);
-                self.points.each(function(point){
-                    projection.rotateX(point, angle);
-                })
-            }
-        }
     }
     CubeShape.prototype.render = function(stage) {
         var color = this.color;

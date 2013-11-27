@@ -4,6 +4,7 @@ define([
     'shape/shape/cube',
     'shape/shape/rect',
     'shape/point/point',
+    'shape/point/collection',
     'functional'
 ],
 function(
@@ -12,6 +13,7 @@ function(
     CubeShape,
     RectShape,
     Point,
+    PointCollection,
     f
 ) {
     /**
@@ -27,7 +29,7 @@ function(
         this.cube = new CubeShape(0, 0, -this.boardWidth / 2, this.CUBE_SIZE, '#f2b139');
         this.board = new CubeShape(0, 0, 0, this.boardWidth, '#f68928');
 
-        this.enemies = [];
+        this.enemies = new PointCollection();
         this.enemies.push(new CubeShape(
             5 * this.CUBE_SIZE,
             5 * this.CUBE_SIZE,
@@ -39,11 +41,10 @@ function(
 
         this.stage.addChild(this.board);
         var self = this;
-        f.forEach(this.enemies, function(item) {
+        this.enemies.each(function(item) {
             self.stage.addChild(item);
         });
         this.stage.addChild(this.cube);
-
         this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
     }
 
@@ -79,38 +80,22 @@ function(
             if (this.angle < this.RIGHT_ANGLE) {
                 this.angle += this.ANGLE_STEP;
 
-                var self = this;
-                var projection = this.projection;
-                function each(array, func) {
-                    for (var i = 0, length = array.length; i < length; i++) {
-                        func(array[i])
-                    }
-                }
                 if (direction === this.DIRECTION_RIGHT) {
-                    this.cube.projection(this.projection).rotateY(-this.ANGLE_STEP);
-                    this.board.projection(this.projection).rotateY(-this.ANGLE_STEP);
-                    each(this.enemies, function(item){
-                        // console.log(item);
-                        item.projection(projection).rotateY(-self.ANGLE_STEP);
-                    });
+                    this.projection.rotateY(this.cube.points, -this.ANGLE_STEP);
+                    this.projection.rotateY(this.board.points, -this.ANGLE_STEP);
+                    this.projection.rotateY(this.enemies, -this.ANGLE_STEP);
                 } else if (direction === this.DIRECTION_LEFT) {
-                    this.cube.projection(this.projection).rotateY(this.ANGLE_STEP);
-                    this.board.projection(this.projection).rotateY(this.ANGLE_STEP);
-                    each(this.enemies, function(item){
-                        item.projection(projection).rotateY(self.ANGLE_STEP);
-                    });
-                } else if (direction == this.DIRECTION_DOWN) {
-                    this.cube.projection(this.projection).rotateX(-this.ANGLE_STEP);
-                    this.board.projection(this.projection).rotateX(-this.ANGLE_STEP);
-                    each(this.enemies, function(item){
-                        item.projection(projection).rotateX(-self.ANGLE_STEP);
-                    });
-                } else if (direction == this.DIRECTION_UP) {
-                    this.cube.projection(this.projection).rotateX(this.ANGLE_STEP);
-                    this.board.projection(this.projection).rotateX(this.ANGLE_STEP);
-                    each(this.enemies, function(item){
-                        item.projection(projection).rotateX(self.ANGLE_STEP);
-                    });
+                    this.projection.rotateY(this.cube.points, this.ANGLE_STEP);
+                    this.projection.rotateY(this.board.points, this.ANGLE_STEP);
+                    this.projection.rotateY(this.enemies, this.ANGLE_STEP);
+                } else if (direction === this.DIRECTION_DOWN) {
+                    this.projection.rotateX(this.cube.points, -this.ANGLE_STEP);
+                    this.projection.rotateX(this.board.points, -this.ANGLE_STEP);
+                    this.projection.rotateX(this.enemies, -this.ANGLE_STEP);
+                } else if (direction === this.DIRECTION_UP) {
+                    this.projection.rotateX(this.cube.points, this.ANGLE_STEP);
+                    this.projection.rotateX(this.board.points, this.ANGLE_STEP);
+                    this.projection.rotateX(this.enemies, this.ANGLE_STEP);
                 }
             } else {
                 // console.log('end rotation', this.angle);

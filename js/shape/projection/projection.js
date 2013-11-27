@@ -16,20 +16,26 @@ define(['shape/projection/interface'], function(ProjectionInterface){
         }
     }
     Projection.prototype.rotateY = function(point, angle) {
-        var cos = Math.cos(angle), sin = Math.sin(angle),
-            x1 = point.x * cos - point.z * sin,
-            z1 = point.z * cos + point.x * sin;
+        var cos = Math.cos(angle), sin = Math.sin(angle);
 
-        point.x = x1;
-        point.z = z1;
+        point.each(function(point){
+            var x1 = point.x * cos - point.z * sin,
+                z1 = point.z * cos + point.x * sin;
+
+            point.x = x1;
+            point.z = z1;
+        })
     }
     Projection.prototype.rotateX = function(point, angle) {
-        var cos = Math.cos(angle), sin = Math.sin(angle),
-            y1 = point.y * cos - point.z * sin,
-            z1 = point.z * cos + point.y * sin;
+        var cos = Math.cos(angle), sin = Math.sin(angle);
 
-        point.y = y1;
-        point.z = z1;
+        point.each(function(point) {
+            var y1 = point.y * cos - point.z * sin,
+                z1 = point.z * cos + point.y * sin;
+
+            point.y = y1;
+            point.z = z1;
+        })
     }
 
     return Projection;
