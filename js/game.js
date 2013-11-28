@@ -5,7 +5,8 @@ define([
     'shape/shape/rect',
     'shape/point/point',
     'shape/point/collection',
-    'functional'
+    'functional',
+    'state'
 ],
 function(
     Projection,
@@ -14,7 +15,8 @@ function(
     RectShape,
     Point,
     PointCollection,
-    f
+    f,
+    StateMachine
 ) {
     /**
      * Description
@@ -46,6 +48,11 @@ function(
         });
         this.stage.addChild(this.cube);
         this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
+        this.state = new StateMachine(this.state, 'right');
+        this.state.on('change', function(){
+            console.log('on change', arguments);
+        });
+        this.state.trigger('press.up')
     }
 
     TetrisGame.constructor = TetrisGame;
@@ -62,6 +69,24 @@ function(
         'speed': 2,
         'counter': 0,
         'angle': 0,
+        'state': {
+            'up': {
+                'press.left' : 'left',
+                'press.right': 'right'
+            },
+            'down': {
+                'press.left' : 'left',
+                'press.right': 'right'
+            },
+            'left': {
+                'press.up' : 'up',
+                'press.down': 'down'
+            },
+            'right': {
+                'press.up' : 'up',
+                'press.down': 'down'
+            }
+        },
         'move': function() {
             if (this.counter % this.GAME_STEP == 0) {
                 this.tempDirection = this.direction;
