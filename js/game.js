@@ -48,11 +48,13 @@ function(
         });
         this.stage.addChild(this.cube);
         this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
-        this.state = new StateMachine(this.state, 'right');
-        this.state.on('change', function(){
-            console.log('on change', arguments);
-        });
-        this.state.trigger('press.up')
+
+        // Move State Machine
+        this.fsmMove = new StateMachine(this.stateMove, 'right');
+        this.fsmMove.on('enter:left', function() { self.direction = self.DIRECTION_LEFT })
+        this.fsmMove.on('enter:right', function() { self.direction = self.DIRECTION_RIGHT })
+        this.fsmMove.on('enter:up', function() { self.direction = self.DIRECTION_UP })
+        this.fsmMove.on('enter:down', function() { self.direction = self.DIRECTION_DOWN })
     }
 
     TetrisGame.constructor = TetrisGame;
@@ -69,7 +71,7 @@ function(
         'speed': 2,
         'counter': 0,
         'angle': 0,
-        'state': {
+        'stateMove': {
             'up': {
                 'press.left' : 'left',
                 'press.right': 'right'
@@ -86,6 +88,22 @@ function(
                 'press.up' : 'up',
                 'press.down': 'down'
             }
+        },
+        'stateGame': {
+            'start': {
+                'press.start' : 'play'
+            },
+            'play' : {
+                'ship.suiside': 'end',
+                'ship.success': 'end',
+                'press.pause': 'stop'
+            },
+            'end': {
+                'press.restart' : 'start'
+            },
+            'stop': {
+                'press.escape': 'start'
+            },
         },
         'move': function() {
             if (this.counter % this.GAME_STEP == 0) {
@@ -177,22 +195,14 @@ function(
             this.direction = this.DIRECTION_RIGHT;
             this.position = new Point(0, 0, 0);
             this.positions = [];
-            // this.enemies = [];
             this.positions.push(new Point(0, 0, 0));
         },
-        'dropEnemies': function() {
-                    },
         'captureKeys' : function(e) {
-            var d = this.direction;
             switch(true) {
-                case 37 == e.keyCode && d != this.DIRECTION_RIGHT:
-                    this.direction = this.DIRECTION_LEFT; break;
-                case 38 == e.keyCode && d != this.DIRECTION_DOWN:
-                    this.direction = this.DIRECTION_UP; break;
-                case 39 == e.keyCode  && d != this.DIRECTION_LEFT:
-                    this.direction = this.DIRECTION_RIGHT; break;
-                case 40 == e.keyCode && d != this.DIRECTION_UP:
-                    this.direction = this.DIRECTION_DOWN; break;
+                case 37 == e.keyCode: this.fsmMove.trigger('press.left'); break;
+                case 38 == e.keyCode: this.fsmMove.trigger('press.up'); break;
+                case 39 == e.keyCode: this.fsmMove.trigger('press.right'); break;
+                case 40 == e.keyCode: this.fsmMove.trigger('press.down'); break;
             }
         },
         'run': function() {
@@ -205,9 +215,6 @@ function(
                 requestAnimationFrame(update);
             }
             requestAnimationFrame(update);
-            // this.dropEnemies();
-            // this.update();
-            // setInterval(this.move.bind(this), 200);
         }
     };
 
