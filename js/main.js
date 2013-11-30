@@ -7,5 +7,6 @@ require(['game'], function(TetrisGame){
 
     var tetris;
     tetris = new TetrisGame(document.getElementById('game'));
+    window['TetrisGame'] = tetris;
     tetris.run();
 });

@@ -6,7 +6,8 @@ define([
     'shape/point/point',
     'shape/point/collection',
     'functional',
-    'state'
+    'state',
+    'game/service'
 ],
 function(
     Projection,
@@ -16,7 +17,8 @@ function(
     Point,
     PointCollection,
     f,
-    StateMachine
+    StateMachine,
+    ServiceManager
 ) {
     /**
      * Description
@@ -25,11 +27,15 @@ function(
      */
     function TetrisGame(canvas) {
         this.canvas = canvas;
+        this.service = new ServiceManager(this);
+
         this.projection = new Projection(1270, canvas.width / 2, canvas.height / 2);
         this.stage = new Canvas3DStage(this.canvas, this.projection);
         this.boardWidth = (canvas.width / 2) +  (this.ROTATION_MARGIN);
-        this.cube = new CubeShape(0, 0, -this.boardWidth / 2, this.CUBE_SIZE, '#f2b139');
         this.board = new CubeShape(0, 0, 0, this.boardWidth, '#f68928');
+
+        this.cube = this.service.cube(); // new CubeShape(0, 0, -this.boardWidth / 2, this.CUBE_SIZE, '#f2b139');
+        this.actionManager = this.service.actionManager();
 
         this.enemies = new PointCollection();
         this.enemies.push(new CubeShape(
@@ -51,10 +57,22 @@ function(
 
         // Move State Machine
         this.fsmMove = new StateMachine(this.stateMove, 'right');
-        this.fsmMove.on('enter:left', function() { self.direction = self.DIRECTION_LEFT })
-        this.fsmMove.on('enter:right', function() { self.direction = self.DIRECTION_RIGHT })
-        this.fsmMove.on('enter:up', function() { self.direction = self.DIRECTION_UP })
-        this.fsmMove.on('enter:down', function() { self.direction = self.DIRECTION_DOWN })
+        this.fsmMove.on('enter:left', function() {
+            self.direction = self.DIRECTION_LEFT
+            self.actionManager.set('move', self.service.actionMoveLeft());
+        })
+        this.fsmMove.on('enter:right', function() {
+            self.direction = self.DIRECTION_RIGHT
+            self.actionManager.set('move', self.service.actionMoveRight());
+        })
+        this.fsmMove.on('enter:up', function() {
+            self.direction = self.DIRECTION_UP
+            self.actionManager.set('move', self.service.actionMoveUp());
+        })
+        this.fsmMove.on('enter:down', function() {
+            self.direction = self.DIRECTION_DOWN
+            self.actionManager.set('move', self.service.actionMoveDown());
+        })
     }
 
     TetrisGame.constructor = TetrisGame;
@@ -68,7 +86,7 @@ function(
         'ROTATION_MARGIN' : 80,
         'GAME_STEP': 20,
         'CUBE_SIZE': 20,
-        'speed': 2,
+        'SPEED': 2,
         'counter': 0,
         'angle': 0,
         'stateMove': {
@@ -106,17 +124,18 @@ function(
             },
         },
         'move': function() {
-            if (this.counter % this.GAME_STEP == 0) {
-                this.tempDirection = this.direction;
-            }
-            this.position.x = this.position.y = this.position.z = 0;
-            switch(this.tempDirection) {
-                case 'left':  this.position.x = -this.speed; break;
-                case 'right': this.position.x = this.speed; break;
-                case 'up':    this.position.y = -this.speed; break;
-                case 'down':  this.position.y = this.speed; break;
-            }
-            this.cube.moveTo(this.position);
+            // this.actionManager.run();
+            // if (this.counter % this.GAME_STEP == 0) {
+            //     this.tempDirection = this.direction;
+            // }
+            // this.position.x = this.position.y = this.position.z = 0;
+            // switch(this.tempDirection) {
+            //     case 'left':  this.position.x = -this.SPEED; break;
+            //     case 'right': this.position.x = this.SPEED; break;
+            //     case 'up':    this.position.y = -this.SPEED; break;
+            //     case 'down':  this.position.y = this.SPEED; break;
+            // }
+            // this.cube.moveTo(this.position);
         },
         'rotate': function(direction) {
             this.rotationDirection = direction;
@@ -154,7 +173,7 @@ function(
         },
         'update': function() {
             var rotationDone = -1;
-            this.counter += this.speed;
+            this.counter += this.SPEED;
             // console.log(this.projection.x, this.cube.x);
             // console.log(this.cube.points.x, this.cube.points.first().x);
             var x = this.cube.points.first().x;
@@ -212,6 +231,7 @@ function(
             document.addEventListener("keydown", this.captureKeys.bind(this), false);
             function update() {
                 self.update();
+                self.actionManager.run();
                 requestAnimationFrame(update);
             }
             requestAnimationFrame(update);
