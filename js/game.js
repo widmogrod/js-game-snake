@@ -56,23 +56,22 @@ function(
         this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
 
         // Move State Machine
-        this.fsmMove = new StateMachine(this.stateMove, 'right');
+        this.fsmMove = new StateMachine(this.stateMove);
         this.fsmMove.on('enter:left', function() {
-            self.direction = self.DIRECTION_LEFT
             self.actionManager.set('move', self.service.actionMoveLeft());
         })
         this.fsmMove.on('enter:right', function() {
-            self.direction = self.DIRECTION_RIGHT
             self.actionManager.set('move', self.service.actionMoveRight());
         })
         this.fsmMove.on('enter:up', function() {
-            self.direction = self.DIRECTION_UP
             self.actionManager.set('move', self.service.actionMoveUp());
         })
         this.fsmMove.on('enter:down', function() {
-            self.direction = self.DIRECTION_DOWN
             self.actionManager.set('move', self.service.actionMoveDown());
         })
+        this.fsmMove.on('enter:show_right_face', function() {
+            self.actionManager.set('move', self.service.actionShowRightEdge());
+        });
     }
 
     TetrisGame.constructor = TetrisGame;
@@ -92,19 +91,35 @@ function(
         'stateMove': {
             'up': {
                 'press.left' : 'left',
-                'press.right': 'right'
+                'press.right': 'right',
+                'edge.up': 'show_up_face'
             },
             'down': {
                 'press.left' : 'left',
-                'press.right': 'right'
+                'press.right': 'right',
+                'edge.down': 'show_down_face'
             },
             'left': {
                 'press.up' : 'up',
-                'press.down': 'down'
+                'press.down': 'down',
+                'edge.left': 'show_left_face'
             },
             'right': {
                 'press.up' : 'up',
-                'press.down': 'down'
+                'press.down': 'down',
+                'edge.right': 'show_right_face'
+            },
+            'show_up_face': {
+                'up.face.visible': 'up'
+            },
+            'show_down_face': {
+                'down.face.visible': 'down'
+            },
+            'show_left_face': {
+                'left.face.visible': 'left'
+            },
+            'show_right_face': {
+                'right.face.visible': 'right'
             }
         },
         'stateGame': {
@@ -122,20 +137,6 @@ function(
             'stop': {
                 'press.escape': 'start'
             },
-        },
-        'move': function() {
-            // this.actionManager.run();
-            // if (this.counter % this.GAME_STEP == 0) {
-            //     this.tempDirection = this.direction;
-            // }
-            // this.position.x = this.position.y = this.position.z = 0;
-            // switch(this.tempDirection) {
-            //     case 'left':  this.position.x = -this.SPEED; break;
-            //     case 'right': this.position.x = this.SPEED; break;
-            //     case 'up':    this.position.y = -this.SPEED; break;
-            //     case 'down':  this.position.y = this.SPEED; break;
-            // }
-            // this.cube.moveTo(this.position);
         },
         'rotate': function(direction) {
             this.rotationDirection = direction;
@@ -183,8 +184,9 @@ function(
             if (this.rotationDirection == this.DIRECTION_RIGHT
                 || (this.tempDirection == this.DIRECTION_RIGHT && x - this.CUBE_SIZE > this.projection.x - this.ROTATION_MARGIN))
             {
+                this.fsmMove.trigger('edge.right');
                 // console.log('A');
-                rotationDone = this.rotate(this.DIRECTION_RIGHT);
+                // rotationDone = this.rotate(this.DIRECTION_RIGHT);
             } else if (this.rotationDirection == this.DIRECTION_LEFT
                       || (this.tempDirection == this.DIRECTION_LEFT && x + this.CUBE_SIZE + this.CUBE_SIZE < -this.projection.x + this.ROTATION_MARGIN))
             {
@@ -200,11 +202,6 @@ function(
             {
                 // console.log('D');
                 rotationDone = this.rotate(this.DIRECTION_DOWN);
-            }
-
-            if (-1 == rotationDone) {
-                // move if there is no rotation
-                this.move();
             }
 
             this.stage.update();

@@ -6,7 +6,8 @@ define(
     'game/action/move/right',
     'game/action/move/left',
     'game/action/move/up',
-    'game/action/move/down'
+    'game/action/move/down',
+    'game/action/rotate/right'
 ],
 function(
     CubeShape,
@@ -15,7 +16,8 @@ function(
     ActionMoveRight,
     ActionMoveLeft,
     ActionMoveUp,
-    ActionMoveDown
+    ActionMoveDown,
+    ActionShowRightEdge
 )
 {
     function ServiceManager(game) {
@@ -73,6 +75,15 @@ function(
                 this.cube(),
                 this.config().GAME_SPEED,
                 this.config().GAME_STEP
+            );
+        })
+    }
+    ServiceManager.prototype.actionShowRightEdge = function() {
+        return this.get('actionShowRightEdge', function() {
+            return new ActionShowRightEdge(
+                this.game,
+                this.config().ROTATION_ANGLE_STEP,
+                this.config().RIGHT_ANGLE
             );
         })
     }

@@ -2,7 +2,7 @@ require.config({
     baseUrl: "js"
 });
 
-require(['game'], function(TetrisGame){
+require(['game'], function(TetrisGame) {
     "use strict";
 
     var tetris;
