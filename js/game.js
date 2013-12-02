@@ -58,19 +58,19 @@ function(
         // Move State Machine
         this.fsmMove = new StateMachine(this.stateMove);
         this.fsmMove.on('enter:left', function() {
-            self.actionManager.set('move', self.service.actionMoveLeft());
+            return self.actionManager.set('move', self.service.actionMoveLeft());
         })
         this.fsmMove.on('enter:right', function() {
-            self.actionManager.set('move', self.service.actionMoveRight());
+            return self.actionManager.set('move', self.service.actionMoveRight());
         })
         this.fsmMove.on('enter:up', function() {
-            self.actionManager.set('move', self.service.actionMoveUp());
+            return self.actionManager.set('move', self.service.actionMoveUp());
         })
         this.fsmMove.on('enter:down', function() {
-            self.actionManager.set('move', self.service.actionMoveDown());
+            return self.actionManager.set('move', self.service.actionMoveDown());
         })
         this.fsmMove.on('enter:show_right_face', function() {
-            self.actionManager.set('move', self.service.actionShowRightEdge());
+            return self.actionManager.set('move', self.service.actionShowRightEdge());
         });
     }
 
