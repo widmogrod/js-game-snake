@@ -3,6 +3,7 @@ define(
     'shape/shape/cube',
     'game/config',
     'game/action/manager',
+    'state',
     'game/action/move/right',
     'game/action/move/left',
     'game/action/move/up',
@@ -16,6 +17,7 @@ function(
     CubeShape,
     GameConfig,
     ActionManager,
+    StateMachine,
     ActionMoveRight,
     ActionMoveLeft,
     ActionMoveUp,
@@ -46,6 +48,11 @@ function(
     ServiceManager.prototype.actionManager = function() {
         return this.get('actionManager', function() {
             return new ActionManager();
+        })
+    }
+    ServiceManager.prototype.stataMachineMove = function() {
+        return this.get('stateMachineMove', function() {
+            return new StateMachine(this.config().state.move);
         })
     }
     ServiceManager.prototype.actionMoveRight = function() {

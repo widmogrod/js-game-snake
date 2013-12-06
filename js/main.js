@@ -10,19 +10,19 @@ require(['game', 'promise2'], function(TetrisGame, Promise) {
     window['TetrisGame'] = tetris;
     tetris.run();
 
-    var p = new Promise(function(fulfill, reject) {
-        setTimeout(function(){
-            fulfill('okkkk');
-        }, 1000);
-    })
+    // var p = new Promise(function(fulfill, reject) {
+    //     setTimeout(function(){
+    //         fulfill('okkkk');
+    //     }, 1000);
+    // })
 
-    p.then(function(value) {
-        console.log('call:0, success', value);
-    }, function(reason) {
-        console.log('call:0, failure', reason);
-    }).then(function(value) {
-        console.log('call:1, success', value);
-    }, function(reason) {
-        console.log('call:1, failure', reason);
-    });
+    // p.then(function(value) {
+    //     console.log('call:0, success', value);
+    // }, function(reason) {
+    //     console.log('call:0, failure', reason);
+    // }).then(function(value) {
+    //     console.log('call:1, success', value);
+    // }, function(reason) {
+    //     console.log('call:1, failure', reason);
+    // });
 });

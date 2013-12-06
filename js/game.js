@@ -6,7 +6,6 @@ define([
     'shape/point/point',
     'shape/point/collection',
     'functional',
-    'state',
     'game/service'
 ],
 function(
@@ -17,7 +16,6 @@ function(
     Point,
     PointCollection,
     f,
-    StateMachine,
     ServiceManager
 ) {
     /**
@@ -59,7 +57,7 @@ function(
         this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
 
         // Move State Machine
-        this.fsmMove = new StateMachine(this.stateMove);
+        this.fsmMove = this.service.stataMachineMove();
         this.fsmMove.on('enter:left', function() {
             return self.actionManager.set('move', self.service.actionMoveLeft());
         })
@@ -92,40 +90,6 @@ function(
 
     TetrisGame.constructor = TetrisGame;
     TetrisGame.prototype = {
-        'stateMove': {
-            'up': {
-                'press.left' : 'left',
-                'press.right': 'right',
-                'edge.up': 'show_up_face'
-            },
-            'down': {
-                'press.left' : 'left',
-                'press.right': 'right',
-                'edge.down': 'show_down_face'
-            },
-            'left': {
-                'press.up' : 'up',
-                'press.down': 'down',
-                'edge.left': 'show_left_face'
-            },
-            'right': {
-                'press.up' : 'up',
-                'press.down': 'down',
-                'edge.right': 'show_right_face'
-            },
-            'show_up_face': {
-                'up.face.visible': 'up'
-            },
-            'show_down_face': {
-                'down.face.visible': 'down'
-            },
-            'show_left_face': {
-                'left.face.visible': 'left'
-            },
-            'show_right_face': {
-                'right.face.visible': 'right'
-            }
-        },
         'stateGame': {
             'start': {
                 'press.start' : 'play'
