@@ -15,9 +15,15 @@ define(['shape/point/interface'], function(PointInterface) {
     PointCollection.prototype.first = function() {
         return this.points[0];
     },
-    PointCollection.prototype.each = function(callback) {
-        for(var i = 0; i < this.count; i++) {
-            callback(this.points[i], i);
+    PointCollection.prototype.each = function(callback, depth) {
+        var point, i
+        for(i = 0; i < this.count; i++) {
+            point = this.points[1];
+            if (point instanceof PointCollection) {
+                point.each(callback, depth + 1 || 0);
+            } else {
+                callback(this.points[i], i, depth);
+            }
         }
     },
     PointCollection.prototype.moveBy = function(x, y, z) {

@@ -144,20 +144,20 @@ function(
                 this.angle += this.ANGLE_STEP;
 
                 if (direction === this.DIRECTION_RIGHT) {
-                    this.projection.rotateY(this.cube.points, -this.ANGLE_STEP);
-                    this.projection.rotateY(this.board.points, -this.ANGLE_STEP);
+                    this.projection.rotateY(this.cube.points(), -this.ANGLE_STEP);
+                    this.projection.rotateY(this.board.points(), -this.ANGLE_STEP);
                     this.projection.rotateY(this.enemies, -this.ANGLE_STEP);
                 } else if (direction === this.DIRECTION_LEFT) {
-                    this.projection.rotateY(this.cube.points, this.ANGLE_STEP);
-                    this.projection.rotateY(this.board.points, this.ANGLE_STEP);
+                    this.projection.rotateY(this.cube.points(), this.ANGLE_STEP);
+                    this.projection.rotateY(this.board.points(), this.ANGLE_STEP);
                     this.projection.rotateY(this.enemies, this.ANGLE_STEP);
                 } else if (direction === this.DIRECTION_DOWN) {
-                    this.projection.rotateX(this.cube.points, -this.ANGLE_STEP);
-                    this.projection.rotateX(this.board.points, -this.ANGLE_STEP);
+                    this.projection.rotateX(this.cube.points(), -this.ANGLE_STEP);
+                    this.projection.rotateX(this.board.points(), -this.ANGLE_STEP);
                     this.projection.rotateX(this.enemies, -this.ANGLE_STEP);
                 } else if (direction === this.DIRECTION_UP) {
-                    this.projection.rotateX(this.cube.points, this.ANGLE_STEP);
-                    this.projection.rotateX(this.board.points, this.ANGLE_STEP);
+                    this.projection.rotateX(this.cube.points(), this.ANGLE_STEP);
+                    this.projection.rotateX(this.board.points(), this.ANGLE_STEP);
                     this.projection.rotateX(this.enemies, this.ANGLE_STEP);
                 }
             } else {
@@ -177,16 +177,13 @@ function(
             this.counter += this.SPEED;
             // console.log(this.projection.x, this.cube.x);
             // console.log(this.cube.points.x, this.cube.points.first().x);
-            var x = this.cube.points.first().x;
-            var y = this.cube.points.first().y;
+            var x = this.cube.points().first().x;
+            var y = this.cube.points().first().y;
 
-            // console.log(x, y, this.tempDirection);
             if (this.rotationDirection == this.DIRECTION_RIGHT
                 || (this.tempDirection == this.DIRECTION_RIGHT && x - this.CUBE_SIZE > this.projection.x - this.ROTATION_MARGIN))
             {
                 this.fsmMove.trigger('edge.right');
-                // console.log('A');
-                // rotationDone = this.rotate(this.DIRECTION_RIGHT);
             } else if (this.rotationDirection == this.DIRECTION_LEFT
                       || (this.tempDirection == this.DIRECTION_LEFT && x + this.CUBE_SIZE + this.CUBE_SIZE < -this.projection.x + this.ROTATION_MARGIN))
             {

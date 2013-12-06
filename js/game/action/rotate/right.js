@@ -9,8 +9,9 @@ define(['game/action/interface'], function(ActionInterface) {
     ActionShowRightEdge.prototype = new ActionInterface();
 
     ActionShowRightEdge.prototype.run = function() {
-        this.game.projection.rotateY(this.game.cube.points, -this.speed);
-        this.game.projection.rotateY(this.game.board.points, -this.speed);
+        if (this.canStop()) return;
+
+        this.game.projection.rotateY(this.game.stage, -this.speed);
 
         this.counter += this.speed;
     }

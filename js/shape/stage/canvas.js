@@ -10,6 +10,12 @@ define(['shape/stage/interface'], function(Stage){
 
     CanvasStage.constructor = CanvasStage;
     CanvasStage.prototype = new Stage();
+    CanvasStage.prototype.each = function(callback) {
+        var i = 0, length = this.childs.length;
+        for (; i < length; i++) {
+            callback(this.childs[i], i);
+        }
+    }
     CanvasStage.prototype.addChild = function(shape) {
         this.childs.push(shape);
     };
@@ -17,20 +23,14 @@ define(['shape/stage/interface'], function(Stage){
         this.context.cleanRect(0,0,this.width, this.height);
     }
     CanvasStage.prototype.update = function() {
-        var child, state,
-            i = 0,
-            length = this.childs.length;
-
+        var self = this;
         this.context.clearRect(0,0,this.width, this.height);
-
-        for (; i < length; i++) {
-            child = this.childs[i];
-            state = child.state();
-            if (child.STATE_RENDERED !== state) {
-                child.render(this);
+        this.each(function(child) {
+            if (child.STATE_RENDERED !== child.state()) {
+                child.render(self);
                 child.state(child.STATE_RENDERED);
             }
-        }
+        })
     };
     CanvasStage.prototype.fillRect = function(x, y, width, height) {
         this.context.fillRect(x, y, width, height);

@@ -9,7 +9,7 @@ define(['game/action/interface'], function(ActionInterface) {
     ActionMoveLeft.prototype = new ActionInterface();
 
     ActionMoveLeft.prototype.run = function() {
-        this.shape.points.moveBy(-this.speed, 0, 0);
+        this.shape.points().moveBy(-this.speed, 0, 0);
         ++this.counter;
     }
     ActionMoveLeft.prototype.canStop = function() {

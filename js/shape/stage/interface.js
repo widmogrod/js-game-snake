@@ -7,6 +7,7 @@ define(function(){
     function Stage(context) {}
 
     Stage.prototype = {
+        'each': function(callback) {},
         'update': function() {},
         'addChild': function() {},
         'fillRect': function(x, y, width, height) {},

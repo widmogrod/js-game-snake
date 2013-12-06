@@ -10,23 +10,20 @@ define(['shape/stage/canvas'], function(CanvasStage){
     }
     Canvas3DStage.constructor = Canvas3DStage;
     Canvas3DStage.prototype = Object.create(CanvasStage.prototype);
+
     Canvas3DStage.prototype.update = function() {
-        var child, state,
-            i = 0,
-            length = this.childs.length;
-
+        var state, self = this;
         this.context.clearRect(0,0,this.width, this.height);
-
-        for (; i < length; i++) {
-            child = this.childs[i];
+        this.each(function(child){
             // state = child.state();
             state = child.STATE_DIRTY;
             if (child.STATE_RENDERED !== state) {
-                child.projection(this.projection);
-                child.render(this);
+                self.projection.project(child.points());
+                // child.projection(this.projection);
+                child.render(self);
                 child.state(child.STATE_RENDERED);
             }
-        }
+        })
     }
 
     return Canvas3DStage;

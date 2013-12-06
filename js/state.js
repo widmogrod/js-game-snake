@@ -20,10 +20,10 @@ define(['event/event'], function(Event){
     }
 
     function StateMachine(states) {
-        this.events = {};
-        this.state = null;
-
         var self = this;
+        self.events = {};
+        self.state = null;
+
         each(states, function(events, state) {
             each(events, function(nextState, event){
                 self.on(event, onChange(state, nextState, self));

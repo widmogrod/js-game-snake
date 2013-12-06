@@ -15,23 +15,20 @@ function (Shape, Point, PointCollection) {
         width /= 2;
         height /= 2;
 
-        this.points = new PointCollection(new Point(x, y, z));
+        this.points_ = new PointCollection(new Point(x, y, z));
         // top left corner
-        this.points.push(new Point(x - width, y - height, z - width));
+        this.points_.push(new Point(x - width, y - height, z - width));
         // top right corner
-        this.points.push(new Point(x + width, y - height, z - width));
+        this.points_.push(new Point(x + width, y - height, z - width));
         // bottom right corner
-        this.points.push(new Point(x + width, y + height, z - width));
+        this.points_.push(new Point(x + width, y + height, z - width));
         // bottom left corner
-        this.points.push(new Point(x - width, y + height, z - width));
+        this.points_.push(new Point(x - width, y + height, z - width));
     }
     RectShape.constructor = RectShape;
     RectShape.prototype = new Shape();
-    RectShape.prototype.projection = function(projection) {
-        this.points.each(projection.project.bind(projection));
-    }
     RectShape.prototype.render = function(stage) {
-        this.points.each(function(point, i){
+        this.points_.each(function(point, i){
             if (i == 0) {
                 stage.beginPath();
                 stage.moveTo(point.xpos, point.ypos);
