@@ -5,7 +5,6 @@ define([
     'shape/shape/rect',
     'shape/point/point',
     'shape/point/collection',
-    'functional',
     'game/service'
 ],
 function(
@@ -15,7 +14,6 @@ function(
     RectShape,
     Point,
     PointCollection,
-    f,
     ServiceManager
 ) {
     /**
