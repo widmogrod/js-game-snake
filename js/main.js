@@ -7,7 +7,6 @@ require(['game', 'promise2'], function(TetrisGame, Promise) {
 
     var tetris;
     tetris = new TetrisGame(document.getElementById('game'));
-    window['TetrisGame'] = tetris;
     tetris.run();
 
     // var p = new Promise(function(fulfill, reject) {
