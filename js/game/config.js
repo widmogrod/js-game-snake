@@ -42,6 +42,22 @@ define(function(){
                 'show_right_face': {
                     'right.face.visible': 'right'
                 }
+            },
+            'game': {
+                'start': {
+                    'press.start' : 'play'
+                },
+                'play' : {
+                    'ship.suiside': 'end',
+                    'ship.success': 'end',
+                    'press.pause': 'stop'
+                },
+                'end': {
+                    'press.restart' : 'start'
+                },
+                'stop': {
+                    'press.escape': 'start'
+                },
             }
         }
     }

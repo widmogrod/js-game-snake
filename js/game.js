@@ -86,26 +86,13 @@ function(
             self.actionManager.set('move', self.service.actionShowDownEdge());
             self.fsmMove.trigger('down.face.visible')
         });
+
+        // Catch user events
+        document.addEventListener("keydown", this.captureKeys.bind(this), false);
     }
 
     TetrisGame.constructor = TetrisGame;
     TetrisGame.prototype = {
-        'stateGame': {
-            'start': {
-                'press.start' : 'play'
-            },
-            'play' : {
-                'ship.suiside': 'end',
-                'ship.success': 'end',
-                'press.pause': 'stop'
-            },
-            'end': {
-                'press.restart' : 'start'
-            },
-            'stop': {
-                'press.escape': 'start'
-            },
-        },
         'update': function() {
             var x = this.cube.points().first().x;
             var y = this.cube.points().first().y;
@@ -129,8 +116,6 @@ function(
             }
         },
         'run': function() {
-            // Catch user events
-            document.addEventListener("keydown", this.captureKeys.bind(this), false);
             // Calculate interaction
             this.update();
             // Run actions
