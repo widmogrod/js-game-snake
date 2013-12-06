@@ -92,9 +92,6 @@ function(
 
     TetrisGame.constructor = TetrisGame;
     TetrisGame.prototype = {
-        'SPEED': 2,
-        'counter': 0,
-        'angle': 0,
         'stateMove': {
             'up': {
                 'press.left' : 'left',
