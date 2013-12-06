@@ -26,29 +26,32 @@ function(
      * @param DOMCanvasElement
      */
     function TetrisGame(canvas) {
+        var self = this;
+
         this.canvas = canvas;
         this.service = new ServiceManager(this);
 
+        this.config = this.service.config();
         this.projection = new Projection(1270, canvas.width / 2, canvas.height / 2);
         this.stage = new Canvas3DStage(this.canvas, this.projection);
-        this.boardWidth = (canvas.width / 2) +  (this.ROTATION_MARGIN);
+        this.boardWidth = (canvas.width / 2) +  (this.config.ROTATION_MARGIN);
         this.board = new CubeShape(0, 0, 0, this.boardWidth, '#f68928');
-
-        this.cube = this.service.cube(); // new CubeShape(0, 0, -this.boardWidth / 2, this.CUBE_SIZE, '#f2b139');
+        this.cube = this.service.cube();
         this.actionManager = this.service.actionManager();
 
         this.enemies = new PointCollection();
         this.enemies.push(new CubeShape(
-            5 * this.CUBE_SIZE,
-            5 * this.CUBE_SIZE,
-           - 8 * this.CUBE_SIZE,
-            this.CUBE_SIZE,
+            5 * this.config.CUBE_SIZE,
+            5 * this.config.CUBE_SIZE,
+           - 8 * this.config.CUBE_SIZE,
+            this.config.CUBE_SIZE,
             '#ee312e'
         ));
         this.enemies.push(new RectShape(-140, -120, 220, 20, 40))
 
+
+        // Add objection to stage, order is important - for now.
         this.stage.addChild(this.board);
-        var self = this;
         this.enemies.each(function(item) {
             self.stage.addChild(item);
         });
@@ -70,21 +73,25 @@ function(
             return self.actionManager.set('move', self.service.actionMoveDown());
         })
         this.fsmMove.on('enter:show_right_face', function() {
-            return self.actionManager.set('move', self.service.actionShowRightEdge());
+            self.actionManager.set('move', self.service.actionShowRightEdge());
+            self.fsmMove.trigger('right.face.visible')
+        });
+        this.fsmMove.on('enter:show_left_face', function() {
+            self.actionManager.set('move', self.service.actionShowLeftEdge());
+            self.fsmMove.trigger('left.face.visible')
+        });
+        this.fsmMove.on('enter:show_up_face', function() {
+            self.actionManager.set('move', self.service.actionShowUpEdge());
+            self.fsmMove.trigger('up.face.visible')
+        });
+        this.fsmMove.on('enter:show_down_face', function() {
+            self.actionManager.set('move', self.service.actionShowDownEdge());
+            self.fsmMove.trigger('down.face.visible')
         });
     }
 
     TetrisGame.constructor = TetrisGame;
     TetrisGame.prototype = {
-        'DIRECTION_DOWN' : 'down',
-        'DIRECTION_UP': 'up',
-        'DIRECTION_LEFT' : 'left',
-        'DIRECTION_RIGHT' : 'right',
-        'RIGHT_ANGLE' : Math.PI / 2,
-        'ANGLE_STEP': 0.01,
-        'ROTATION_MARGIN' : 80,
-        'GAME_STEP': 20,
-        'CUBE_SIZE': 20,
         'SPEED': 2,
         'counter': 0,
         'angle': 0,
@@ -138,77 +145,19 @@ function(
                 'press.escape': 'start'
             },
         },
-        'rotate': function(direction) {
-            this.rotationDirection = direction;
-            if (this.angle < this.RIGHT_ANGLE) {
-                this.angle += this.ANGLE_STEP;
-
-                if (direction === this.DIRECTION_RIGHT) {
-                    this.projection.rotateY(this.cube.points(), -this.ANGLE_STEP);
-                    this.projection.rotateY(this.board.points(), -this.ANGLE_STEP);
-                    this.projection.rotateY(this.enemies, -this.ANGLE_STEP);
-                } else if (direction === this.DIRECTION_LEFT) {
-                    this.projection.rotateY(this.cube.points(), this.ANGLE_STEP);
-                    this.projection.rotateY(this.board.points(), this.ANGLE_STEP);
-                    this.projection.rotateY(this.enemies, this.ANGLE_STEP);
-                } else if (direction === this.DIRECTION_DOWN) {
-                    this.projection.rotateX(this.cube.points(), -this.ANGLE_STEP);
-                    this.projection.rotateX(this.board.points(), -this.ANGLE_STEP);
-                    this.projection.rotateX(this.enemies, -this.ANGLE_STEP);
-                } else if (direction === this.DIRECTION_UP) {
-                    this.projection.rotateX(this.cube.points(), this.ANGLE_STEP);
-                    this.projection.rotateX(this.board.points(), this.ANGLE_STEP);
-                    this.projection.rotateX(this.enemies, this.ANGLE_STEP);
-                }
-            } else {
-                // console.log('end rotation', this.angle);
-                if (direction == this.DIRECTION_RIGHT || direction == this.DIRECTION_LEFT) {
-                    this.angleX = this.angle;
-                } else {
-                    this.angleY = this.angle;
-                }
-                this.angle = 0;
-                this.rotationDirection = null;
-                return -1;
-            }
-        },
         'update': function() {
-            var rotationDone = -1;
-            this.counter += this.SPEED;
-            // console.log(this.projection.x, this.cube.x);
-            // console.log(this.cube.points.x, this.cube.points.first().x);
             var x = this.cube.points().first().x;
             var y = this.cube.points().first().y;
 
-            if (this.rotationDirection == this.DIRECTION_RIGHT
-                || (this.tempDirection == this.DIRECTION_RIGHT && x - this.CUBE_SIZE > this.projection.x - this.ROTATION_MARGIN))
-            {
+            if (x - this.config.CUBE_SIZE > this.projection.x - this.config.ROTATION_MARGIN) {
                 this.fsmMove.trigger('edge.right');
-            } else if (this.rotationDirection == this.DIRECTION_LEFT
-                      || (this.tempDirection == this.DIRECTION_LEFT && x + this.CUBE_SIZE + this.CUBE_SIZE < -this.projection.x + this.ROTATION_MARGIN))
-            {
-                // console.log('B');
-                rotationDone = this.rotate(this.DIRECTION_LEFT);
-            } else if (this.rotationDirection == this.DIRECTION_UP
-                       || (this.tempDirection == this.DIRECTION_UP && y + this.CUBE_SIZE + this.CUBE_SIZE < -this.projection.y + this.ROTATION_MARGIN))
-            {
-                // console.log('C');
-                rotationDone = this.rotate(this.DIRECTION_UP);
-            } else if (this.rotationDirection == this.DIRECTION_DOWN
-                      || (this.tempDirection == this.DIRECTION_DOWN && y - this.CUBE_SIZE > this.projection.y - this.ROTATION_MARGIN))
-            {
-                // console.log('D');
-                rotationDone = this.rotate(this.DIRECTION_DOWN);
+            } else if (x + this.config.CUBE_SIZE + this.config.CUBE_SIZE < -this.projection.x + this.config.ROTATION_MARGIN) {
+                this.fsmMove.trigger('edge.left');
+            } else if (y + this.config.CUBE_SIZE + this.config.CUBE_SIZE < -this.projection.y + this.config.ROTATION_MARGIN) {
+                this.fsmMove.trigger('edge.up');
+            } else if (y - this.config.CUBE_SIZE > this.projection.y - this.config.ROTATION_MARGIN) {
+                this.fsmMove.trigger('edge.down');
             }
-
-            this.stage.update();
-        },
-        'init': function() {
-            this.tempDirection = this.DIRECTION_RIGHT;
-            this.direction = this.DIRECTION_RIGHT;
-            this.position = new Point(0, 0, 0);
-            this.positions = [];
-            this.positions.push(new Point(0, 0, 0));
         },
         'captureKeys' : function(e) {
             switch(true) {
@@ -219,16 +168,16 @@ function(
             }
         },
         'run': function() {
-            var self = this;
-
-            this.init();
+            // Catch user events
             document.addEventListener("keydown", this.captureKeys.bind(this), false);
-            function update() {
-                self.update();
-                self.actionManager.run();
-                requestAnimationFrame(update);
-            }
-            requestAnimationFrame(update);
+            // Calculate interaction
+            this.update();
+            // Run actions
+            this.actionManager.run();
+            // Render
+            this.stage.update();
+            // One more time
+            requestAnimationFrame(this.run.bind(this));
         }
     };
 

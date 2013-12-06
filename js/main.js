@@ -11,7 +11,6 @@ require(['game', 'promise2'], function(TetrisGame, Promise) {
     tetris.run();
 
     var p = new Promise(function(fulfill, reject) {
-
         setTimeout(function(){
             fulfill('okkkk');
         }, 1000);

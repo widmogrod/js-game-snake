@@ -18,7 +18,7 @@ function(
             : item instanceof Shape
                 ? item.points().each(func)
                 : item instanceof Stage
-                    ? item.each(function(child) { each(child, func) })
+                    ? item.each(function(child) { each(child.points(), func) })
                     : func(item);
     }
 

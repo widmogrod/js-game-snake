@@ -9,6 +9,7 @@ define(function() {
         this.reason = null;
         this.value = null;
         this.result = null;
+        this.queued = [];
     }
 
     Promise.prototype.then = function(onFulfilled, onRejected) {

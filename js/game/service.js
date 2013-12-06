@@ -7,7 +7,10 @@ define(
     'game/action/move/left',
     'game/action/move/up',
     'game/action/move/down',
-    'game/action/rotate/right'
+    'game/action/rotate/right',
+    'game/action/rotate/left',
+    'game/action/rotate/up',
+    'game/action/rotate/down'
 ],
 function(
     CubeShape,
@@ -17,7 +20,10 @@ function(
     ActionMoveLeft,
     ActionMoveUp,
     ActionMoveDown,
-    ActionShowRightEdge
+    ActionShowRightEdge,
+    ActionShowLeftEdge,
+    ActionShowUpEdge,
+    ActionShowDownEdge
 )
 {
     function ServiceManager(game) {
@@ -81,6 +87,33 @@ function(
     ServiceManager.prototype.actionShowRightEdge = function() {
         return this.get('actionShowRightEdge', function() {
             return new ActionShowRightEdge(
+                this.game,
+                this.config().ROTATION_ANGLE_STEP,
+                this.config().RIGHT_ANGLE
+            );
+        })
+    }
+    ServiceManager.prototype.actionShowLeftEdge = function() {
+        return this.get('actionShowLeftEdge', function() {
+            return new ActionShowLeftEdge(
+                this.game,
+                this.config().ROTATION_ANGLE_STEP,
+                this.config().RIGHT_ANGLE
+            );
+        })
+    }
+    ServiceManager.prototype.actionShowUpEdge = function() {
+        return this.get('actionShowUpEdge', function() {
+            return new ActionShowUpEdge(
+                this.game,
+                this.config().ROTATION_ANGLE_STEP,
+                this.config().RIGHT_ANGLE
+            );
+        })
+        }
+        ServiceManager.prototype.actionShowDownEdge = function() {
+        return this.get('actionShowDownEdge', function() {
+            return new ActionShowDownEdge(
                 this.game,
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
