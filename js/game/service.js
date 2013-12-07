@@ -50,7 +50,7 @@ function(
             return new ActionManager();
         })
     }
-    ServiceManager.prototype.stataMachineMove = function() {
+    ServiceManager.prototype.stateMachineMove = function() {
         return this.get('stateMachineMove', function() {
             return new StateMachine(this.config().state.move);
         })
@@ -97,7 +97,9 @@ function(
                 this.game,
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
-            );
+            ).on('finish', function() {
+                this.stateMachineMove().trigger('right.face.visible')
+            }.bind(this));
         })
     }
     ServiceManager.prototype.actionShowLeftEdge = function() {
@@ -106,7 +108,9 @@ function(
                 this.game,
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
-            );
+            ).on('finish', function() {
+                this.stateMachineMove().trigger('left.face.visible')
+            }.bind(this));
         })
     }
     ServiceManager.prototype.actionShowUpEdge = function() {
@@ -115,16 +119,20 @@ function(
                 this.game,
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
-            );
+            ).on('finish', function() {
+                this.stateMachineMove().trigger('up.face.visible')
+            }.bind(this));
         })
-        }
-        ServiceManager.prototype.actionShowDownEdge = function() {
+    }
+    ServiceManager.prototype.actionShowDownEdge = function() {
         return this.get('actionShowDownEdge', function() {
             return new ActionShowDownEdge(
                 this.game,
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
-            );
+            ).on('finish', function() {
+                this.stateMachineMove().trigger('down.face.visible')
+            }.bind(this));
         })
     }
     ServiceManager.prototype.cube = function() {

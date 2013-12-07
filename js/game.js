@@ -55,34 +55,34 @@ function(
         this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
 
         // Move State Machine
-        this.fsmMove = this.service.stataMachineMove();
+        this.fsmMove = this.service.stateMachineMove();
         this.fsmMove.on('enter:left', function() {
-            return self.actionManager.set('move', self.service.actionMoveLeft());
+            self.actionManager.set('move', self.service.actionMoveLeft());
         })
         this.fsmMove.on('enter:right', function() {
-            return self.actionManager.set('move', self.service.actionMoveRight());
+            self.actionManager.set('move', self.service.actionMoveRight());
         })
         this.fsmMove.on('enter:up', function() {
-            return self.actionManager.set('move', self.service.actionMoveUp());
+            self.actionManager.set('move', self.service.actionMoveUp());
         })
         this.fsmMove.on('enter:down', function() {
-            return self.actionManager.set('move', self.service.actionMoveDown());
+            self.actionManager.set('move', self.service.actionMoveDown());
         })
         this.fsmMove.on('enter:show_right_face', function() {
-            self.actionManager.set('move', self.service.actionShowRightEdge());
-            self.fsmMove.trigger('right.face.visible')
+            self.actionManager.remove('move');
+            self.actionManager.set('rotate', self.service.actionShowRightEdge());
         });
         this.fsmMove.on('enter:show_left_face', function() {
-            self.actionManager.set('move', self.service.actionShowLeftEdge());
-            self.fsmMove.trigger('left.face.visible')
+            self.actionManager.remove('move');
+            self.actionManager.set('rotate', self.service.actionShowLeftEdge());
         });
         this.fsmMove.on('enter:show_up_face', function() {
-            self.actionManager.set('move', self.service.actionShowUpEdge());
-            self.fsmMove.trigger('up.face.visible')
+            self.actionManager.remove('move');
+            self.actionManager.set('rotate', self.service.actionShowUpEdge());
         });
         this.fsmMove.on('enter:show_down_face', function() {
-            self.actionManager.set('move', self.service.actionShowDownEdge());
-            self.fsmMove.trigger('down.face.visible')
+            self.actionManager.remove('move');
+            self.actionManager.set('rotate', self.service.actionShowDownEdge());
         });
 
         // Catch user events

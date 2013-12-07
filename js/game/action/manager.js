@@ -2,6 +2,7 @@ define(function() {
     function ActionManager() {
         this.actions = {};
         this.queue = {};
+        this.unset = {};
     }
 
     ActionManager.prototype.set = function(name, action) {
@@ -21,23 +22,44 @@ define(function() {
         return this.actions.hasOwnProperty(name);
     }
     ActionManager.prototype.remove = function(name) {
-        this.has(name) && delete this.actions[name];
+        if (!this.has(name)) return;
+
+        var action = this.get(name);
+        if (action.canRemove()) {
+            delete this.actions[name];
+            delete this.queue[name];
+            delete this.unset[name];
+            action.trigger('removed');
+        } else {
+            this.unset[name] = true;
+        }
     }
     ActionManager.prototype.run = function() {
-        var name, action;
+        var name, action, temporary;
         for (name in this.actions) {
             if (!this.actions.hasOwnProperty(name)) {
                 continue;
             }
 
-            action = this.actions[name];
+            action = temporary = this.actions[name];
+
+            if (this.unset.hasOwnProperty(name) && action.canRemove()) {
+                this.remove(name);
+                continue;
+            }
 
             if (this.queue.hasOwnProperty(name) && action.canStop()) {
                 action = this.actions[name] = this.queue[name];
                 delete this.queue[name];
+                temporary.trigger('stopped');
             }
 
-            action.run();
+            if (action.finish()) {
+                action.trigger('finish');
+                delete this.actions[name];
+            } else {
+                action.run();
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 define(['game/action/interface'], function(ActionInterface) {
     function ActionMoveRight(shape, speed, step) {
+        this.events = {};
         this.shape = shape;
         this.speed = speed;
         this.step = step;
