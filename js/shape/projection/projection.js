@@ -2,13 +2,15 @@ define([
     'shape/projection/interface',
     'shape/point/collection',
     'shape/shape/interface',
-    'shape/stage/interface'
+    'shape/stage/interface',
+    'shape/utils/angle'
 ],
 function(
     ProjectionInterface,
     PointCollection,
     Shape,
-    Stage
+    Stage,
+    Angle
 ) {
     "use strict";
 
@@ -40,15 +42,16 @@ function(
         each(point, task.bind(this));
     }
     Projection.prototype.rotateY = function(point, angle) {
+        angle = angle * Math.PI / 180;
+        var cos = Math.cos(angle), sin = Math.sin(angle);
         function task(point) {
-            // angle = angle >= 1 ? point.origin.angle + angle : point.origin.angle;
-            point.origin.angle += angle >> 0;
-            point.origin.angle = point.origin.angle > 360 ? 1 : point.origin.angle;
-            point.origin.angle = point.origin.angle < 1 ? 360 : point.origin.angle;
-            angle = point.origin.angle * Math.PI / 180;
-            var cos = Math.cos(angle), sin = Math.sin(angle);
-            var x1 = point.origin.x * cos - point.origin.z * sin,
-                z1 = point.origin.z * cos + point.origin.x * sin;
+            // point.origin.angle.y = Angle.normalize(point.origin.angle.y + angle);
+            // angle = point.origin.angle.y * Math.PI / 180;
+            // var cos = Math.cos(angle), sin = Math.sin(angle);
+            // var x1 = point.origin.x * cos - point.origin.z * sin,
+            //     z1 = point.origin.z * cos + point.origin.x * sin;
+            var x1 = point.x * cos - point.z * sin,
+                z1 = point.z * cos + point.x * sin;
 
             point.x = x1;
             point.z = z1;

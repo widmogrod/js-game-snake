@@ -106,14 +106,15 @@ function(
         'update': function() {
             var x = this.cube.center().x;
             var y = this.cube.center().y;
+            var boardY = this.board.center().y + (this.board.width / 2)
 
-            if (x - this.config.CUBE_SIZE > this.projection.x - this.config.ROTATION_MARGIN) {
+            if (x > this.projection.x - this.config.ROTATION_MARGIN) {
                 this.stateMachine.trigger('edge.right');
-            } else if (x + this.config.CUBE_SIZE + this.config.CUBE_SIZE < -this.projection.x + this.config.ROTATION_MARGIN) {
+            } else if (x < -this.projection.x + this.config.ROTATION_MARGIN) {
                 this.stateMachine.trigger('edge.left');
-            } else if (y + this.config.CUBE_SIZE + this.config.CUBE_SIZE < -this.projection.y + this.config.ROTATION_MARGIN) {
+            } else if (y < -boardY) {
                 this.stateMachine.trigger('edge.up');
-            } else if (y - this.config.CUBE_SIZE > this.projection.y - this.config.ROTATION_MARGIN) {
+            } else if (y > boardY) {
                 this.stateMachine.trigger('edge.down');
             }
         },
