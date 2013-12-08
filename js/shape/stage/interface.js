@@ -8,7 +8,7 @@ define(function(){
 
     Stage.prototype = {
         'each': function(callback) {},
-        'update': function() {},
+        'render': function() {},
         'addChild': function() {},
         'fillRect': function(x, y, width, height) {},
         'fillStyle': function(style) {},

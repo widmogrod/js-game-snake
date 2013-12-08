@@ -131,7 +131,7 @@ function(
             // Run actions
             this.actionManager.run();
             // Render
-            this.stage.update();
+            this.stage.render();
             // One more time
             requestAnimationFrame(this.run.bind(this));
         }

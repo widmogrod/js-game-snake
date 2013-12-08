@@ -11,7 +11,7 @@ define(['shape/stage/canvas'], function(CanvasStage){
     Canvas3DStage.constructor = Canvas3DStage;
     Canvas3DStage.prototype = Object.create(CanvasStage.prototype);
 
-    Canvas3DStage.prototype.update = function() {
+    Canvas3DStage.prototype.render = function() {
         var state, self = this;
         this.context.clearRect(0,0,this.width, this.height);
         this.each(function(child){
