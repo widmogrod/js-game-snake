@@ -16,7 +16,7 @@ function(
 
     function each(item, func) {
         item instanceof PointCollection
-            ? item.each(func)
+            ? (item.each(func) || func(item.center))
             : item instanceof Shape
                 ? item.points().each(func)
                 : item instanceof Stage

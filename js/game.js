@@ -106,11 +106,12 @@ function(
         'update': function() {
             var x = this.cube.center().x;
             var y = this.cube.center().y;
-            var boardY = this.board.center().y + (this.board.width / 2)
+            var boardX = this.board.center().x + (this.board.width / 2);
+            var boardY = this.board.center().y + (this.board.width / 2);
 
-            if (x > this.projection.x - this.config.ROTATION_MARGIN) {
+            if (x > boardX) {
                 this.stateMachine.trigger('edge.right');
-            } else if (x < -this.projection.x + this.config.ROTATION_MARGIN) {
+            } else if (x < -boardX) {
                 this.stateMachine.trigger('edge.left');
             } else if (y < -boardY) {
                 this.stateMachine.trigger('edge.up');
