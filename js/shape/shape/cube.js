@@ -15,7 +15,7 @@ function(Shape, Point, PointCollection) {
         this.color = color || '#333333';
         this.points_ = new PointCollection(new Point(x, y, z));
 
-        var halfWidth = width / 2;
+        var halfWidth = this.width / 2;
 
         this.points_.push(new Point(x - halfWidth, y - halfWidth, z - halfWidth));
         this.points_.push(new Point(x + halfWidth, y - halfWidth, z - halfWidth));

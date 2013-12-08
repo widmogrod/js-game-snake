@@ -137,7 +137,7 @@ function(
     }
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
-            return new CubeShape(0, 0, -this.game.boardWidth / 2, this.game.CUBE_SIZE, '#f2b139');
+            return new CubeShape(0, 0, -this.game.board.width / 2, this.config().CUBE_SIZE, '#f2b139');
         })
     }
 
