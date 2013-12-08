@@ -30,21 +30,25 @@ function(
     Projection.constructor = Projection;
     Projection.prototype = new ProjectionInterface();
     Projection.prototype.project = function(point) {
-        var distance = this.distance;
         function task(point) {
             if (point.z > -this.distance) {
                 var scale = this.distance / (this.distance + point.z);
-                point.xpos = this.x + point.x * scale;
-                point.ypos = this.y + point.y * scale;
+                point.xpos = this.x + point.x * scale >> 0;
+                point.ypos = this.y + point.y * scale >> 0;
             }
         }
         each(point, task.bind(this));
     }
     Projection.prototype.rotateY = function(point, angle) {
-        var cos = Math.cos(angle), sin = Math.sin(angle);
         function task(point) {
-            var x1 = point.x * cos - point.z * sin,
-                z1 = point.z * cos + point.x * sin;
+            // angle = angle >= 1 ? point.origin.angle + angle : point.origin.angle;
+            point.origin.angle += angle >> 0;
+            point.origin.angle = point.origin.angle > 360 ? 1 : point.origin.angle;
+            point.origin.angle = point.origin.angle < 1 ? 360 : point.origin.angle;
+            angle = point.origin.angle * Math.PI / 180;
+            var cos = Math.cos(angle), sin = Math.sin(angle);
+            var x1 = point.origin.x * cos - point.origin.z * sin,
+                z1 = point.origin.z * cos + point.origin.x * sin;
 
             point.x = x1;
             point.z = z1;
@@ -52,6 +56,7 @@ function(
         each(point, task);
     }
     Projection.prototype.rotateX = function(point, angle) {
+        angle = angle * Math.PI / 180;
         var cos = Math.cos(angle), sin = Math.sin(angle);
         function task(point) {
             var y1 = point.y * cos - point.z * sin,

@@ -9,7 +9,6 @@ define(['game/action/interface'], function(ActionInterface) {
     }
 
     ActionShowUpEdge.prototype = new ActionInterface();
-
     ActionShowUpEdge.prototype.init = function() {
         this.counter = 0;
     }
@@ -24,7 +23,7 @@ define(['game/action/interface'], function(ActionInterface) {
         return this.canStop();
     }
     ActionShowUpEdge.prototype.canStop = function() {
-        return this.counter > this.rightAngle;
+        return this.counter >= this.rightAngle;
     }
 
     return ActionShowUpEdge;

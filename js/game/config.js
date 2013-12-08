@@ -2,8 +2,8 @@ define(function(){
     function GameConfig() {}
 
     GameConfig.prototype = {
-        'RIGHT_ANGLE' : Math.PI / 2,
-        'ROTATION_ANGLE_STEP': 0.01,
+        'RIGHT_ANGLE' : 90,
+        'ROTATION_ANGLE_STEP': 1,
         'ROTATION_MARGIN' : 80,
         'GAME_STEP': 20,
         'CUBE_SIZE': 20,

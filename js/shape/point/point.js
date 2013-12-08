@@ -2,6 +2,7 @@ define(['shape/point/interface'], function(PointInterface) {
     "use strict";
 
     function Point(x, y, z) {
+        this.origin = {x:x, y:y, z:z, angle:0};
         this.x = x;
         this.y = y;
         this.z = z;
