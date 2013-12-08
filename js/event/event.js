@@ -16,6 +16,13 @@ define(function(){
             callback.apply(null, args);
         })
     }
+    Event.prototype.proxy = function(name, args) {
+        var self = this;
+        return function(event) {
+            // event.gesture.preventDefault();
+            self.trigger(name, args);
+        }
+    }
 
     return Event;
 })

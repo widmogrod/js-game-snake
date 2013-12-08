@@ -1,5 +1,5 @@
 define(['shape/point/interface'], function(PointInterface) {
-    "use strict";
+    // "use strict";
 
     function PointCollection(centerPoint) {
         this.center = centerPoint;

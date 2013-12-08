@@ -1,12 +1,21 @@
 require.config({
-    baseUrl: "js"
+    baseUrl: "js",
+    paths: {
+        hammerjs: '../bower_components/hammerjs/dist/hammer.min'
+    }
 });
 
 require(['game', 'promise2'], function(TetrisGame, Promise) {
     "use strict";
 
-    var tetris;
-    tetris = new TetrisGame(document.getElementById('game'));
+    var tetris, game;
+
+    game = document.createElement('canvas');
+    game.width = window.innerWidth;
+    game.height = window.innerHeight;
+    document.body.appendChild(game);
+
+    tetris = new TetrisGame(game);
     tetris.run();
 
     // var p = new Promise(function(fulfill, reject) {

@@ -1,4 +1,5 @@
 define([
+    'hammerjs',
     'shape/projection/projection',
     'shape/stage/canvas3d',
     'shape/shape/cube',
@@ -8,6 +9,7 @@ define([
     'game/service'
 ],
 function(
+    Hemmer,
     Projection,
     Canvas3DStage,
     CubeShape,
@@ -87,6 +89,16 @@ function(
 
         // Catch user events
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
+        document.ontouchmove = function(event){
+            event.preventDefault();
+        }
+        Hammer(this.canvas, {
+            drag_lock_to_axis: true
+        })
+        .on('dragleft', self.fsmMove.proxy('press.left'))
+        .on('dragright', self.fsmMove.proxy('press.right'))
+        .on('dragup', self.fsmMove.proxy('press.up'))
+        .on('dragdown', self.fsmMove.proxy('press.down'))
     }
 
     TetrisGame.constructor = TetrisGame;

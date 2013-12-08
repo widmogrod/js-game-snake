@@ -11,9 +11,6 @@ define(['shape/point/interface'], function(PointInterface) {
     }
     Point.constructor = Point;
     Point.prototype = new PointInterface();
-    Point.prototype.each = function(callback) {
-        callback(this, 0);
-    }
     Point.prototype.moveBy = function(x, y, z) {
         this.x += x;
         this.y += y;
