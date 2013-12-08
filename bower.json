@@ -1,0 +1,24 @@
+{
+  "name": "js-game-snake",
+  "version": "0.0.1",
+  "homepage": "https://github.com/widmogrod/js-game-snake",
+  "authors": [
+    "widmogrod<widmogrod@gmail.com>"
+  ],
+  "description": "3D Snake-ish game",
+  "keywords": [
+    "game"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "hammerjs": "~1.0.5"
+  }
+}
