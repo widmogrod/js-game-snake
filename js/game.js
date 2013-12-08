@@ -57,32 +57,32 @@ function(
         this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
 
         // Move State Machine
-        this.fsmMove = this.service.stateMachineMove();
-        this.fsmMove.on('enter:left', function() {
+        this.stateMachine = this.service.stateMachineMove();
+        this.stateMachine.on('enter:left', function() {
             self.actionManager.set('move', self.service.actionMoveLeft());
         })
-        this.fsmMove.on('enter:right', function() {
+        this.stateMachine.on('enter:right', function() {
             self.actionManager.set('move', self.service.actionMoveRight());
         })
-        this.fsmMove.on('enter:up', function() {
+        this.stateMachine.on('enter:up', function() {
             self.actionManager.set('move', self.service.actionMoveUp());
         })
-        this.fsmMove.on('enter:down', function() {
+        this.stateMachine.on('enter:down', function() {
             self.actionManager.set('move', self.service.actionMoveDown());
         })
-        this.fsmMove.on('enter:show_right_face', function() {
+        this.stateMachine.on('enter:show_right_face', function() {
             self.actionManager.remove('move');
             self.actionManager.set('rotate', self.service.actionShowRightEdge());
         });
-        this.fsmMove.on('enter:show_left_face', function() {
+        this.stateMachine.on('enter:show_left_face', function() {
             self.actionManager.remove('move');
             self.actionManager.set('rotate', self.service.actionShowLeftEdge());
         });
-        this.fsmMove.on('enter:show_up_face', function() {
+        this.stateMachine.on('enter:show_up_face', function() {
             self.actionManager.remove('move');
             self.actionManager.set('rotate', self.service.actionShowUpEdge());
         });
-        this.fsmMove.on('enter:show_down_face', function() {
+        this.stateMachine.on('enter:show_down_face', function() {
             self.actionManager.remove('move');
             self.actionManager.set('rotate', self.service.actionShowDownEdge());
         });
@@ -95,10 +95,10 @@ function(
         Hammer(this.canvas, {
             drag_lock_to_axis: true
         })
-        .on('dragleft', self.fsmMove.proxy('press.left'))
-        .on('dragright', self.fsmMove.proxy('press.right'))
-        .on('dragup', self.fsmMove.proxy('press.up'))
-        .on('dragdown', self.fsmMove.proxy('press.down'))
+        .on('dragleft', self.stateMachine.proxy('press.left'))
+        .on('dragright', self.stateMachine.proxy('press.right'))
+        .on('dragup', self.stateMachine.proxy('press.up'))
+        .on('dragdown', self.stateMachine.proxy('press.down'))
     }
 
     TetrisGame.constructor = TetrisGame;
@@ -108,21 +108,21 @@ function(
             var y = this.cube.center().y;
 
             if (x - this.config.CUBE_SIZE > this.projection.x - this.config.ROTATION_MARGIN) {
-                this.fsmMove.trigger('edge.right');
+                this.stateMachine.trigger('edge.right');
             } else if (x + this.config.CUBE_SIZE + this.config.CUBE_SIZE < -this.projection.x + this.config.ROTATION_MARGIN) {
-                this.fsmMove.trigger('edge.left');
+                this.stateMachine.trigger('edge.left');
             } else if (y + this.config.CUBE_SIZE + this.config.CUBE_SIZE < -this.projection.y + this.config.ROTATION_MARGIN) {
-                this.fsmMove.trigger('edge.up');
+                this.stateMachine.trigger('edge.up');
             } else if (y - this.config.CUBE_SIZE > this.projection.y - this.config.ROTATION_MARGIN) {
-                this.fsmMove.trigger('edge.down');
+                this.stateMachine.trigger('edge.down');
             }
         },
         'captureKeys' : function(e) {
             switch(true) {
-                case 37 == e.keyCode: this.fsmMove.trigger('press.left'); break;
-                case 38 == e.keyCode: this.fsmMove.trigger('press.up'); break;
-                case 39 == e.keyCode: this.fsmMove.trigger('press.right'); break;
-                case 40 == e.keyCode: this.fsmMove.trigger('press.down'); break;
+                case 37 == e.keyCode: this.stateMachine.trigger('press.left'); break;
+                case 38 == e.keyCode: this.stateMachine.trigger('press.up'); break;
+                case 39 == e.keyCode: this.stateMachine.trigger('press.right'); break;
+                case 40 == e.keyCode: this.stateMachine.trigger('press.down'); break;
             }
         },
         'run': function() {
