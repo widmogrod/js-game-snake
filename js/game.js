@@ -104,8 +104,8 @@ function(
     TetrisGame.constructor = TetrisGame;
     TetrisGame.prototype = {
         'update': function() {
-            var x = this.cube.points().first().x;
-            var y = this.cube.points().first().y;
+            var x = this.cube.center().x;
+            var y = this.cube.center().y;
 
             if (x - this.config.CUBE_SIZE > this.projection.x - this.config.ROTATION_MARGIN) {
                 this.fsmMove.trigger('edge.right');

@@ -37,8 +37,7 @@ define(['shape/point/interface'], function(PointInterface) {
         });
     },
     PointCollection.prototype.moveTo = function(x, y, z) {
-        var point = this.first();
-        this.moveBy(x - point.x, y - point.y, z - point.z);
+        this.moveBy(x - this.center.x, y - this.center.y, z - this.center.z);
     }
 
     return PointCollection;
