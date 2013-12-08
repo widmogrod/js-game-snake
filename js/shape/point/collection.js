@@ -11,10 +11,13 @@ define(['shape/point/interface'], function(PointInterface) {
     PointCollection.prototype = new PointInterface();
     PointCollection.prototype.push = function(point) {
         this.points[this.count++] = point;
-    },
+    }
+    PointCollection.prototype.get = function(index) {
+        return this.points[index];
+    }
     PointCollection.prototype.first = function() {
-        return this.points[0];
-    },
+        return this.get(0);
+    }
     PointCollection.prototype.each = function(callback, depth) {
         var point, i
         for(i = 0; i < this.count; i++) {
@@ -25,7 +28,7 @@ define(['shape/point/interface'], function(PointInterface) {
                 callback(this.points[i], i, depth);
             }
         }
-    },
+    }
     PointCollection.prototype.moveBy = function(x, y, z) {
         this.center.x += x;
         this.center.y += y;
@@ -35,7 +38,7 @@ define(['shape/point/interface'], function(PointInterface) {
             point.y += y;
             point.z += z;
         });
-    },
+    }
     PointCollection.prototype.moveTo = function(x, y, z) {
         this.moveBy(x - this.center.x, y - this.center.y, z - this.center.z);
     }

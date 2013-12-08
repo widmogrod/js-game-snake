@@ -14,6 +14,14 @@ function(Shape, Point, PointCollection) {
         this.width = width || 10;
         this.color = color || '#333333';
         this.points_ = new PointCollection(new Point(x, y, z));
+        this.faces = [
+            [0,1,2,3],
+            [0,1,5,4],
+            [0,3,7,4],
+            [3,2,6,7],
+            [1,2,6,5],
+            [4,5,6,7]
+        ];
 
         var halfWidth = this.width / 2;
 
@@ -21,29 +29,8 @@ function(Shape, Point, PointCollection) {
         this.points_.push(new Point(x + halfWidth, y - halfWidth, z - halfWidth));
         this.points_.push(new Point(x + halfWidth, y + halfWidth, z - halfWidth));
         this.points_.push(new Point(x - halfWidth, y + halfWidth, z - halfWidth));
-
-        this.points_.push(new Point(x - halfWidth, y - halfWidth, z - halfWidth));
-        this.points_.push(new Point(x - halfWidth, y + halfWidth, z - halfWidth));
-        this.points_.push(new Point(x - halfWidth, y + halfWidth, z + halfWidth));
-        this.points_.push(new Point(x - halfWidth, y - halfWidth, z + halfWidth));
-
-        this.points_.push(new Point(x + halfWidth, y - halfWidth, z - halfWidth));
-        this.points_.push(new Point(x + halfWidth, y + halfWidth, z - halfWidth));
-        this.points_.push(new Point(x + halfWidth, y + halfWidth, z + halfWidth));
-        this.points_.push(new Point(x + halfWidth, y - halfWidth, z + halfWidth));
-
         this.points_.push(new Point(x - halfWidth, y - halfWidth, z + halfWidth));
         this.points_.push(new Point(x + halfWidth, y - halfWidth, z + halfWidth));
-        this.points_.push(new Point(x + halfWidth, y + halfWidth, z + halfWidth));
-        this.points_.push(new Point(x - halfWidth, y + halfWidth, z + halfWidth));
-
-        this.points_.push(new Point(x - halfWidth, y - halfWidth, z - halfWidth));
-        this.points_.push(new Point(x + halfWidth, y - halfWidth, z - halfWidth));
-        this.points_.push(new Point(x + halfWidth, y - halfWidth, z + halfWidth));
-        this.points_.push(new Point(x - halfWidth, y - halfWidth, z + halfWidth));
-
-        this.points_.push(new Point(x - halfWidth, y + halfWidth, z - halfWidth));
-        this.points_.push(new Point(x + halfWidth, y + halfWidth, z - halfWidth));
         this.points_.push(new Point(x + halfWidth, y + halfWidth, z + halfWidth));
         this.points_.push(new Point(x - halfWidth, y + halfWidth, z + halfWidth));
     }
@@ -53,22 +40,23 @@ function(Shape, Point, PointCollection) {
         return this.points().center;
     }
     CubeShape.prototype.render = function(stage) {
-        var color = this.color;
-        this.points().each(function(point, i) {
-            if (i == 0) {
-                stage.beginPath();
-                stage.moveTo(point.xpos, point.ypos);
-            }
-            else if ((i + 1) % 4 == 0) {
-                stage.lineTo(point.xpos, point.ypos);
-                stage.fillStyle(color);
-                stage.closePath();
-                stage.fill();
-                stage.beginPath();
-            } else {
+        var face, point;
+        var i = 0, length = this.faces.length;
+        for (; i < length; i++) {
+            face = this.faces[i];
+            point = this.points_.get(face[0]);
+            stage.beginPath();
+            stage.moveTo(point.xpos, point.ypos);
+            for (var j = 3; j >= 0; j--) {
+                point = this.points_.get(face[j]);
+                // stage.fill(this.color);
                 stage.lineTo(point.xpos, point.ypos);
             }
-        })
+            stage.closePath();
+            stage.fillStyle(this.color);
+            stage.stroke();
+            // stage.fill();
+        }
     }
 
     return CubeShape;
