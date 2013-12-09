@@ -39,19 +39,23 @@ function(
 
         this.enemies = new PointCollection();
         this.enemies.push(new CubeShape(
-            5 * this.config.CUBE_SIZE,
-            5 * this.config.CUBE_SIZE,
-           - 8 * this.config.CUBE_SIZE,
+            0,
+            5 * (this.config.CUBE_SIZE / 2),
+            -this.board.width / 2 + this.config.CUBE_SIZE / 2,
             this.config.CUBE_SIZE,
             '#ee312e'
         ));
-        this.enemies.push(new RectShape(-140, -120, 220, 20, 40))
+        // this.enemies.push(new RectShape(-140, -120, 220, 20, 40))
 
+        this.collisionManager = this.service.collisionManager();
 
         // Add objection to stage, order is important - for now.
         this.stage.addChild(this.board);
         this.enemies.each(function(item) {
             self.stage.addChild(item);
+            self.collisionManager.when(self.cube, item, function(data) {
+                self.stage.removeChild(data.collide);
+            })
         });
         this.stage.addChild(this.cube);
         this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
@@ -130,6 +134,7 @@ function(
         'run': function() {
             // Calculate interaction
             this.update();
+            this.collisionManager.run();
             // Run actions
             this.actionManager.run();
             // Render

@@ -10,6 +10,7 @@ define(function(){
         'each': function(callback) {},
         'render': function() {},
         'addChild': function() {},
+        'removeChild': function() {},
         'fillRect': function(x, y, width, height) {},
         'fillStyle': function(style) {},
         'setTransform': function(skewX, skewY, scalX, scalY, moveX, moveY) {}

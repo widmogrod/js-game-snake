@@ -49,7 +49,6 @@ function(Shape, Point, PointCollection) {
             stage.moveTo(point.xpos, point.ypos);
             for (var j = 3; j >= 0; j--) {
                 point = this.points_.get(face[j]);
-                // stage.fill(this.color);
                 stage.lineTo(point.xpos, point.ypos);
             }
             stage.closePath();

@@ -19,6 +19,12 @@ define(['shape/stage/interface'], function(Stage){
     CanvasStage.prototype.addChild = function(shape) {
         this.childs.push(shape);
     };
+    CanvasStage.prototype.removeChild = function(shape) {
+        var index = this.childs.indexOf(shape);
+        if (-1 !== index) {
+            this.childs.splice(index, 1);
+        }
+    }
     CanvasStage.prototype.clean = function() {
         this.context.cleanRect(0,0,this.width, this.height);
     }

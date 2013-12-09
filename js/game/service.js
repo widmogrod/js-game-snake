@@ -11,7 +11,8 @@ define(
     'game/action/rotate/right',
     'game/action/rotate/left',
     'game/action/rotate/up',
-    'game/action/rotate/down'
+    'game/action/rotate/down',
+    'shape/collision/manager'
 ],
 function(
     CubeShape,
@@ -25,7 +26,8 @@ function(
     ActionShowRightEdge,
     ActionShowLeftEdge,
     ActionShowUpEdge,
-    ActionShowDownEdge
+    ActionShowDownEdge,
+    CollisionManager
 )
 {
     function ServiceManager(game) {
@@ -43,6 +45,11 @@ function(
     ServiceManager.prototype.config = function() {
         return this.get('config', function() {
             return new GameConfig();
+        })
+    }
+    ServiceManager.prototype.collisionManager = function() {
+        return this.get('collisionManager', function() {
+            return new CollisionManager();
         })
     }
     ServiceManager.prototype.actionManager = function() {
