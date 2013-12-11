@@ -24,6 +24,11 @@ define(['shape/point/interface'], function(PointInterface) {
         this.y = y;
         this.z = z;
     }
+    Point.prototype.length = function() {
+        return Math.sqrt(
+            (this.x * this.x) + (this.y * this.y) + (this.z * this.z)
+        );
+    }
 
     return Point;
 })

@@ -62,6 +62,12 @@ define(['shape/stage/interface'], function(Stage){
     CanvasStage.prototype.fillStyle = function(style) {
         this.context.fillStyle = style;
     }
+    CanvasStage.prototype.fillText = function(text, x, y) {
+        // this.context.fillStyle = '#f00';
+        this.context.font = 'italic bold 12px sans-serif';
+        this.context.textBaseline = 'bottom';
+        this.context.fillText(text, x, y);
+    }
     CanvasStage.prototype.fillEllipse = function(x, y, w, h) {
         var kappa = .5522848,
             ox = (w / 2) * kappa, // control point offset horizontal

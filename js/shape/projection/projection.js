@@ -34,9 +34,10 @@ function(
     Projection.prototype.project = function(point) {
         function task(point) {
             if (point.z > -this.distance) {
-                var scale = this.distance / (this.distance + point.z);
+                var scale = this.distance / (this.distance + point.z >> 0);
                 point.xpos = this.x + point.x * scale >> 0;
                 point.ypos = this.y + point.y * scale >> 0;
+                point.scale = scale;
             }
         }
         each(point, task.bind(this));

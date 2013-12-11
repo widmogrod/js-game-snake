@@ -13,6 +13,7 @@ define(function(){
         'removeChild': function() {},
         'fillRect': function(x, y, width, height) {},
         'fillStyle': function(style) {},
+        'fillText': function(text, x, y) {},
         'setTransform': function(skewX, skewY, scalX, scalY, moveX, moveY) {}
     };
 
