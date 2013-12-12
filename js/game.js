@@ -30,31 +30,34 @@ function(
         this.config = this.service.config();
         this.projection = new Projection(1270, canvas.width / 2, canvas.height / 2);
         this.stage = new Canvas3DStage(this.canvas, this.projection);
-        this.boardWidth = (canvas.width / 2) +  (this.config.ROTATION_MARGIN);
+        this.boardWidth = this.config.CUBE_SIZE * 10 >> 0;
+        this.boardEdge = (this.boardWidth / 2) - this.config.CUBE_SIZE >> 0;
         this.board = new CubeShape(0, 0, 0, this.boardWidth, '#fff');
         this.cube = this.service.cube();
         this.actionManager = this.service.actionManager();
 
-        var siz = this.config.CUBE_SIZE;
-        var biz = -this.board.width / 2 + this.config.CUBE_SIZE / 2;
+        var size = this.config.CUBE_SIZE;
+        var edge = (-this.boardWidth / 2) + size;
 
         this.enemies = new PointCollection();
 
         var am = this.service.assetManager();
 
-        am.get('mellody', function(audio) {
+        am.get('melody', function(audio) {
             audio.addEventListener('ended', function() {
-                this.currentTime = 0;
+                // this.currentTime = 0;
                 this.play();
             }, false);
-            // audio.play();
+            audio.play();
         })
 
-        this.enemies.push(this.service.giftFactory(0, 1 * siz, biz));
-        this.enemies.push(this.service.giftFactory(0, 2 * siz, biz));
-        this.enemies.push(this.service.giftFactory(0, 3 * siz, biz));
-        this.enemies.push(this.service.giftFactory(0, 4 * siz, biz));
-        this.enemies.push(this.service.giftFactory(0, 1 * siz, biz));
+        // this.enemies.push(this.service.giftFactory(0, 1 * size, edge));
+        this.enemies.push(this.service.giftFactory(0, 2 * size, edge));
+        this.enemies.push(this.service.giftFactory(0, 3 * size, edge));
+        this.enemies.push(this.service.giftFactory(0, 4 * size, edge));
+        this.enemies.push(this.service.giftFactory(edge, 1 * size, edge));
+        this.enemies.push(this.service.giftFactory(edge, 1 * size, edge));
+        this.enemies.push(this.service.giftFactory(edge, edge, edge));
 
         this.collisionManager = this.service.collisionManager();
 
@@ -63,6 +66,9 @@ function(
         this.enemies.each(function(item) {
             self.stage.addChild(item);
             self.collisionManager.when(self.cube, item, function(data) {
+                am.get('ring', function(ring) {
+                    ring.play()
+                })
                 self.stage.removeChild(data.collide);
             })
         });
@@ -118,8 +124,8 @@ function(
         'update': function() {
             var x = this.cube.center().x;
             var y = this.cube.center().y;
-            var boardX = this.board.center().x + (this.board.width / 2);
-            var boardY = this.board.center().y + (this.board.width / 2);
+            var boardX = this.board.center().x + this.boardEdge;
+            var boardY = this.board.center().y + this.boardEdge;
 
             if (x > boardX) {
                 this.stateMachine.trigger('edge.right');

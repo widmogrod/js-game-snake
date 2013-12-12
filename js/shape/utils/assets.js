@@ -42,11 +42,16 @@ define(['event/event'], function(Event){
         audio.addEventListener('canplay', function() {
             self.trigger('complete', [name, audio])
             self.trigger('complete:' + name, [audio])
+
         })
-        audio.onerror = function() {
+        audio.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.src = this.src;
+        })
+        audio.addEventListener('error', function() {
             self.trigger('error', [name, audio])
             self.trigger('error:'+name, [audio])
-        }
+        })
         audio.load();
     }
     AssetUtil.prototype.has = function(name) {

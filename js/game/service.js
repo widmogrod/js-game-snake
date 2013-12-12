@@ -67,7 +67,8 @@ function(
             am.loadImage('reindeer', 'reindeer-sprite.png');
             am.loadImage('gift-blue', 'gift-blue.png');
             am.loadImage('gift-red', 'gift-red.png');
-            am.loadAudio('mellody', 'mellody.mp3');
+            am.loadAudio('melody', 'melody.mp3');
+            am.loadAudio('ring', 'ring.mp3');
             return am;
         })
     }
