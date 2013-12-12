@@ -11,7 +11,7 @@
         }
         #board {
             position: absolute;
-            top: 200px;
+            top: 100px;
             left: 50%;
             margin-left:-300px;
             z-index:9999;
@@ -21,7 +21,7 @@
             background: transparent url(./assets/reindeer-jump.gif) no-repeat;
             width: 416px;
             height: 382px;
-            -webkit-transform: scale(0.5);
+            -webkit-transform: scale(0.3);
         }
         .shadow {
             position: absolute;
@@ -29,9 +29,19 @@
             width: 1400px;
             height: 70px;
             -webkit-transform: scale(0.4);
-            top:800px;
+            top:700px;
             left:50%;
             margin-left:-700px;
+        }
+        .text {
+            position: absolute;
+            background: transparent url(./assets/text.png) no-repeat;
+            width: 500px;
+            height: 400px;
+            /* -webkit-transform: scale(0.4); */
+            top:20px;
+            left:50%;
+            margin-left:-250px;
         }
         .drunker {
             position:absolute;
@@ -40,18 +50,19 @@
             height:363px;
             top: 450px;
             left: 20px;
+            z-index:1
         }
         .r1 {
-            top: 750px;
-            left: 350px;
+            top: 300px;
+            right: 0px;
         }
         .r2 {
-            top: 750px;
-            left: 650px;
+            top: 300px;
+            right: 150px;
         }
         .r3 {
-            top: 750px;
-            left: 850px;
+            top: 300px;
+            right: 300px;
         }
     </style>
 </head>
@@ -59,6 +70,7 @@
     <script data-main="js/main.js" src="js/require.js"></script>
     <div class="drunker"></div>
     <div class="shadow"></div>
+    <div class="text"></div>
     <div class="reindeer r1"></div>
     <div class="reindeer r2"></div>
     <div class="reindeer r3"></div>

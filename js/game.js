@@ -50,10 +50,11 @@ function(
             // audio.play();
         })
 
-
         this.enemies.push(this.service.giftFactory(0, 1 * siz, biz));
         this.enemies.push(this.service.giftFactory(0, 2 * siz, biz));
         this.enemies.push(this.service.giftFactory(0, 3 * siz, biz));
+        this.enemies.push(this.service.giftFactory(0, 4 * siz, biz));
+        this.enemies.push(this.service.giftFactory(0, 1 * siz, biz));
 
         this.collisionManager = this.service.collisionManager();
 
