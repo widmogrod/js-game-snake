@@ -7,16 +7,39 @@
     <style>
         html, body {margin:0; padding:0}
         body {
-            background: #F46A6A url(./assets/background.png) no-repeat;
+            background: #fff url(./assets/background.png) no-repeat;
         }
         #board {
             position: absolute;
-            top: 300px;
-            left: 400px;
+            top: 100px;
+            left: 320px;
+            z-index:9999;
+        }
+        .reindeer {
+            position: absolute;
+            background: transparent url(./assets/reindeer-jump.gif) no-repeat;
+            width: 416px;
+            height: 382px;
+            -webkit-transform: scale(0.5);
+        }
+        .r1 {
+            top: 700px;
+            left: 350px;
+        }
+        .r2 {
+            top: 700px;
+            left: 650px;
+        }
+        .r3 {
+            top: 700px;
+            left: 850px;
         }
     </style>
 </head>
 <body>
     <script data-main="js/main.js" src="js/require.js"></script>
+    <div class="reindeer r1"></div>
+    <div class="reindeer r2"></div>
+    <div class="reindeer r3"></div>
 </body>
 </html>

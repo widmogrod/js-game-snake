@@ -3,8 +3,6 @@ define([
     'shape/projection/projection',
     'shape/stage/canvas3d',
     'shape/shape/cube',
-    'shape/shape/rect',
-    'shape/shape/image',
     'shape/point/point',
     'shape/point/collection',
     'game/service'
@@ -14,8 +12,6 @@ function(
     Projection,
     Canvas3DStage,
     CubeShape,
-    RectShape,
-    ImageShape,
     Point,
     PointCollection,
     ServiceManager
@@ -39,35 +35,38 @@ function(
         this.cube = this.service.cube();
         this.actionManager = this.service.actionManager();
 
-        var siz = this.config.CUBE_SIZE / 2 ;
+        var siz = this.config.CUBE_SIZE  ;
         var biz = -this.board.width / 2 + this.config.CUBE_SIZE / 2;
 
         this.enemies = new PointCollection();
-        this.enemies.push(new CubeShape(
-            0,
-            5 * siz,
-            biz,
-            this.config.CUBE_SIZE,
-            '#ee312e'
-        ));
 
         var am = this.service.assetManager();
 
-        am.loadImage('box', 'reindeer.png');
-        am.loadAudio('mellody', 'mellody.mp3');
-        am.get('mellody', function(audio) {
-            console.log(audio);
-            audio.addEventListener('ended', function() {
-                this.currentTime = 0;
-                this.play();
-            }, false);
-            audio.play();
-        })
+        // am.get('mellody', function(audio) {
+        //     audio.addEventListener('ended', function() {
+        //         this.currentTime = 0;
+        //         this.play();
+        //     }, false);
+        //     // audio.play();
+        // })
 
-        var image = new ImageShape(0, 5 * siz, biz, 40, 40);
-        am.get('box', image.setImage.bind(image));
 
-        this.enemies.push(image);
+        this.enemies.push(this.service.giftFactory(0, 1 * siz, biz));
+        this.enemies.push(this.service.giftFactory(0, 2 * siz, biz));
+        this.enemies.push(this.service.giftFactory(0, 3 * siz, biz));
+
+        // var image = new SpriteShape(0, 7 * siz, biz, 40, 40);
+        // am.get('reindeer', function(object) {
+        //     var sprite = new SpriteUtil(
+        //         new ImageDataUtil(object).getImageData(),
+        //         40,
+        //         40
+        //     );
+        //     image.setSprite(sprite);
+        // });
+
+        // this.enemies.push(image);
+
 
 
         this.collisionManager = this.service.collisionManager();
@@ -81,7 +80,6 @@ function(
             })
         });
         this.stage.addChild(this.cube);
-        this.stage.addChild(new RectShape(-100,-100, 0, 20, 40))
 
         // Move State Machine
         this.stateMachine = this.service.stateMachineMove();

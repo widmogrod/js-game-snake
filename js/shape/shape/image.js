@@ -39,7 +39,8 @@ function (Shape, Point, PointCollection) {
             return;
         }
 
-        stage.drawImage(this.image, center.xpos, center.ypos, width, height);
+        // stage.drawImage(this.image, center.xpos, center.ypos, width, height);
+        stage.drawImage(this.image, center.xpos, center.ypos, this.width, this.height);
     }
 
     return ImageShape;

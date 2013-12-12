@@ -1,7 +1,9 @@
 define(
 [
-    'shape/shape/cube',
     'game/config',
+    'shape/shape/cube',
+    'shape/shape/image',
+    'shape/shape/sprite',
     'game/action/manager',
     'state',
     'game/action/move/right',
@@ -13,11 +15,15 @@ define(
     'game/action/rotate/up',
     'game/action/rotate/down',
     'shape/collision/manager',
-    'shape/utils/assets'
+    'shape/utils/assets',
+    'shape/utils/imagedata',
+    'shape/utils/sprites',
 ],
 function(
-    CubeShape,
     GameConfig,
+    CubeShape,
+    ImageShape,
+    SpriteShape,
     ActionManager,
     StateMachine,
     ActionMoveRight,
@@ -29,9 +35,10 @@ function(
     ActionShowUpEdge,
     ActionShowDownEdge,
     CollisionManager,
-    AssetUtil
-)
-{
+    AssetUtil,
+    ImageDataUtil,
+    SpriteUtil
+) {
     function ServiceManager(game) {
         this.game = game;
         this.instances = {};
@@ -55,8 +62,21 @@ function(
     }
     ServiceManager.prototype.assetManager = function() {
         return this.get('assetManager', function() {
-            return new AssetUtil(this.config().BASE_URL);
+            var am = new AssetUtil(this.config().BASE_URL);
+            am.loadImage('box', 'reindeer.png');
+            am.loadImage('reindeer', 'reindeer-sprite.png');
+            am.loadImage('gift-blue', 'gift-blue.png');
+            am.loadImage('gift-red', 'gift-red.png');
+            am.loadAudio('mellody', 'mellody.mp3');
+            return am;
         })
+    }
+    ServiceManager.prototype.giftFactory = function(x, y, z) {
+        var am = this.assetManager();
+        var gift = Math.random() > 0.5 ? 'gift-red' : 'gift-blue';
+        var image = new ImageShape(x, y, z, this.config().CUBE_SIZE, this.config().CUBE_SIZE);
+        am.get(gift, image.setImage.bind(image));
+        return image;
     }
     ServiceManager.prototype.actionManager = function() {
         return this.get('actionManager', function() {
@@ -150,7 +170,20 @@ function(
     }
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
-            return new CubeShape(0, 0, -this.game.board.width / 2 + this.config().CUBE_SIZE / 2, this.config().CUBE_SIZE, '#f2b139');
+            var shape = new SpriteShape(0, 0, -this.game.board.width / 2 + this.config().CUBE_SIZE / 2, this.config().CUBE_SIZE);
+            var am = this.assetManager();
+
+            am.get('reindeer', function(object) {
+                var sprite = new SpriteUtil(
+                    new ImageDataUtil(object).getImageData(),
+                    40,
+                    40
+                );
+                shape.setSprite(sprite);
+            });
+
+            return shape;
+            // return new CubeShape(0, 0, -this.game.board.width / 2 + this.config().CUBE_SIZE / 2, this.config().CUBE_SIZE, '#f2b139');
         })
     }
 
