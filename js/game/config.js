@@ -6,8 +6,8 @@ define(function(){
         'RIGHT_ANGLE' : 90,
         'ROTATION_ANGLE_STEP': 1,
         'ROTATION_MARGIN' : 80,
-        'GAME_STEP': 20,
-        'CUBE_SIZE': 20,
+        'GAME_STEP': 40,
+        'CUBE_SIZE': 40,
         'GAME_SPEED': 2,
         'state': {
             'move': {

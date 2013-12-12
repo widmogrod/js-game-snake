@@ -33,6 +33,22 @@ define(['event/event'], function(Event){
             self.trigger('error:'+name, [image])
         }
     }
+    AssetUtil.prototype.loadAudio = function(name, path) {
+        var self = this,
+            audio = new Audio();
+
+        audio.src = this.baseURL + path;
+        audio.preload = 'auto';
+        audio.addEventListener('canplay', function() {
+            self.trigger('complete', [name, audio])
+            self.trigger('complete:' + name, [audio])
+        })
+        audio.onerror = function() {
+            self.trigger('error', [name, audio])
+            self.trigger('error:'+name, [audio])
+        }
+        audio.load();
+    }
     AssetUtil.prototype.has = function(name) {
         return this.assets.hasOwnProperty(name);
     }

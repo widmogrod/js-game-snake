@@ -35,7 +35,7 @@ function(
         this.projection = new Projection(1270, canvas.width / 2, canvas.height / 2);
         this.stage = new Canvas3DStage(this.canvas, this.projection);
         this.boardWidth = (canvas.width / 2) +  (this.config.ROTATION_MARGIN);
-        this.board = new CubeShape(0, 0, 0, this.boardWidth, '#f68928');
+        this.board = new CubeShape(0, 0, 0, this.boardWidth, '#fff');
         this.cube = this.service.cube();
         this.actionManager = this.service.actionManager();
 
@@ -53,7 +53,16 @@ function(
 
         var am = this.service.assetManager();
 
-        am.loadImage('box', 'reindeer.jpg');
+        am.loadImage('box', 'reindeer.png');
+        am.loadAudio('mellody', 'mellody.mp3');
+        am.get('mellody', function(audio) {
+            console.log(audio);
+            audio.addEventListener('ended', function() {
+                this.currentTime = 0;
+                this.play();
+            }, false);
+            audio.play();
+        })
 
         var image = new ImageShape(0, 5 * siz, biz, 40, 40);
         am.get('box', image.setImage.bind(image));

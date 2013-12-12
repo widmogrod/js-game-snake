@@ -53,8 +53,8 @@ function(Shape, Point, PointCollection) {
             }
             stage.closePath();
             stage.fillStyle(this.color);
-            stage.stroke();
-            // stage.fill();
+            // stage.stroke();
+            stage.fill();
         }
     }
 
