@@ -35,39 +35,25 @@ function(
         this.cube = this.service.cube();
         this.actionManager = this.service.actionManager();
 
-        var siz = this.config.CUBE_SIZE  ;
+        var siz = this.config.CUBE_SIZE;
         var biz = -this.board.width / 2 + this.config.CUBE_SIZE / 2;
 
         this.enemies = new PointCollection();
 
         var am = this.service.assetManager();
 
-        // am.get('mellody', function(audio) {
-        //     audio.addEventListener('ended', function() {
-        //         this.currentTime = 0;
-        //         this.play();
-        //     }, false);
-        //     // audio.play();
-        // })
+        am.get('mellody', function(audio) {
+            audio.addEventListener('ended', function() {
+                this.currentTime = 0;
+                this.play();
+            }, false);
+            // audio.play();
+        })
 
 
         this.enemies.push(this.service.giftFactory(0, 1 * siz, biz));
         this.enemies.push(this.service.giftFactory(0, 2 * siz, biz));
         this.enemies.push(this.service.giftFactory(0, 3 * siz, biz));
-
-        // var image = new SpriteShape(0, 7 * siz, biz, 40, 40);
-        // am.get('reindeer', function(object) {
-        //     var sprite = new SpriteUtil(
-        //         new ImageDataUtil(object).getImageData(),
-        //         40,
-        //         40
-        //     );
-        //     image.setSprite(sprite);
-        // });
-
-        // this.enemies.push(image);
-
-
 
         this.collisionManager = this.service.collisionManager();
 

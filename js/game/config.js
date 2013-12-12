@@ -2,7 +2,7 @@ define(function(){
     function GameConfig() {}
 
     GameConfig.prototype = {
-        'BASE_URL':'http://127.0.0.1:9999/assets/',
+        'BASE_URL':'http://'+ window.location.host +'/assets/',
         'RIGHT_ANGLE' : 90,
         'ROTATION_ANGLE_STEP': 1,
         'ROTATION_MARGIN' : 80,
