@@ -1,7 +1,7 @@
 define(['event/event'], function(Event){
     function onChange(from, to, context) {
         return function() {
-            if (null !== context.state && context.state !== from) {
+            if (null !== context.state && (context.state !== from && from !== '*')) {
                 return;
             }
 

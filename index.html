@@ -44,7 +44,7 @@
             left:50%;
             margin-left:-250px;
         }
-        .drunker {
+        .santa {
             position:absolute;
             background: transparent url(./assets/drunk-claus.gif) no-repeat;
             width:354px;
@@ -52,6 +52,9 @@
             top: 450px;
             left: 20px;
             z-index:1
+        }
+        .santa.happy {
+            background-image: url(./assets/happy-santa.gif);
         }
         .r1 {
             top: 300px;
@@ -69,7 +72,7 @@
 </head>
 <body>
     <script data-main="js/main.js" src="js/require.js"></script>
-    <div class="drunker"></div>
+    <div id="santa" class="santa"></div>
     <div class="shadow"></div>
     <div class="text"></div>
     <div class="reindeer r1"></div>

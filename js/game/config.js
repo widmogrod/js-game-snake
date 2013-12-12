@@ -42,6 +42,9 @@ define(function(){
                 },
                 'show_right_face': {
                     'right.face.visible': 'right'
+                },
+                '*': {
+                    'found.gidts': 'end'
                 }
             },
             'game': {

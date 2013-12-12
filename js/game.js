@@ -34,6 +34,7 @@ function(
         this.boardEdge = (this.boardWidth / 2) - this.config.CUBE_SIZE >> 0;
         this.board = new CubeShape(0, 0, 0, this.boardWidth, '#fff');
         this.cube = this.service.cube();
+        this.collect = 0;
         this.actionManager = this.service.actionManager();
 
         var size = this.config.CUBE_SIZE;
@@ -66,6 +67,7 @@ function(
         this.enemies.each(function(item) {
             self.stage.addChild(item);
             self.collisionManager.when(self.cube, item, function(data) {
+                self.collect++;
                 am.get('ring', function(ring) {
                     ring.play()
                 })
@@ -103,6 +105,9 @@ function(
         this.stateMachine.on('enter:show_down_face', function() {
             self.actionManager.remove('move');
             self.actionManager.set('rotate', self.service.actionShowDownEdge());
+        });
+        this.stateMachine.on('enter:end', function() {
+            document.getElementById('santa').className += ' happy';
         });
 
         // Catch user events
@@ -146,6 +151,10 @@ function(
             }
         },
         'run': function() {
+            if (this.stage.childs.length < 3) {
+                this.stateMachine.trigger('found.gidts');
+                return;
+            }
             // Calculate interaction
             this.update();
             this.collisionManager.run();
