@@ -68,6 +68,9 @@ define(['shape/stage/interface'], function(Stage){
         this.context.textBaseline = 'bottom';
         this.context.fillText(text, x, y);
     }
+    CanvasStage.prototype.drawImage = function(img, x, y, width, height) {
+        this.context.drawImage(img, x, y, width, height);
+    }
     CanvasStage.prototype.fillEllipse = function(x, y, w, h) {
         var kappa = .5522848,
             ox = (w / 2) * kappa, // control point offset horizontal

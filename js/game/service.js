@@ -12,7 +12,8 @@ define(
     'game/action/rotate/left',
     'game/action/rotate/up',
     'game/action/rotate/down',
-    'shape/collision/manager'
+    'shape/collision/manager',
+    'shape/utils/assets'
 ],
 function(
     CubeShape,
@@ -27,7 +28,8 @@ function(
     ActionShowLeftEdge,
     ActionShowUpEdge,
     ActionShowDownEdge,
-    CollisionManager
+    CollisionManager,
+    AssetUtil
 )
 {
     function ServiceManager(game) {
@@ -41,7 +43,6 @@ function(
         }
         return this.instances[name];
     }
-
     ServiceManager.prototype.config = function() {
         return this.get('config', function() {
             return new GameConfig();
@@ -50,6 +51,11 @@ function(
     ServiceManager.prototype.collisionManager = function() {
         return this.get('collisionManager', function() {
             return new CollisionManager();
+        })
+    }
+    ServiceManager.prototype.assetManager = function() {
+        return this.get('assetManager', function() {
+            return new AssetUtil(this.config().BASE_URL);
         })
     }
     ServiceManager.prototype.actionManager = function() {

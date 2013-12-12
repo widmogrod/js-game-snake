@@ -11,8 +11,11 @@ require(['game', 'promise2'], function(TetrisGame, Promise) {
     var tetris, game;
 
     game = document.createElement('canvas');
-    game.width = window.innerWidth;
-    game.height = window.innerHeight;
+    game.setAttribute('id', 'board')
+    // game.width = window.innerWidth;
+    // game.height = window.innerHeight;
+    game.width = 600;
+    game.height = 600;
     document.body.appendChild(game);
 
     tetris = new TetrisGame(game);

@@ -4,6 +4,7 @@ define([
     'shape/stage/canvas3d',
     'shape/shape/cube',
     'shape/shape/rect',
+    'shape/shape/image',
     'shape/point/point',
     'shape/point/collection',
     'game/service'
@@ -14,6 +15,7 @@ function(
     Canvas3DStage,
     CubeShape,
     RectShape,
+    ImageShape,
     Point,
     PointCollection,
     ServiceManager
@@ -37,15 +39,27 @@ function(
         this.cube = this.service.cube();
         this.actionManager = this.service.actionManager();
 
+        var siz = this.config.CUBE_SIZE / 2 ;
+        var biz = -this.board.width / 2 + this.config.CUBE_SIZE / 2;
+
         this.enemies = new PointCollection();
         this.enemies.push(new CubeShape(
             0,
-            5 * (this.config.CUBE_SIZE / 2),
-            -this.board.width / 2 + this.config.CUBE_SIZE / 2,
+            5 * siz,
+            biz,
             this.config.CUBE_SIZE,
             '#ee312e'
         ));
-        // this.enemies.push(new RectShape(-140, -120, 220, 20, 40))
+
+        var am = this.service.assetManager();
+
+        am.loadImage('box', 'reindeer.jpg');
+
+        var image = new ImageShape(0, 5 * siz, biz, 40, 40);
+        am.get('box', image.setImage.bind(image));
+
+        this.enemies.push(image);
+
 
         this.collisionManager = this.service.collisionManager();
 

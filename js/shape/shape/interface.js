@@ -17,6 +17,9 @@ define(['shape/point/collection'], function(PointCollection) {
     Shape.prototype.points = function() {
         return this.points_;
     };
+    Shape.prototype.center = function() {
+        return this.points_.center;
+    };
     Shape.prototype.state = function(state) {
         if (arguments.length) {
             this.state_ = state;
