@@ -72,6 +72,7 @@ function(
                     ring.play()
                 })
                 self.stage.removeChild(data.collide);
+
             })
         });
         this.stage.addChild(this.cube);
@@ -151,7 +152,7 @@ function(
             }
         },
         'run': function() {
-            if (this.stage.childs.length < 3) {
+            if (this.enemies.count <= this.collect) {
                 this.stateMachine.trigger('found.gidts');
                 return;
             }

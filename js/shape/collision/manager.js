@@ -21,23 +21,31 @@ define(function() {
         return shape.center();
     }
     CollisionManager.prototype.run = function() {
-        var one, two, then, length, delta;
-        this.queue.forEach(function(item) {
+        var one, two, then, length, delta, event;
+        var self = this;
+        this.queue.forEach(function(item, index) {
             // Extract data
             one = item[0], two = item[1], then = item[2];
             // Calculate length
-            length = this.length(this.center(one), this.center(two));
-            delta = length - (this.radius(one) + this.radius(two));
+            length = self.length(self.center(one), self.center(two));
+            delta = length - (self.radius(one) + self.radius(two));
 
             if (delta < 0) {
                 // Yes, we've intersect
-                then({
+                event = {
                     object: one,
                     collide: two,
-                    delta: delta
-                });
+                    delta: delta,
+                    preventRelease: false
+                };
+
+                then(event);
+
+                if (!event.preventRelease) {
+                    self.queue.splice(index, 1);
+                }
             }
-        }.bind(this));
+        });
     }
 
     return CollisionManager;
