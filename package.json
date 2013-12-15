@@ -1,0 +1,34 @@
+{
+  "name": "js-game-snake",
+  "version": "0.0.2",
+  "description": "3D game on canvas",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/widmogrod/js-game-snake.git"
+  },
+  "keywords": [
+    "game",
+    "canvas",
+    "3D"
+  ],
+  "author": "Gabriel Habryn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/widmogrod/js-game-snake/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.6.3",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-watch": "~0.5",
+    "grunt-contrib-requirejs": "~0.4.1"
+  }
+}
