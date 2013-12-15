@@ -49,7 +49,7 @@ function(
                 // this.currentTime = 0;
                 this.play();
             }, false);
-            audio.play();
+            // audio.play();
         })
 
         // this.enemies.push(this.service.giftFactory(0, 1 * size, edge));
@@ -130,8 +130,8 @@ function(
         'update': function() {
             var x = this.cube.center().x;
             var y = this.cube.center().y;
-            var boardX = this.board.center().x + this.boardEdge;
-            var boardY = this.board.center().y + this.boardEdge;
+            var boardX = this.boardEdge;
+            var boardY = this.boardEdge;
 
             if (x > boardX) {
                 this.stateMachine.trigger('edge.right');
@@ -152,19 +152,23 @@ function(
             }
         },
         'run': function() {
-            if (this.enemies.count <= this.collect) {
-                this.stateMachine.trigger('found.gidts');
-                return;
+            var self = this;
+            function loop() {
+                if (self.enemies.count <= self.collect) {
+                    self.stateMachine.trigger('found.gidts');
+                    return;
+                }
+                // One more time
+                requestAnimationFrame(loop);
+                // Calculate interaction
+                self.update();
+                self.collisionManager.run();
+                // Run actions
+                self.actionManager.run();
+                // Render
+                self.stage.render();
             }
-            // Calculate interaction
-            this.update();
-            this.collisionManager.run();
-            // Run actions
-            this.actionManager.run();
-            // Render
-            this.stage.render();
-            // One more time
-            requestAnimationFrame(this.run.bind(this));
+            loop();
         }
     };
 
