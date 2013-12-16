@@ -45,10 +45,10 @@ function(
         var am = this.service.assetManager();
 
         am.get('melody', function(audio) {
-            audio.addEventListener('ended', function() {
+            // audio.addEventListener('ended', function() {
                 // this.currentTime = 0;
-                this.play();
-            }, false);
+                // this.play();
+            // }, false);
             // audio.play();
         })
 

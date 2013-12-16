@@ -54,6 +54,35 @@ define(['event/event'], function(Event){
         })
         audio.load();
     }
+    AssetUtil.prototype.loadAudio2 = function(name, path) {
+        var self = this;
+        // Fix up prefixing
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        var context = new AudioContext();
+        var request = new XMLHttpRequest();
+        request.open('GET', this.baseURL + path, true);
+        request.responseType = 'arraybuffer';
+        request.onload = function() {
+            context.decodeAudioData(request.response, function(buffer) {
+                var audio = {
+                    play: function() {
+                        var source = context.createBufferSource();
+                        source.buffer = buffer;
+                        source.connect(context.destination);
+                        source.start(0);
+                    }
+                };
+
+                self.trigger('complete', [name, audio])
+                self.trigger('complete:' + name, [audio])
+
+            }, function() {
+                self.trigger('error', [name, audio])
+                self.trigger('error:'+name, [audio])
+            });
+        }
+        request.send();
+    }
     AssetUtil.prototype.has = function(name) {
         return this.assets.hasOwnProperty(name);
     }
