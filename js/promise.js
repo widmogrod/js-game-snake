@@ -1,40 +1,120 @@
-define(function(){
+(typeof define === 'function' && define.amd ? define : function(factory) { module.exports = factory(); })(function() {
     var STATUS_UNRESOLVED = 0;
     var STATUS_REJECTED = 1;
     var STATUS_FULFILLED = 2;
 
-    function Promise(callback) {
-        this.deffered = [];
-        this.value = null;
-        this.reason = null;
-        this.status = STATUS_UNRESOLVED;
+    function handle(item, isRejected, value) {
+        var x, func, promise;
+        func = isRejected ? item.onReject : item.onResolve;
+        promise = item.promise;
+        try {
+            if (typeof func !== 'function') {
+                return isRejected
+                    ? promise.reject(value)
+                    : promise.fulfill(value)
+            } else {
+                x = func(value);
+                resolve(promise, x);
+            }
+        } catch(e) {
+            promise.reject(e);
+        }
+    }
 
-        callback(this.reject.bind(this), this.resolve.bind(this));
+    function resolve(p, x) {
+        var then, notCalled = true;
+
+        try {
+            if (x === p) {
+                throw new TypeError('Promise and x refer to the same object');
+            }
+            if (x instanceof Promise) {
+                return x.then(function(v){ p.fulfill(v) }, function(r){ p.reject(r) });
+            }
+            if ((x !== Object(x) && typeof x !== 'function') || !('then' in x)) {
+                return p.fulfill(x);
+            }
+
+            then = x.then;
+
+            if (typeof then !== 'function') {
+                return p.fulfill(x);
+            }
+
+            then.call(
+                x,
+                function onResolve(v) {
+                    if (notCalled) {
+                        notCalled = false;
+                        resolve(p, v);
+                    }
+                }, function onReject(r){
+                    if (notCalled) {
+                        notCalled = false;
+                        p.reject(r);
+                    }
+                }
+            );
+        } catch(e) {
+            notCalled && p.reject(e);
+        }
     }
-    Promise.prototype.then = function(onFulfilled, onRejected) {
-        if (this.status === STATUS_REJECTED) onRejected(this.reason);
-        else if (this.status === STATUS_FULFILLED) onFulfilled(this.message);
-        else this.deffered.push([onFulfilled, onRejected]);
-        return this;
+
+    function each(promise, value) {
+        while(promise.deffered.length) {
+            handle(promise.deffered.shift(), promise.status === STATUS_REJECTED, value);
+        }
     }
-    Promise.prototype.resolve = function(value) {
-        if (this.status !== STATUS_UNRESOLVED) throw new Error('Promise was fulfilled');
+
+    function changeState(promise) {
+        return promise.status === null;
+    }
+
+    function tryResolve(promise) {
+        setTimeout(function() {
+            if (promise.status === STATUS_FULFILLED) each(promise, promise.value);
+            else if (promise.status === STATUS_REJECTED) each(promise, promise.value);
+        }, 0);
+        return promise;
+    }
+
+    function Promise() {
+        this.deffered = [];
+        this.status = null;
+        this.value = null;
+    }
+
+    Promise.prototype.fulfill = function(value){
+        if (this.status !== STATUS_UNRESOLVED)
+            return this;
 
         this.status = STATUS_FULFILLED;
         this.value = value;
-        this.deffered.forEach(function(item) {
-            item[0](value);
-        });
-    }
+
+        return tryResolve(this);
+    };
     Promise.prototype.reject = function(reason) {
-        if (this.status !== STATUS_UNRESOLVED) throw new Error('Promise was rejected')
+        if (this.status !== STATUS_UNRESOLVED)
+            return this;
 
         this.status = STATUS_REJECTED;
-        this.reason = reason;
-        this.deffered.forEach(function(item) {
-            item[1](reason);
+        this.value = reason;
+
+        return tryResolve(this);
+    };
+    Promise.prototype.then = function(onResolve, onReject) {
+        var promise = new Promise();
+
+        this.deffered.push({
+            onResolve: onResolve,
+            onReject: onReject,
+            promise: promise
         });
-    }
+
+        tryResolve(this);
+
+        return promise;
+    };
 
     return Promise;
-})
+});
