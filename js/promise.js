@@ -66,10 +66,6 @@
         }
     }
 
-    function changeState(promise) {
-        return promise.status === null;
-    }
-
     function tryResolve(promise) {
         setTimeout(function() {
             if (promise.status === STATUS_FULFILLED) each(promise, promise.value);
