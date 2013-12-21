@@ -46,10 +46,10 @@ function(
 
         am.get('melody', function(audio) {
             // audio.addEventListener('ended', function() {
-                // this.currentTime = 0;
-                // this.play();
+            // this.currentTime = 0;
+            // this.play();
             // }, false);
-            // audio.play();
+            audio.play();
         })
 
         // this.enemies.push(this.service.giftFactory(0, 1 * size, edge));
@@ -79,17 +79,21 @@ function(
 
         // Move State Machine
         this.stateMachine = this.service.stateMachineMove();
-        this.stateMachine.on('enter:left', function() {
+        this.stateMachine.on('enter:left', function(e) {
             self.actionManager.set('move', self.service.actionMoveLeft());
+            e.lock(self.actionManager.proxy('canStop', 'move'));
         })
-        this.stateMachine.on('enter:right', function() {
+        this.stateMachine.on('enter:right', function(e) {
             self.actionManager.set('move', self.service.actionMoveRight());
+            e.lock(self.actionManager.proxy('canStop', 'move'));
         })
-        this.stateMachine.on('enter:up', function() {
+        this.stateMachine.on('enter:up', function(e) {
             self.actionManager.set('move', self.service.actionMoveUp());
+            e.lock(self.actionManager.proxy('canStop', 'move'));
         })
-        this.stateMachine.on('enter:down', function() {
+        this.stateMachine.on('enter:down', function(e) {
             self.actionManager.set('move', self.service.actionMoveDown());
+            e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:show_right_face', function() {
             self.actionManager.remove('move');
@@ -145,10 +149,10 @@ function(
         },
         'captureKeys' : function(e) {
             switch(true) {
-                case 37 == e.keyCode: this.stateMachine.trigger('press.left'); break;
-                case 38 == e.keyCode: this.stateMachine.trigger('press.up'); break;
-                case 39 == e.keyCode: this.stateMachine.trigger('press.right'); break;
-                case 40 == e.keyCode: this.stateMachine.trigger('press.down'); break;
+                case 37 == e.keyCode: e.preventDefault(); this.stateMachine.trigger('press.left'); break;
+                case 38 == e.keyCode: e.preventDefault(); this.stateMachine.trigger('press.up'); break;
+                case 39 == e.keyCode: e.preventDefault(); this.stateMachine.trigger('press.right'); break;
+                case 40 == e.keyCode: e.preventDefault(); this.stateMachine.trigger('press.down'); break;
             }
         },
         'run': function() {
@@ -165,10 +169,12 @@ function(
                 self.collisionManager.run();
                 // Run actions
                 self.actionManager.run();
+                // Resolve state if any aciton is locking state
+                self.stateMachine.run();
                 // Render
                 self.stage.render();
             }
-            loop();
+            requestAnimationFrame(loop);
         }
     };
 
