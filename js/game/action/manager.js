@@ -34,6 +34,16 @@ define(function() {
             this.unset[name] = true;
         }
     }
+    ActionManager.prototype.canStop = function(name) {
+        return this.has(name) ? this.get(name).canStop() : false;
+    }
+    ActionManager.prototype.proxy = function(method, args) {
+        var self = this;
+        args = typeof args === 'array' ? args : [args];
+        return function() {
+            return self[method].apply(self, args);
+        }
+    }
     ActionManager.prototype.run = function() {
         var name, action, temporary;
         for (name in this.actions) {
