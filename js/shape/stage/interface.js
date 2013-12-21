@@ -15,7 +15,9 @@ define(function(){
         'fillStyle': function(style) {},
         'fillText': function(text, x, y) {},
         'drawImage': function(img, x, y, width, height) {},
-        'setTransform': function(skewX, skewY, scalX, scalY, moveX, moveY) {}
+        'getImageData': function(img, x, y, width, height) {},
+        'putImageData': function(x, y, width, height) {},
+        'setTransform': function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {}
     };
 
     return Stage;

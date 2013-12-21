@@ -68,6 +68,9 @@ define(['shape/stage/interface'], function(Stage){
         this.context.textBaseline = 'bottom';
         this.context.fillText(text, x, y);
     }
+    CanvasStage.prototype.getImageData = function(x, y, width, height) {
+        return this.context.getImageData(x, y, width, height);
+    }
     CanvasStage.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
         this.context.putImageData(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight);
     }
