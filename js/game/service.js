@@ -176,7 +176,7 @@ function(
 
             am.get('reindeer', function(object) {
                 var sprite = new SpriteUtil(
-                    new ImageDataUtil(object).getImageData(),
+                    new ImageDataUtil(object),
                     40,
                     40
                 );
