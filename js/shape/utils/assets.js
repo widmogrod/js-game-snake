@@ -1,11 +1,11 @@
 define(['event/event'], function(Event){
     function onComplete(assets) {
-        return function(name, image) {
+        return function(e, name, image) {
             assets[name] = image;
         }
     }
 
-    function onError() {
+    function onError(e, name, image) {
         console.log('cant load asset:', name, image);
     }
 
@@ -90,7 +90,7 @@ define(['event/event'], function(Event){
         if (this.has(name)) {
             func(this.assets[name]);
         } else {
-            this.on('complete:' + name, func)
+            this.on('complete:' + name, function(e, value) { func(value) })
         }
         return this;
     }

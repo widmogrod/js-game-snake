@@ -5,7 +5,7 @@ define(function() {
         this.frameHeight = frameHeight;
         this.tick = 15;
         this.frameNumber = 0;
-        this.frames = imageData.width/frameWidth >> 0;
+        this.frames = imageData.width()/frameWidth >> 0;
         this.counter = 0;
     }
 
@@ -17,7 +17,7 @@ define(function() {
 
         var dx = this.frameNumber * this.frameWidth;
         stage.putImageData(
-            this.imageData,
+            this.imageData.patch(stage, x, y, this.frameWidth).data(),
             x - dx,
             y,
             dx,
