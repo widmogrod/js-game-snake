@@ -16,4 +16,6 @@ define(function(){
     Result.prototype.each = function(func) {
         this.results.forEach(func);
     }
+
+    return Result;
 })

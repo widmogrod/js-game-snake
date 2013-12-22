@@ -3,6 +3,7 @@ require.config({
     paths: {
         hammerjs: '../bower_components/hammerjs/dist/hammer.min'
     }
+    ,optimize: "none"
 });
 
 require(['game'], function(TetrisGame) {

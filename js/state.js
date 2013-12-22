@@ -1,4 +1,4 @@
-define(['event/event', 'promise'], function(Event, Promise){
+define(['event/event'], function(Event){
     function onAny(context) {
         return function() {
             --context.lock;

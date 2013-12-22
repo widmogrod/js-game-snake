@@ -19,6 +19,7 @@
     "tests"
   ],
   "dependencies": {
-    "hammerjs": "~1.0.5"
+    "hammerjs": "~1.0.5",
+    "requirejs": null
   }
 }

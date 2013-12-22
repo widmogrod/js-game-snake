@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         copy: {
             assets: {
                 files: [
-                    {expand: true, src: ['assets/**', 'index.html'], dest: 'build/'}
+                    {expand: true, src: ['assets/**', 'index.html', 'js/require.js', 'js/main.js'], dest: 'build/'}
                 ]
             }
         },
@@ -35,21 +35,26 @@ module.exports = function(grunt) {
                 options: {
                     spawn: false
                 }
+            },
+            styles: {
+                files: ['assets/main.css']
             }
         },
         requirejs: {
             compile: {
                 options: {
-                    name: 'game',
+                    name: 'main',
+                    // name: 'game',
+                    // name: 'shape/shape/interface',
                     baseUrl: "js",
                     mainConfigFile: "js/main.js",
-                    out: "build/js/optimized.js"
+                    out: "build/js/main.js"
                 }
             }
         },
-        shell: {                                // Task
-            listFolders: {                      // Target
-                options: {                      // Options
+        shell: {
+            listFolders: {
+                options: {
                     stdout: true
                 },
                 command: 'ls'
@@ -64,6 +69,28 @@ module.exports = function(grunt) {
                     port: 9999,
                     keepalive: true,
                     livereload: true
+                }
+            }
+        },
+        jade: {
+            dev: {
+                options: {
+                    data: {
+                        dev: true
+                    }
+                },
+                files: {
+                    "index.html": "index.jade"
+                }
+            },
+            release: {
+                options: {
+                    data: {
+                        dev: false
+                    }
+                },
+                files: {
+                    "build/index.html": "test.jade"
                 }
             }
         },
