@@ -57,7 +57,7 @@ module.exports = function(grunt) {
                 },
                 command: 'ls'
             },
-            ghPage: {
+            ghPages: {
                 options: {
                     stdout: true
                 },
@@ -122,4 +122,5 @@ module.exports = function(grunt) {
     // Default task(s).
     grunt.registerTask('default', ['jade:dev', 'concurrent:dev']);
     grunt.registerTask('build', ['clean', 'copy', 'requirejs', 'jade:build']);
+    grunt.registerTask('deploy', ['build', 'shell:ghPages']);
 };
