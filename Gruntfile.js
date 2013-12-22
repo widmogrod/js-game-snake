@@ -60,6 +60,9 @@ module.exports = function(grunt) {
                 command: 'ls'
             },
             ghPage: {
+                options: {
+                    stdout: true
+                },
                 command: [
                     'git checkout gh-pages',
                     'cp -R build/* .',
