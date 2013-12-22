@@ -1,6 +1,4 @@
 module.exports = function(grunt) {
-
-    // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: {
@@ -122,6 +120,6 @@ module.exports = function(grunt) {
 
 
     // Default task(s).
-    grunt.registerTask('default', ['concurrent:dev']);
-    grunt.registerTask('build', ['clean', 'copy', 'requirejs']);
+    grunt.registerTask('default', ['jade:dev', 'concurrent:dev']);
+    grunt.registerTask('build', ['clean', 'copy', 'requirejs', 'jade:build']);
 };
