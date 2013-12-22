@@ -60,7 +60,14 @@ module.exports = function(grunt) {
                 command: 'ls'
             },
             ghPage: {
-                command: 'git status'
+                command: [
+                    'git checkout gh-pages',
+                    'cp -R build/* .',
+                    'rm -rf build',
+                    'git commit -am "new realise"',
+                    'git push origin gh-pages',
+                    'git checkout master'
+                ].join(' && ');
             }
         },
         connect: {
