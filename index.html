@@ -4,71 +4,7 @@
     <title>The game</title>
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <meta charset="utf-8" />
-    <style>
-        html, body {margin:0; padding:0}
-        body {
-            background: #fff url(./assets/background.gif) 50% -300px repeat-x;
-        }
-        #board {
-            position: absolute;
-            top: 120px;
-            left: 50%;
-            margin-left:-300px;
-            z-index:9999;
-            /* border:1px solid silver; */
-        }
-        .reindeer {
-            position: absolute;
-            background: transparent url(./assets/reindeer-jump.gif) no-repeat;
-            width: 416px;
-            height: 382px;
-            -webkit-transform: scale(0.3);
-        }
-        .shadow {
-            position: absolute;
-            background: transparent url(./assets/shadow.png) 50% 50% no-repeat;
-            width: 1400px;
-            height: 70px;
-            -webkit-transform: scale(0.4);
-            top:750px;
-            left:50%;
-            margin-left:-700px;
-        }
-        .text {
-            position: absolute;
-            background: transparent url(./assets/text.png) no-repeat;
-            width: 500px;
-            height: 400px;
-            /* -webkit-transform: scale(0.4); */
-            top:20px;
-            left:50%;
-            margin-left:-250px;
-        }
-        .santa {
-            position:absolute;
-            background: transparent url(./assets/drunk-claus.gif) no-repeat;
-            width:354px;
-            height:363px;
-            top: 450px;
-            left: 20px;
-            z-index:1
-        }
-        .santa.happy {
-            background-image: url(./assets/happy-santa.gif);
-        }
-        .r1 {
-            top: 300px;
-            right: 0px;
-        }
-        .r2 {
-            top: 300px;
-            right: 150px;
-        }
-        .r3 {
-            top: 300px;
-            right: 300px;
-        }
-    </style>
+    <link href="./assets/main.css" rel="stylesheet" media="screen">
 </head>
 <body>
     <script data-main="js/main.js" src="js/require.js"></script>
