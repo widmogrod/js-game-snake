@@ -86,21 +86,21 @@ module.exports = function(grunt) {
             dev: {
                 options: {
                     data: {
-                        dev: true
+                        baseUrl: ''
                     }
                 },
                 files: {
                     "index.html": "index.jade"
                 }
             },
-            release: {
+            build: {
                 options: {
                     data: {
-                        dev: false
+                        baseUrl: 'http://widmogrod.github.io/js-game-snake/'
                     }
                 },
                 files: {
-                    "build/index.html": "test.jade"
+                    "build/index.html": "index.jade"
                 }
             }
         },
