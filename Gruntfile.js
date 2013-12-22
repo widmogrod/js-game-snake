@@ -42,7 +42,7 @@ module.exports = function(grunt) {
                 options: {
                     name: 'game',
                     baseUrl: "js",
-                    mainConfigFile: "js/config.js",
+                    mainConfigFile: "js/main.js",
                     out: "build/js/optimized.js"
                 }
             }
