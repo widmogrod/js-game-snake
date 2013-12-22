@@ -1,0 +1,63 @@
+html, body {margin:0; padding:0}
+body {
+    background: #fff url(background.gif) 50% -300px repeat-x;
+}
+#board {
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    margin-left:-300px;
+    z-index:9999;
+    /* border:1px solid silver; */
+}
+.reindeer {
+    position: absolute;
+    background: transparent url(reindeer-jump.gif) no-repeat;
+    width: 416px;
+    height: 382px;
+    -webkit-transform: scale(0.3);
+}
+.shadow {
+    position: absolute;
+    background: transparent url(shadow.png) 50% 50% no-repeat;
+    width: 1400px;
+    height: 70px;
+    -webkit-transform: scale(0.4);
+    top:750px;
+    left:50%;
+    margin-left:-700px;
+}
+.text {
+    position: absolute;
+    background: transparent url(text.png) no-repeat;
+    width: 500px;
+    height: 400px;
+    /* -webkit-transform: scale(0.4); */
+    top:20px;
+    left:50%;
+    margin-left:-250px;
+}
+.santa {
+    position:absolute;
+    background: transparent url(drunk-claus.gif) no-repeat;
+    width:354px;
+    height:363px;
+    top: 450px;
+    left: 20px;
+    z-index:1
+}
+.santa.happy {
+    background-image: url(happy-santa.gif);
+}
+.r1 {
+    top: 300px;
+    right: 0px;
+}
+.r2 {
+    top: 300px;
+    right: 150px;
+}
+.r3 {
+    top: 300px;
+    right: 300px;
+}
