@@ -12,12 +12,15 @@ require(['game'], function(TetrisGame) {
     var tetris, game;
 
     game = document.createElement('canvas');
-    game.setAttribute('id', 'board')
-    // game.width = window.innerWidth;
-    // game.height = window.innerHeight;
-    game.width = 500;
-    game.height = 500;
+    game.setAttribute('id', 'board');
+    game.width = 450;
+    game.height = 450;
     document.body.appendChild(game);
+
+    // Catch user events
+    document.ontouchmove = function(event){
+        event.preventDefault();
+    }
 
     tetris = new TetrisGame(game);
     tetris.run();

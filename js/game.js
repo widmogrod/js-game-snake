@@ -30,7 +30,7 @@ function(
         this.config = this.service.config();
         this.projection = new Projection(1270, canvas.width / 2, canvas.height / 2);
         this.stage = new Canvas3DStage(this.canvas, this.projection);
-        this.boardWidth = this.config.CUBE_SIZE * 6 >> 0;
+        this.boardWidth = this.config.CUBE_SIZE * 8 >> 0;
         this.boardEdge = (this.boardWidth / 2) - this.config.CUBE_SIZE >> 0;
         this.board = new CubeShape(0, 0, 0, this.boardWidth, '#fff');
         this.cube = this.service.cube();
@@ -164,11 +164,8 @@ function(
             document.getElementById('santa').className += ' happy';
         });
 
-        // Catch user events
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
-        document.ontouchmove = function(event){
-            event.preventDefault();
-        }
+
         Hammer(this.canvas, {
             drag_lock_to_axis: true
         })
