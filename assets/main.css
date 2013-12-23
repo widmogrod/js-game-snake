@@ -1,18 +1,14 @@
-/* Smartphones (portrait and landscape) ----------- */
-@media only screen
-and (min-device-width : 320px)
-and (max-device-width : 480px) {
+@media only screen and (min-device-width: 560px) and (max-device-width: 1136px) {
     #board {
         position: absolute;
-        top: 0px;
-        left: 0px;
+        top: 0;
+        left: 0;
         z-index:9999;
     }
 }
 
 /* Desktops and laptops ----------- */
-@media only screen
-and (min-width : 1224px) {
+@media only screen and (min-width : 1224px) {
     #board {
         position: absolute;
         top: 120px;
