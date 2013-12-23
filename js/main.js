@@ -1597,16 +1597,65 @@ function(
             // this.currentTime = 0;
             // this.play();
             // }, false);
-            audio.play();
+            // audio.play();
         })
 
+
+        var mrand_state;
+        function mrand() {
+            var rand;
+            if (!mrand_state) {
+                mrand_state = Math.random();
+            } else {
+                do {
+                    rand = Math.random();
+                } while (mrand_state == rand);
+                mrand_state = rand;
+            }
+            return mrand_state;
+        }
+        function spawnRandom() {
+            var faces = [
+                // front
+                [0,0,1],
+                // back
+                [0,0,-1],
+                // left
+                [1,0,0],
+                // right
+                [-1,0,0],
+                // up
+                [0,1,0],
+                // donw
+                [0,-1,0]
+            ];
+
+            var face = faces[mrand() * 6 >> 0];
+            face = face.map(function(item) {
+                if (item == 0) {
+                    item = ((mrand() * 4 >> 0) + 2) * size
+                    item *= (mrand() * 2 >> 0) > 0 ? -1 : 1;
+                } else {
+                    item * edge
+                }
+                return item;
+            });
+            return face;
+        }
+
+        var d;
+        for(var k = 0; k < 6; k++) {
+            d = spawnRandom();
+            this.enemies.push(this.service.giftFactory(d[0], d[1], d[2]));
+        }
+
         // this.enemies.push(this.service.giftFactory(0, 1 * size, edge));
-        this.enemies.push(this.service.giftFactory(0, 2 * size, edge));
-        this.enemies.push(this.service.giftFactory(0, 3 * size, edge));
-        this.enemies.push(this.service.giftFactory(0, 4 * size, edge));
-        this.enemies.push(this.service.giftFactory(edge, 1 * size, edge));
-        this.enemies.push(this.service.giftFactory(edge, 1 * size, edge));
-        this.enemies.push(this.service.giftFactory(edge, edge, edge));
+        // this.enemies.push(this.service.giftFactory(0, 2 * size, edge));
+        // this.enemies.push(this.service.giftFactory(0, 3 * size, edge));
+        // this.enemies.push(this.service.giftFactory(0, 4 * size, edge));
+        // this.enemies.push(this.service.giftFactory(edge, 1 * size, edge));
+        // this.enemies.push(this.service.giftFactory(edge, 1 * size, edge));
+        // this.enemies.push(this.service.giftFactory(edge, edge, edge));
 
         this.collisionManager = this.service.collisionManager();
 
