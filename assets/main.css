@@ -4,9 +4,8 @@ and (min-device-width : 320px)
 and (max-device-width : 480px) {
     #board {
         position: absolute;
-        top: 10px;
-        left: 50%;
-        margin-left:-200px;
+        top: 0;
+        left: 0;
         z-index:9999;
     }
 }
