@@ -6,9 +6,8 @@ and (max-device-width : 480px) {
         position: absolute;
         top: 10px;
         left: 50%;
-        margin-left:-300px;
+        margin-left:-200px;
         z-index:9999;
-        /* border:1px solid silver; */
     }
 }
 
@@ -21,14 +20,12 @@ and (min-width : 1224px) {
         left: 50%;
         margin-left:-300px;
         z-index:9999;
-        /* border:1px solid silver; */
     }
     .text {
         position: absolute;
         background: transparent url(text.png) no-repeat;
         width: 500px;
         height: 400px;
-        /* -webkit-transform: scale(0.4); */
         top:20px;
         left:50%;
         margin-left:-250px;
