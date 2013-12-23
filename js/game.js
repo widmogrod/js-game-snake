@@ -30,7 +30,7 @@ function(
         this.config = this.service.config();
         this.projection = new Projection(1270, canvas.width / 2, canvas.height / 2);
         this.stage = new Canvas3DStage(this.canvas, this.projection);
-        this.boardWidth = this.config.CUBE_SIZE * 10 >> 0;
+        this.boardWidth = this.config.CUBE_SIZE * 8 >> 0;
         this.boardEdge = (this.boardWidth / 2) - this.config.CUBE_SIZE >> 0;
         this.board = new CubeShape(0, 0, 0, this.boardWidth, '#fff');
         this.cube = this.service.cube();
@@ -85,7 +85,7 @@ function(
             var face = faces[mrand() * 6 >> 0];
             face = face.map(function(item) {
                 if (item == 0) {
-                    item = ((mrand() * 4 >> 0) + 2) * size
+                    item = ((mrand() * 3 >> 0) + 2) * size
                     item *= (mrand() * 2 >> 0) > 0 ? -1 : 1;
                 } else {
                     item * edge
