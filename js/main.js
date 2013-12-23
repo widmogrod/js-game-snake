@@ -15,8 +15,8 @@ require(['game'], function(TetrisGame) {
     game.setAttribute('id', 'board')
     // game.width = window.innerWidth;
     // game.height = window.innerHeight;
-    game.width = 600;
-    game.height = 600;
+    game.width = 500;
+    game.height = 500;
     document.body.appendChild(game);
 
     tetris = new TetrisGame(game);
