@@ -1597,7 +1597,7 @@ function(
             // this.currentTime = 0;
             // this.play();
             // }, false);
-            // audio.play();
+            audio.play();
         })
 
 
