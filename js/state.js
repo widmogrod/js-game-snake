@@ -1,26 +1,15 @@
 define(['event/event'], function(Event){
-    function onAny(context) {
-        return function() {
-            --context.lock;
-        }
-    }
-
     function onChange(from, to, context) {
         return function() {
             var results;
             if (null !== context.state && (context.state !== from && from !== '*')) {
-                // console.log('NO - state');
                 return;
             }
 
             if (context.unlock && !context.unlock()) {
                 context.postponed = onChange(from, to, context);
-                // console.log('NO - unlock');
                 return;
             }
-
-
-            // console.log('OK - unlocked')
 
             context.unlock = null;
             context.state = to;
@@ -54,9 +43,11 @@ define(['event/event'], function(Event){
     }
 
     StateMachine.prototype = new Event();
+    /**
+     * Resove postponed state.
+     * This can happen when current state is bloked
+     */
     StateMachine.prototype.run = function() {
-        // Resove postponed state.
-        // This can happen when current state is bloked
         if (typeof this.postponed === 'function') {
             var func = this.postponed;
             this.postponed = null;
