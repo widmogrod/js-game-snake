@@ -23,7 +23,6 @@ function(
         this.stateMachine = this.service.stateMachineMove();
         // Switch stages
         this.stateMachine.on('enter:play', function(e) {
-            console.log('play stage');
             self.currentStage = self.service.gameStage();
         })
         this.stateMachine.on('enter:start', function(e) {
