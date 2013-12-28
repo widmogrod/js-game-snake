@@ -12,18 +12,47 @@ define(['event/result'], function(Result){
         }
     }
 
+    function hash(array) {
+        var result = '';
+
+        if (array === undefined) return result;
+
+        array.forEach(function(item){
+            switch(Object.prototype.toString.call(item).slice(8, -1)) {
+                default:
+                    result += item;
+                    break;
+
+                case 'Array':
+                    result += hash(item);
+                    break;
+
+                case 'Object':
+                    for (var i in item) {
+                        if (item.hasOwnProperty(i))
+                            result += hash(item)
+                    }
+                    break;
+            }
+        })
+        return result;
+    }
+
     function Event() {
         this.events = {};
+        this.proxies = {};
     }
     Event.prototype.on = function(name, callback) {
         this.events[name] = this.events[name] ? this.events[name] : [];
-        this.events[name].push(callback);
+        if (-1 === this.events[name].indexOf(callback)) {
+            this.events[name].push(callback);
+        }
         return this;
     }
     Event.prototype.trigger = function(name, args) {
         var value, events;
         var event = typeof this.createEvent === 'function' ? this.createEvent() : createEvent(),
-            result = new Result(event);
+        result = new Result(event);
 
         if (!this.events.hasOwnProperty(name)) {
             return result;
@@ -41,8 +70,11 @@ define(['event/result'], function(Result){
         return result;
     }
     Event.prototype.proxy = function(name, args) {
-        var self = this;
-        return function(event) {
+        var self = this, key = name + hash(args);
+
+        return this.proxies[key]
+            ? this.proxies[key]
+            : this.proxies[key] = function proxy(event) {
             self.trigger(name, args);
         }
     }

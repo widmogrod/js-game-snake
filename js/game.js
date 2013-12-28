@@ -52,19 +52,31 @@ function(
         })
         this.stateMachine.on('enter:show_right_face', function() {
             self.actionManager.remove('move');
-            self.actionManager.set('rotate', self.service.actionShowRightEdge());
+            self.actionManager.set(
+                'rotate',
+                self.service.actionShowRightEdge().on('finish', self.stateMachine.proxy('right.face.visible'))
+            );
         });
         this.stateMachine.on('enter:show_left_face', function() {
             self.actionManager.remove('move');
-            self.actionManager.set('rotate', self.service.actionShowLeftEdge());
+            self.actionManager.set(
+                'rotate',
+                self.service.actionShowLeftEdge().on('finish', self.stateMachine.proxy('left.face.visible'))
+            );
         });
         this.stateMachine.on('enter:show_up_face', function() {
             self.actionManager.remove('move');
-            self.actionManager.set('rotate', self.service.actionShowUpEdge());
+            self.actionManager.set(
+                'rotate',
+                self.service.actionShowUpEdge().on('finish', self.stateMachine.proxy('up.face.visible'))
+            );
         });
         this.stateMachine.on('enter:show_down_face', function() {
             self.actionManager.remove('move');
-            self.actionManager.set('rotate', self.service.actionShowDownEdge());
+            self.actionManager.set(
+                'rotate',
+                self.service.actionShowDownEdge().on('finish', self.stateMachine.proxy('down.face.visible'))
+            );
         });
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
