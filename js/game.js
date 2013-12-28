@@ -28,6 +28,10 @@ function(
         this.stateMachine.on('enter:start', function(e) {
             self.currentStage = self.service.startStage();
         });
+        this.stateMachine.on('enter:end', function() {
+            document.getElementById('santa').className += ' happy';
+        });
+
 
         // Manage game stage
         this.stateMachine.on('enter:left', function(e) {
@@ -62,16 +66,10 @@ function(
             self.actionManager.remove('move');
             self.actionManager.set('rotate', self.service.actionShowDownEdge());
         });
-        this.stateMachine.on('enter:end', function() {
-            document.getElementById('santa').className += ' happy';
-        });
-
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
-        Hammer(canvas, {
-            drag_lock_to_axis: true
-        })
+        Hammer(canvas)
         .on('dragleft', self.stateMachine.proxy('press.left'))
         .on('dragright', self.stateMachine.proxy('press.right'))
         .on('dragup', self.stateMachine.proxy('press.up'))
@@ -105,8 +103,8 @@ function(
                 last = timestamp();
 
                 // if (self.enemies.count <= self.collect) {
-                    // self.stateMachine.trigger('found.gifts');
-                    // return;
+                // self.stateMachine.trigger('found.gifts');
+                // return;
                 // }
 
                 // One more time

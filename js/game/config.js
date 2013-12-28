@@ -55,7 +55,7 @@ define(function(){
                     'press.right' : 'right',
                     'press.left'  : 'left',
                     'press.up'    : 'up',
-                    'press.down'  : 'down',
+                    'press.down'  : 'down'
                 },
                 'end': {
                     'press.restart' : 'start'
