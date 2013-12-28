@@ -1,7 +1,7 @@
 define(['game/action/interface'], function(ActionInterface) {
-    function ActionShowDownEdge(game, speed, rightAngle) {
+    function ActionShowDownEdge(gameStage, speed, rightAngle) {
         this.events = {};
-        this.game = game;
+        this.gameStage = gameStage;
         this.speed = speed;
         this.rightAngle = rightAngle;
         this.init();
@@ -15,7 +15,7 @@ define(['game/action/interface'], function(ActionInterface) {
     ActionShowDownEdge.prototype.run = function() {
         if (this.canStop()) return;
 
-        this.game.projection.rotateX(this.game.stage, -this.speed);
+        this.gameStage.rotateX(-this.speed);
 
         this.counter += this.speed;
     }

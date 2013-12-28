@@ -18,6 +18,10 @@ define(
     'shape/utils/assets',
     'shape/utils/imagedata',
     'shape/utils/sprites',
+    'game/stage/start',
+    'game/stage/game',
+    'shape/projection/projection',
+    'shape/stage/canvas3d'
 ],
 function(
     GameConfig,
@@ -37,11 +41,17 @@ function(
     CollisionManager,
     AssetUtil,
     ImageDataUtil,
-    SpriteUtil
-) {
-    function ServiceManager(game) {
+    SpriteUtil,
+    StartStage,
+    GameStage,
+    Projection,
+    Canvas3DStage
+ ) {
+    function ServiceManager(game, canvas) {
         this.game = game;
-        this.instances = {};
+        this.instances = {
+            'canvas' : canvas
+        };
     }
 
     ServiceManager.prototype.get = function(name, func) {
@@ -52,7 +62,7 @@ function(
     }
     ServiceManager.prototype.config = function() {
         return this.get('config', function() {
-            return new GameConfig();
+            return GameConfig;
         })
     }
     ServiceManager.prototype.collisionManager = function() {
@@ -75,7 +85,7 @@ function(
     ServiceManager.prototype.giftFactory = function(x, y, z) {
         var am = this.assetManager();
         var gift = Math.random() > 0.5 ? 'gift-red' : 'gift-blue';
-        var image = new ImageShape(x, y, z, this.config().CUBE_SIZE, this.config().CUBE_SIZE);
+        var image = new ImageShape(x, y, z, this.config().CUBE_FIELD_SIZE, this.config().CUBE_FIELD_SIZE);
         am.get(gift, image.setImage.bind(image));
         return image;
     }
@@ -128,7 +138,7 @@ function(
     ServiceManager.prototype.actionShowRightEdge = function() {
         return this.get('actionShowRightEdge', function() {
             return new ActionShowRightEdge(
-                this.game,
+                this.gameStage(),
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
             ).on('finish', function() {
@@ -139,7 +149,7 @@ function(
     ServiceManager.prototype.actionShowLeftEdge = function() {
         return this.get('actionShowLeftEdge', function() {
             return new ActionShowLeftEdge(
-                this.game,
+                this.gameStage(),
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
             ).on('finish', function() {
@@ -150,7 +160,7 @@ function(
     ServiceManager.prototype.actionShowUpEdge = function() {
         return this.get('actionShowUpEdge', function() {
             return new ActionShowUpEdge(
-                this.game,
+                this.gameStage(),
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
             ).on('finish', function() {
@@ -161,7 +171,7 @@ function(
     ServiceManager.prototype.actionShowDownEdge = function() {
         return this.get('actionShowDownEdge', function() {
             return new ActionShowDownEdge(
-                this.game,
+                this.gameStage(),
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
             ).on('finish', function() {
@@ -171,7 +181,7 @@ function(
     }
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
-            var shape = new SpriteShape(0, 0, -this.game.board.width / 2 + this.config().CUBE_SIZE / 2, this.config().CUBE_SIZE);
+            var shape = new SpriteShape(0, 0, -this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2, this.config().CUBE_FIELD_SIZE);
             var am = this.assetManager();
 
             am.get('reindeer', function(object) {
@@ -184,8 +194,32 @@ function(
             });
 
             return shape;
-            // return new CubeShape(0, 0, -this.game.board.width / 2 + this.config().CUBE_SIZE / 2, this.config().CUBE_SIZE, '#f2b139');
         })
+    }
+    ServiceManager.prototype.canvas = function() {
+        return this.get('canvas');
+    }
+    ServiceManager.prototype.startStage = function() {
+        return this.get('startStage', function() {
+            return new StartStage(
+                this
+            );
+        });
+    }
+    ServiceManager.prototype.gameStage = function() {
+        return this.get('gameStage', function() {
+            return new GameStage(
+                this
+            );
+        });
+    }
+    ServiceManager.prototype.projection = function() {
+        return this.get('projection', function() {
+            return new Projection(1270, this.canvas().width / 2, this.canvas().height / 2);
+        });
+    }
+    ServiceManager.prototype.createStage = function() {
+        return new Canvas3DStage(this.canvas(), this.projection());
     }
 
     return ServiceManager;

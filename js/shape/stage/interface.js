@@ -13,7 +13,7 @@ define(function(){
         'removeChild': function() {},
         'fillRect': function(x, y, width, height) {},
         'fillStyle': function(style) {},
-        'fillText': function(text, x, y) {},
+        'fillText': function(text, x, y, options) {},
         'drawImage': function(img, x, y, width, height) {},
         'getImageData': function(img, x, y, width, height) {},
         'putImageData': function(x, y, width, height) {},

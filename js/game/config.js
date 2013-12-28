@@ -1,13 +1,15 @@
 define(function(){
-    function GameConfig() {}
+    var GameConfig;
 
-    GameConfig.prototype = {
+    GameConfig = {
         'BASE_URL': window.location.href +'assets/',
         'RIGHT_ANGLE' : 90,
         'ROTATION_ANGLE_STEP': 1,
         'ROTATION_MARGIN' : 80,
+        // Cube is basic shape on the board
+        'CUBE_FIELD_SIZE': 40,
+        'CUBE_FIELDS_ON_BOARD': 8,
         'GAME_STEP': 20,
-        'CUBE_SIZE': 40,
         'GAME_SPEED': 2,
         'state': {
             'move': {
@@ -43,18 +45,17 @@ define(function(){
                 'show_right_face': {
                     'right.face.visible': 'right'
                 },
-                '*': {
-                    'found.gidts': 'end'
-                }
-            },
-            'game': {
                 'start': {
-                    'press.start' : 'play'
+                    'press.enter' : 'play'
                 },
                 'play' : {
-                    'ship.suiside': 'end',
-                    'ship.success': 'end',
-                    'press.pause': 'stop'
+                    // 'cube.suiside': 'end',
+                    // 'cube.success': 'end',
+                    // 'press.pause' : 'stop'
+                    'press.right' : 'right',
+                    'press.left'  : 'left',
+                    'press.up'    : 'up',
+                    'press.down'  : 'down',
                 },
                 'end': {
                     'press.restart' : 'start'
@@ -62,9 +63,16 @@ define(function(){
                 'stop': {
                     'press.escape': 'start'
                 },
+                '*': {
+                    'found.gifts': 'end',
+                    'init': 'start'
+                }
             }
         }
     }
+
+    GameConfig.BOARD_WIDTH = GameConfig.CUBE_FIELD_SIZE * GameConfig.CUBE_FIELDS_ON_BOARD;
+    GameConfig.BOARD_EDGE = (GameConfig.BOARD_WIDTH / 2) - GameConfig.CUBE_FIELD_SIZE >> 0;
 
     return GameConfig;
 })

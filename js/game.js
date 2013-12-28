@@ -1,19 +1,9 @@
 define([
     'hammerjs',
-    'shape/projection/projection',
-    'shape/stage/canvas3d',
-    'shape/shape/cube',
-    'shape/point/point',
-    'shape/point/collection',
     'game/service'
 ],
 function(
     Hemmer,
-    Projection,
-    Canvas3DStage,
-    CubeShape,
-    Point,
-    PointCollection,
     ServiceManager
 ) {
     /**
@@ -24,114 +14,27 @@ function(
     function TetrisGame(canvas) {
         var self = this;
 
-        this.canvas = canvas;
-        this.service = new ServiceManager(this);
+        this.service = new ServiceManager(this, canvas);
 
         this.config = this.service.config();
-        this.projection = new Projection(1270, canvas.width / 2, canvas.height / 2);
-        this.stage = new Canvas3DStage(this.canvas, this.projection);
-        this.boardWidth = this.config.CUBE_SIZE * 8 >> 0;
-        this.boardEdge = (this.boardWidth / 2) - this.config.CUBE_SIZE >> 0;
-        this.board = new CubeShape(0, 0, 0, this.boardWidth, '#fff');
-        this.cube = this.service.cube();
-        this.collect = 0;
         this.actionManager = this.service.actionManager();
-
-        var size = this.config.CUBE_SIZE;
-        var edge = (-this.boardWidth / 2) + size;
-
-        this.enemies = new PointCollection();
-
-        var am = this.service.assetManager();
-
-        am.get('melody', function(audio) {
-            // audio.addEventListener('ended', function() {
-            // this.currentTime = 0;
-            // this.play();
-            // }, false);
-            audio.play();
-        })
-
-
-        var mrand_state;
-        function mrand() {
-            var rand;
-            if (!mrand_state) {
-                mrand_state = Math.random();
-            } else {
-                do {
-                    rand = Math.random();
-                } while (mrand_state == rand);
-                mrand_state = rand;
-            }
-            return mrand_state;
-        }
-        function spawnRandom() {
-            var faces = [
-                // front
-                [0,0,1],
-                // back
-                [0,0,-1],
-                // left
-                [1,0,0],
-                // right
-                [-1,0,0],
-                // up
-                [0,1,0],
-                // donw
-                [0,-1,0]
-            ];
-
-            var face = faces[mrand() * 6 >> 0];
-            face = face.map(function(item) {
-                if (item == 0) {
-                    item = ((mrand() * 3 >> 0) + 2) * size
-                    item *= (mrand() * 2 >> 0) > 0 ? -1 : 1;
-                } else {
-                    item * edge
-                }
-                return item;
-            });
-            return face;
-        }
-
-        var d;
-        for(var k = 0; k < 6; k++) {
-            d = spawnRandom();
-            this.enemies.push(this.service.giftFactory(d[0], d[1], d[2]));
-        }
-
-        // this.enemies.push(this.service.giftFactory(0, 1 * size, edge));
-        // this.enemies.push(this.service.giftFactory(0, 2 * size, edge));
-        // this.enemies.push(this.service.giftFactory(0, 3 * size, edge));
-        // this.enemies.push(this.service.giftFactory(0, 4 * size, edge));
-        // this.enemies.push(this.service.giftFactory(edge, 1 * size, edge));
-        // this.enemies.push(this.service.giftFactory(edge, 1 * size, edge));
-        // this.enemies.push(this.service.giftFactory(edge, edge, edge));
-
-        this.collisionManager = this.service.collisionManager();
-
-        // Add objection to stage, order is important - for now.
-        this.stage.addChild(this.board);
-        this.enemies.each(function(item) {
-            self.stage.addChild(item);
-            self.collisionManager.when(self.cube, item, function(data) {
-                self.collect++;
-                am.get('ring', function(ring) {
-                    ring.play()
-                })
-                self.stage.removeChild(data.collide);
-
-            })
-        });
-        this.stage.addChild(this.cube);
 
         // Move State Machine
         this.stateMachine = this.service.stateMachineMove();
+        // Switch stages
+        this.stateMachine.on('enter:play', function(e) {
+            console.log('play stage');
+            self.currentStage = self.service.gameStage();
+        })
+        this.stateMachine.on('enter:start', function(e) {
+            self.currentStage = self.service.startStage();
+        });
+
+        // Manage game stage
         this.stateMachine.on('enter:left', function(e) {
             self.actionManager.set('move', self.service.actionMoveLeft());
             e.lock(self.actionManager.proxy('canStop', 'move'));
-        })
+        });
         this.stateMachine.on('enter:right', function(e) {
             self.actionManager.set('move', self.service.actionMoveRight());
             e.lock(self.actionManager.proxy('canStop', 'move'));
@@ -164,61 +67,60 @@ function(
             document.getElementById('santa').className += ' happy';
         });
 
+
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
-        Hammer(this.canvas, {
+        Hammer(canvas, {
             drag_lock_to_axis: true
         })
         .on('dragleft', self.stateMachine.proxy('press.left'))
         .on('dragright', self.stateMachine.proxy('press.right'))
         .on('dragup', self.stateMachine.proxy('press.up'))
         .on('dragdown', self.stateMachine.proxy('press.down'))
+        .on('drag', self.stateMachine.proxy('press.enter'))
+
+        this.stateMachine.trigger('init');
     }
 
     TetrisGame.constructor = TetrisGame;
     TetrisGame.prototype = {
-        'update': function() {
-            var x = this.cube.center().x;
-            var y = this.cube.center().y;
-            var boardX = this.boardEdge;
-            var boardY = this.boardEdge;
-
-            if (x > boardX) {
-                this.stateMachine.trigger('edge.right');
-            } else if (x < -boardX) {
-                this.stateMachine.trigger('edge.left');
-            } else if (y < -boardY) {
-                this.stateMachine.trigger('edge.up');
-            } else if (y > boardY) {
-                this.stateMachine.trigger('edge.down');
-            }
-        },
         'captureKeys' : function(e) {
-            switch(true) {
-                case 37 == e.keyCode: e.preventDefault(); this.stateMachine.trigger('press.left'); break;
-                case 38 == e.keyCode: e.preventDefault(); this.stateMachine.trigger('press.up'); break;
-                case 39 == e.keyCode: e.preventDefault(); this.stateMachine.trigger('press.right'); break;
-                case 40 == e.keyCode: e.preventDefault(); this.stateMachine.trigger('press.down'); break;
+            switch(e.keyCode) {
+                case 37: e.preventDefault(); this.stateMachine.trigger('press.left'); break;
+                case 38: e.preventDefault(); this.stateMachine.trigger('press.up'); break;
+                case 39: e.preventDefault(); this.stateMachine.trigger('press.right'); break;
+                case 40: e.preventDefault(); this.stateMachine.trigger('press.down'); break;
+                case 13: e.preventDefault(); this.stateMachine.trigger('press.enter'); break;
+                // default: console.log(e.keyCode);
             }
         },
         'run': function() {
             var self = this;
+            var FPS = 30;
+            var timestamp = function() { return new Date().getTime()};
+
+            var last, time = timestamp();
+            var d = document.getElementById('fps');
+
             function loop() {
-                if (self.enemies.count <= self.collect) {
-                    self.stateMachine.trigger('found.gidts');
-                    return;
-                }
+                last = timestamp();
+
+                // if (self.enemies.count <= self.collect) {
+                    // self.stateMachine.trigger('found.gifts');
+                    // return;
+                // }
+
                 // One more time
                 requestAnimationFrame(loop);
-                // Calculate interaction
-                self.update();
-                self.collisionManager.run();
                 // Run actions
                 self.actionManager.run();
-                // Resolve state if any aciton is locking state
+                self.currentStage.updateState(self.stateMachine);
                 self.stateMachine.run();
-                // Render
-                self.stage.render();
+                self.currentStage.tick();
+
+                d.innerText = 1000 / (last - time) >> 0;
+
+                time = last;
             }
             requestAnimationFrame(loop);
         }

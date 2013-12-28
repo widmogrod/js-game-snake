@@ -62,10 +62,9 @@ define(['shape/stage/interface'], function(Stage){
     CanvasStage.prototype.fillStyle = function(style) {
         this.context.fillStyle = style;
     }
-    CanvasStage.prototype.fillText = function(text, x, y) {
-        // this.context.fillStyle = '#f00';
-        this.context.font = 'italic bold 12px sans-serif';
-        this.context.textBaseline = 'bottom';
+    CanvasStage.prototype.fillText = function(text, x, y, options) {
+        this.context.font = options.style + ' ' + options.weigth + ' ' + options.size + ' ' + options.font; //' italic bold 12px sans-serif';
+        this.context.textBaseline = options.baseline;
         this.context.fillText(text, x, y);
     }
     CanvasStage.prototype.getImageData = function(x, y, width, height) {
