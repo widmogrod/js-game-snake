@@ -1,7 +1,7 @@
 define(['event/event'], function(Event){
     function onComplete(assets) {
-        return function(e, name, image) {
-            assets[name] = image;
+        return function(e, name, object) {
+            assets[name] = object;
         }
     }
 
@@ -21,12 +21,16 @@ define(['event/event'], function(Event){
     AssetUtil.prototype = new Event();
     AssetUtil.prototype.loadImage = function(name, path) {
         var self = this,
-            image = new Image();
+        image = new Image();
 
         image.src = this.baseURL + path;
         image.onload = function() {
-            self.trigger('complete', [name, image])
-            self.trigger('complete:' + name, [image])
+            var result = self.trigger('init:'+name, [image]);
+            if (result.count()) {
+                image = result.last();
+            }
+            self.trigger('complete', [name, image]);
+            self.trigger('complete:' + name, [image]);
         }
         image.onerror = function() {
             self.trigger('error', [name, image])
@@ -35,11 +39,15 @@ define(['event/event'], function(Event){
     }
     AssetUtil.prototype.loadAudio = function(name, path) {
         var self = this,
-            audio = new Audio();
+        audio = new Audio();
 
         audio.src = this.baseURL + path;
         audio.preload = 'auto';
         audio.addEventListener('canplay', function() {
+            var result = self.trigger('init:'+name, [audio]);
+            if (result.count()) {
+                audio = result.last();
+            }
             self.trigger('complete', [name, audio])
             self.trigger('complete:' + name, [audio])
 
@@ -72,7 +80,10 @@ define(['event/event'], function(Event){
                         source.start(0);
                     }
                 };
-
+                var result = self.trigger('init:'+name, [audio]);
+                if (result.count()) {
+                    audio = result.last();
+                }
                 self.trigger('complete', [name, audio])
                 self.trigger('complete:' + name, [audio])
 

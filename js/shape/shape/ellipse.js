@@ -9,7 +9,7 @@ define(['shape/shape/interface'], function(Shape){
         this.height = height;
     }
     EllipseShape.constructor = EllipseShape;
-    EllipseShape.prototype = new Shape();
+    EllipseShape.prototype = Object.create(Shape);
     EllipseShape.prototype.render = function (state) {
         state.fillEllipse(this.x, this.y, this.width, this.height);
     }

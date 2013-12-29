@@ -15,6 +15,7 @@ define(function() {
            this.frameNumber = this.frames <= ++this.frameNumber ? 0 : this.frameNumber;
         }
 
+        // console.log(this.imageData)
         var dx = this.frameNumber * this.frameWidth;
         stage.putImageData(
             this.imageData.patch(stage, x, y, this.frameWidth).data(),

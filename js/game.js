@@ -27,17 +27,16 @@ function(
         })
         this.stateMachine.on('enter:start', function(e) {
             self.currentStage = self.service.startStage();
-        });
+        })
         this.stateMachine.on('enter:end', function() {
             document.getElementById('santa').className += ' happy';
-        });
-
+        })
 
         // Manage game stage
         this.stateMachine.on('enter:left', function(e) {
             self.actionManager.set('move', self.service.actionMoveLeft());
             e.lock(self.actionManager.proxy('canStop', 'move'));
-        });
+        })
         this.stateMachine.on('enter:right', function(e) {
             self.actionManager.set('move', self.service.actionMoveRight());
             e.lock(self.actionManager.proxy('canStop', 'move'));
@@ -56,7 +55,7 @@ function(
                 'rotate',
                 self.service.actionShowRightEdge().on('finish', self.stateMachine.proxy('right.face.visible'))
             );
-        });
+        })
         this.stateMachine.on('enter:show_left_face', function() {
             self.actionManager.remove('move');
             self.actionManager.set(

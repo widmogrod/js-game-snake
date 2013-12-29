@@ -18,7 +18,7 @@ function(
         item instanceof PointCollection
             ? (item.each(func) || func(item.center))
             : item instanceof Shape
-                ? item.points().each(func)
+                ? each(item.points(), func)
                 : item instanceof Stage
                     ? item.each(function(child) { each(child.points(), func) })
                     : func(item);
@@ -32,17 +32,19 @@ function(
     Projection.constructor = Projection;
     Projection.prototype = new ProjectionInterface();
     Projection.prototype.project = function(point) {
+        var self = this;
         function task(point) {
-            if (point.z > -this.distance) {
-                var scale = this.distance / (this.distance + point.z >> 0);
-                point.xpos = this.x + point.x * scale >> 0;
-                point.ypos = this.y + point.y * scale >> 0;
+            if (point.z > -self.distance) {
+                var scale = self.distance / (self.distance + point.z >> 0);
+                point.xpos = (self.x + (point.x * scale)) >> 0;
+                point.ypos = (self.y + (point.y * scale)) >> 0;
                 point.scale = scale;
             }
         }
-        each(point, task.bind(this));
+        each(point, task);
     }
     Projection.prototype.rotateY = function(point, angle) {
+        angle = angle >> 0;
         angle = angle * Math.PI / 180;
         var cos = Math.cos(angle), sin = Math.sin(angle);
         function task(point) {
@@ -60,6 +62,7 @@ function(
         each(point, task);
     }
     Projection.prototype.rotateX = function(point, angle) {
+        angle = angle >> 0;
         angle = angle * Math.PI / 180;
         var cos = Math.cos(angle), sin = Math.sin(angle);
         function task(point) {

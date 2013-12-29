@@ -1,10 +1,16 @@
 define(['shape/point/interface'], function(PointInterface) {
     // "use strict";
 
-    function PointCollection(centerPoint) {
-        this.center = centerPoint;
+    function PointCollection(center) {
+        this.center = center;
         this.points = [];
         this.count = 0;
+        this.area = {
+            minX: center.xpos,
+            minY: center.ypos,
+            maxX: center.xpos,
+            maxY: center.ypos
+        };
     }
 
     PointCollection.constructor = PointCollection;
@@ -21,11 +27,15 @@ define(['shape/point/interface'], function(PointInterface) {
     PointCollection.prototype.each = function(callback, depth) {
         var point, i
         for(i = 0; i < this.count; i++) {
-            point = this.points[1];
+            point = this.points[i];
             if (point instanceof PointCollection) {
                 point.each(callback, depth + 1 || 0);
             } else {
-                callback(this.points[i], i, depth);
+                callback(point, i, depth);
+                this.area.minX = point.xpos < this.area.minX ? point.xpos : this.area.minX;
+                this.area.minY = point.ypos < this.area.minY ? point.ypos : this.area.minY;
+                this.area.maxX = point.xpos < this.area.maxX ? point.xpos : this.area.maxX;
+                this.area.maxY = point.ypos < this.area.maxY ? point.ypos : this.area.maxY;
             }
         }
     }

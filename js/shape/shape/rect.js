@@ -26,7 +26,7 @@ function (Shape, Point, PointCollection) {
         this.points_.push(new Point(x - width, y + height, z - width));
     }
     RectShape.constructor = RectShape;
-    RectShape.prototype = new Shape();
+    RectShape.prototype = Object.create(Shape.prototype);
     RectShape.prototype.render = function(stage) {
         this.points_.each(function(point, i){
             if (i == 0) {

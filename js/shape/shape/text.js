@@ -8,12 +8,12 @@ function (Shape, Point, PointCollection) {
 
     function TextShape(x, y, z, text, options) {
         this.state_ = this.STATE_CLEAN;
+        this.points_ = new PointCollection(new Point(x, y, z));
         this.text_ = text;
         this.options(options)
-        this.points_ = new PointCollection(new Point(x, y, z));
     }
     TextShape.constructor = TextShape;
-    TextShape.prototype = new Shape();
+    TextShape.prototype = Object.create(Shape.prototype);
     TextShape.prototype.options = function(options) {
         if (arguments.length) {
             options = options || {};

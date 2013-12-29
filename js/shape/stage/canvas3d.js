@@ -18,7 +18,8 @@ define(['shape/stage/canvas'], function(CanvasStage){
             // state = child.state();
             state = child.STATE_DIRTY;
             if (child.STATE_RENDERED !== state) {
-                self.projection.project(child.points());
+                self.projection.project(child);
+                // self.projection.project(child.points());
                 // child.projection(this.projection);
                 child.render(self);
                 child.state(child.STATE_RENDERED);

@@ -1,5 +1,5 @@
 define(
-[
+    [
     'game/config',
     'shape/shape/cube',
     'shape/shape/image',
@@ -46,7 +46,7 @@ function(
     GameStage,
     Projection,
     Canvas3DStage
- ) {
+) {
     function ServiceManager(game, canvas) {
         this.game = game;
         this.instances = {
@@ -79,6 +79,15 @@ function(
             am.loadImage('gift-red', 'gift-red.png');
             am.loadAudio2('melody', 'melody.mp3');
             am.loadAudio2('ring', 'ring.mp3');
+
+            am.on('init:reindeer', function(e, object) {
+                return new SpriteUtil(
+                    new ImageDataUtil(object),
+                    40,
+                    40
+                );
+            });
+
             return am;
         })
     }
@@ -174,16 +183,8 @@ function(
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
             var shape = new SpriteShape(0, 0, -this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2, this.config().CUBE_FIELD_SIZE);
-            var am = this.assetManager();
 
-            am.get('reindeer', function(object) {
-                var sprite = new SpriteUtil(
-                    new ImageDataUtil(object),
-                    40,
-                    40
-                );
-                shape.setSprite(sprite);
-            });
+            this.assetManager().get('reindeer', shape.setSprite.bind(shape));
 
             return shape;
         })

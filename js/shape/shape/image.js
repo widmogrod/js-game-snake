@@ -26,7 +26,7 @@ function (Shape, Point, PointCollection) {
         this.points_.push(new Point(x - width, y + height, z - width));
     }
     ImageShape.constructor = ImageShape;
-    ImageShape.prototype = new Shape();
+    ImageShape.prototype = Object.create(Shape.prototype);
     ImageShape.prototype.setImage = function(image) {
         this.image = image;
     }
