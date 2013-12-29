@@ -1357,12 +1357,18 @@ define('shape/stage/interface',[],function(){
         'render': function() {},
         'addChild': function() {},
         'removeChild': function() {},
+        'stroke': function() {},
+        'fill': function() {},
         'fillRect': function(x, y, width, height) {},
         'fillStyle': function(style) {},
         'fillText': function(text, x, y, options) {},
-        'drawImage': function(img, x, y, width, height) {},
+        'beginPath': function() {},
+        'closePath': function() {},
+        'moveTo': function(x, y) {},
+        'lineTo': function(x, y) {},
         'getImageData': function(img, x, y, width, height) {},
         'putImageData': function(x, y, width, height) {},
+        'drawImage': function(img, x, y, width, height) {},
         'setTransform': function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {}
     };
 
@@ -1465,37 +1471,38 @@ function(
     return Projection;
 })
 ;
-define('shape/stage/canvas',['shape/stage/interface'], function(Stage){
+define('shape/stage/buffered',['shape/stage/interface'], function(Stage){
     
 
-    function CanvasStage(canvas) {
+    function BufferedCanvasStage(canvas) {
         this.context = canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
         this.childs = [];
+        this.buffer = [];
     }
 
-    CanvasStage.constructor = CanvasStage;
-    CanvasStage.prototype = new Stage();
-    CanvasStage.prototype.each = function(callback) {
+    BufferedCanvasStage.constructor = BufferedCanvasStage;
+    BufferedCanvasStage.prototype = new Stage();
+    BufferedCanvasStage.prototype.each = function(callback) {
         var i = 0, length = this.childs.length;
         for (; i < length; i++) {
             callback(this.childs[i], i);
         }
     }
-    CanvasStage.prototype.addChild = function(shape) {
+    BufferedCanvasStage.prototype.addChild = function(shape) {
         this.childs.push(shape);
     };
-    CanvasStage.prototype.removeChild = function(shape) {
+    BufferedCanvasStage.prototype.removeChild = function(shape) {
         var index = this.childs.indexOf(shape);
         if (-1 !== index) {
             this.childs.splice(index, 1);
         }
     }
-    CanvasStage.prototype.clean = function() {
-        this.context.clearRect(0,0,this.width, this.height);
+    BufferedCanvasStage.prototype.clean = function() {
+        this.context.clearRect(0, 0, this.width, this.height);
     }
-    CanvasStage.prototype.render = function() {
+    BufferedCanvasStage.prototype.render = function() {
         var self = this;
         this.clean();
         this.each(function(child) {
@@ -1504,71 +1511,85 @@ define('shape/stage/canvas',['shape/stage/interface'], function(Stage){
                 child.state(child.STATE_RENDERED);
             }
         })
+
+        this.flush();
     };
-    CanvasStage.prototype.fillRect = function(x, y, width, height) {
-        this.context.fillRect(x, y, width, height);
+    BufferedCanvasStage.prototype.flush = function() {
+        var method, args;
+        var i = 0,
+        buffer = this.buffer,
+        length = buffer.length;
+
+        this.buffer = [];
+
+        // console.log(this.context);
+        for (; i < length; i++) {
+            method = buffer[i][0];
+            args = buffer[i][1];
+            switch(method) {
+                case 'stroke': this.context.stroke(); break;
+                case 'fill': this.context.fill(); break;
+                case 'fillRect': this.context.fillRect(args[0], args[1], args[2], args[3]); break;
+                case 'fillStyle': this.context.fillStyle = args[0]; break;
+                case 'fillText': this.context.fillText(args[0], args[1], args[2]); break;
+                case 'beginPath': this.context.beginPath(); break;
+                case 'closePath': this.context.closePath(); break;
+                case 'moveTo': this.context.moveTo(args[0], args[1]); break;
+                case 'lineTo': this.context.lineTo(args[0], args[1]); break;
+                case 'font': this.context.font = args[0]; break;
+                case 'textBaseline': this.context.textBaseline = args[0]; break;
+                case 'putImageData': this.context.putImageData(args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+                case 'drawImage': this.context.drawImage(args[0], args[1], args[2], args[3], args[4]); break;
+                case 'setTransform': this.context.setTransform(args[0], args[1], args[2], args[3], args[4], args[5]); break;
+            }
+        }
     }
-    CanvasStage.prototype.beginPath = function() {
-        this.context.beginPath();
+    BufferedCanvasStage.prototype.fillRect = function(x, y, width, height) {
+        this.buffer.push(['fillRect', [x, y, width, height]]);
     }
-    CanvasStage.prototype.closePath = function() {
-        this.context.closePath();
+    BufferedCanvasStage.prototype.beginPath = function() {
+        this.buffer.push(['beginPath']);
     }
-    CanvasStage.prototype.fill = function() {
-        this.context.fill();
+    BufferedCanvasStage.prototype.closePath = function() {
+        this.buffer.push(['closePath']);
     }
-    CanvasStage.prototype.stroke = function() {
-        this.context.stroke();
+    BufferedCanvasStage.prototype.fill = function() {
+        this.buffer.push(['fill']);
     }
-    CanvasStage.prototype.moveTo = function(x, y) {
-        this.context.moveTo(x, y);
+    BufferedCanvasStage.prototype.stroke = function() {
+        this.buffer.push(['stroke']);
     }
-    CanvasStage.prototype.lineTo = function(x, y) {
-        this.context.lineTo(x, y);
+    BufferedCanvasStage.prototype.moveTo = function(x, y) {
+        this.buffer.push(['moveTo', [x, y]]);
     }
-    CanvasStage.prototype.fillStyle = function(style) {
-        this.context.fillStyle = style;
+    BufferedCanvasStage.prototype.lineTo = function(x, y) {
+        this.buffer.push(['lineTo', [x, y]]);
     }
-    CanvasStage.prototype.fillText = function(text, x, y, options) {
-        this.context.font = options.style + ' ' + options.weigth + ' ' + options.size + ' ' + options.font; //' italic bold 12px sans-serif';
-        this.context.textBaseline = options.baseline;
-        this.context.fillText(text, x, y);
+    BufferedCanvasStage.prototype.fillStyle = function(style) {
+        this.buffer.push(['fillStyle', [style]]);
     }
-    CanvasStage.prototype.getImageData = function(x, y, width, height) {
+    BufferedCanvasStage.prototype.fillText = function(text, x, y, options) {
+        this.buffer.push(['font', [options.style + ' ' + options.weigth + ' ' + options.size + ' ' + options.font]]);
+        this.buffer.push(['textBaseline', [options.baseline]]);
+        this.buffer.push(['fillText', [text, x, y]]);
+    }
+    BufferedCanvasStage.prototype.getImageData = function(x, y, width, height) {
         return this.context.getImageData(x, y, width, height);
     }
-    CanvasStage.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
-        this.context.putImageData(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight);
+    BufferedCanvasStage.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
+        this.buffer.push(['putImageData', [imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight]]);
     }
-    CanvasStage.prototype.drawImage = function(img, x, y, width, height) {
-        this.context.drawImage(img, x, y, width, height);
+    BufferedCanvasStage.prototype.drawImage = function(img, x, y, width, height) {
+        this.buffer.push(['drawImage', [img, x, y, width, height]]);
     }
-    CanvasStage.prototype.fillEllipse = function(x, y, w, h) {
-        var kappa = .5522848,
-            ox = (w / 2) * kappa, // control point offset horizontal
-            oy = (h / 2) * kappa, // control point offset vertical
-            xe = x + w,           // x-end
-            ye = y + h,           // y-end
-            xm = x + w / 2,       // x-middle
-            ym = y + h / 2;       // y-middle
-
-        this.context.beginPath();
-        this.context.moveTo(x, ym);
-        this.context.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
-        this.context.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
-        this.context.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
-        this.context.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
-        this.context.closePath();
-        this.context.stroke();
-    }
-    CanvasStage.prototype.setTransform = function(skewX, skewY, scalX, scalY, moveX, moveY) {
-        this.context.setTransform(scalX || 1, skewX, skewY, scalY || 1, moveX || 0, 0);
+    BufferedCanvasStage.prototype.setTransform = function(skewX, skewY, scalX, scalY, moveX, moveY) {
+        this.buffer.push(['setTransform', [scalX || 1, skewX, skewY, scalY || 1, moveX || 0, 0]]);
     }
 
-    return CanvasStage;
+    return BufferedCanvasStage;
 })
 ;
-define('shape/stage/canvas3d',['shape/stage/canvas'], function(CanvasStage){
+define('shape/stage/canvas3d',['shape/stage/buffered'], function(BufferedCanvasStage){
     
 
     function Canvas3DStage(canvas, projection) {
@@ -1577,9 +1598,10 @@ define('shape/stage/canvas3d',['shape/stage/canvas'], function(CanvasStage){
         this.height = canvas.height;
         this.childs = [];
         this.projection = projection;
+        this.buffer = [];
     }
     Canvas3DStage.constructor = Canvas3DStage;
-    Canvas3DStage.prototype = Object.create(CanvasStage.prototype);
+    Canvas3DStage.prototype = Object.create(BufferedCanvasStage.prototype);
 
     Canvas3DStage.prototype.render = function() {
         var state, self = this;
@@ -1589,11 +1611,12 @@ define('shape/stage/canvas3d',['shape/stage/canvas'], function(CanvasStage){
             state = child.STATE_DIRTY;
             if (child.STATE_RENDERED !== state) {
                 self.projection.project(child.points());
-                // child.projection(this.projection);
                 child.render(self);
                 child.state(child.STATE_RENDERED);
             }
         })
+
+        this.flush();
     }
 
     return Canvas3DStage;
