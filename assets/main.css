@@ -4,6 +4,11 @@
         top: 0;
         left: 0;
         z-index:9999;
+        image-rendering: crisp-edges;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        -ms-interpolation-mode: nearest-neighbor;
+        background-color: transparent;
     }
 }
 
@@ -15,6 +20,11 @@
         left: 50%;
         margin-left:-300px;
         z-index:9999;
+        image-rendering: crisp-edges;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        -ms-interpolation-mode: nearest-neighbor;
+        background-color: transparent;
     }
     .text {
         position: absolute;

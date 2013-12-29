@@ -102,10 +102,16 @@ define('shape/point/interface',[],function(){
 define('shape/point/collection',['shape/point/interface'], function(PointInterface) {
     // 
 
-    function PointCollection(centerPoint) {
-        this.center = centerPoint;
+    function PointCollection(center) {
+        this.center = center;
         this.points = [];
         this.count = 0;
+        this.area = {
+            minX: center.xpos,
+            minY: center.ypos,
+            maxX: center.xpos,
+            maxY: center.ypos
+        };
     }
 
     PointCollection.constructor = PointCollection;
@@ -122,11 +128,15 @@ define('shape/point/collection',['shape/point/interface'], function(PointInterfa
     PointCollection.prototype.each = function(callback, depth) {
         var point, i
         for(i = 0; i < this.count; i++) {
-            point = this.points[1];
+            point = this.points[i];
             if (point instanceof PointCollection) {
                 point.each(callback, depth + 1 || 0);
             } else {
-                callback(this.points[i], i, depth);
+                callback(point, i, depth);
+                this.area.minX = point.xpos < this.area.minX ? point.xpos : this.area.minX;
+                this.area.minY = point.ypos < this.area.minY ? point.ypos : this.area.minY;
+                this.area.maxX = point.xpos < this.area.maxX ? point.xpos : this.area.maxX;
+                this.area.maxY = point.ypos < this.area.maxY ? point.ypos : this.area.maxY;
             }
         }
     }
@@ -169,6 +179,9 @@ define('shape/shape/interface',['shape/point/collection'], function(PointCollect
     Shape.prototype.center = function() {
         return this.points_.center;
     };
+    Shape.prototype.area = function() {
+        return this.poinst_.area
+    }
     Shape.prototype.state = function(state) {
         if (arguments.length) {
             this.state_ = state;
@@ -223,22 +236,24 @@ define('shape/shape/cube',[
 function(Shape, Point, PointCollection) {
     
 
+    var faces = [
+        [0,1,2,3],
+        [0,1,5,4],
+        [0,3,7,4],
+        [3,2,6,7],
+        [1,2,6,5],
+        [4,5,6,7]
+    ];
+
     /**
      * Cube shape
      */
     function CubeShape(x, y, z, width, color) {
         this.state_ = this.STATE_CLEAN;
+        this.points_ = new PointCollection(new Point(x, y, z));
+
         this.width = width || 10;
         this.color = color || '#333333';
-        this.points_ = new PointCollection(new Point(x, y, z));
-        this.faces = [
-            [0,1,2,3],
-            [0,1,5,4],
-            [0,3,7,4],
-            [3,2,6,7],
-            [1,2,6,5],
-            [4,5,6,7]
-        ];
 
         var halfWidth = this.width / 2;
 
@@ -252,23 +267,20 @@ function(Shape, Point, PointCollection) {
         this.points_.push(new Point(x - halfWidth, y + halfWidth, z + halfWidth));
     }
     CubeShape.constructor = CubeShape;
-    CubeShape.prototype = new Shape();
-    CubeShape.prototype.center = function() {
-        return this.points().center;
-    }
+    CubeShape.prototype = Object.create(Shape.prototype);
     CubeShape.prototype.render = function(stage) {
         var face, point;
-        var i = 0, length = this.faces.length;
+        var i = 0, length = faces.length;
         for (; i < length; i++) {
-            face = this.faces[i];
+            face = faces[i];
             point = this.points_.get(face[0]);
             stage.beginPath();
             stage.moveTo(point.xpos, point.ypos);
-            for (var j = 3; j >= 0; j--) {
+            for (var j = 3; j > 0; j--) {
                 point = this.points_.get(face[j]);
                 stage.lineTo(point.xpos, point.ypos);
             }
-            stage.closePath();
+            // stage.closePath();
             stage.fillStyle(this.color);
             // stage.stroke();
             stage.fill();
@@ -306,7 +318,7 @@ function (Shape, Point, PointCollection) {
         this.points_.push(new Point(x - width, y + height, z - width));
     }
     ImageShape.constructor = ImageShape;
-    ImageShape.prototype = new Shape();
+    ImageShape.prototype = Object.create(Shape.prototype);
     ImageShape.prototype.setImage = function(image) {
         this.image = image;
     }
@@ -354,7 +366,7 @@ function (Shape, Point, PointCollection) {
         this.points_.push(new Point(x - width, y + height, z - width));
     }
     SpriteShape.constructor = SpriteShape;
-    SpriteShape.prototype = new Shape();
+    SpriteShape.prototype = Object.create(Shape.prototype);
     SpriteShape.prototype.setSprite = function(image) {
         this.image = image;
     }
@@ -484,18 +496,47 @@ define('event/event',['event/result'], function(Result){
         }
     }
 
+    function hash(array) {
+        var result = '';
+
+        if (array === undefined) return result;
+
+        array.forEach(function(item){
+            switch(Object.prototype.toString.call(item).slice(8, -1)) {
+                default:
+                    result += item;
+                    break;
+
+                case 'Array':
+                    result += hash(item);
+                    break;
+
+                case 'Object':
+                    for (var i in item) {
+                        if (item.hasOwnProperty(i))
+                            result += hash(item)
+                    }
+                    break;
+            }
+        })
+        return result;
+    }
+
     function Event() {
         this.events = {};
+        this.proxies = {};
     }
     Event.prototype.on = function(name, callback) {
         this.events[name] = this.events[name] ? this.events[name] : [];
-        this.events[name].push(callback);
+        if (-1 === this.events[name].indexOf(callback)) {
+            this.events[name].push(callback);
+        }
         return this;
     }
     Event.prototype.trigger = function(name, args) {
         var value, events;
         var event = typeof this.createEvent === 'function' ? this.createEvent() : createEvent(),
-            result = new Result(event);
+        result = new Result(event);
 
         if (!this.events.hasOwnProperty(name)) {
             return result;
@@ -513,8 +554,11 @@ define('event/event',['event/result'], function(Result){
         return result;
     }
     Event.prototype.proxy = function(name, args) {
-        var self = this;
-        return function(event) {
+        var self = this, key = name + hash(args);
+
+        return this.proxies[key]
+            ? this.proxies[key]
+            : this.proxies[key] = function proxy(event) {
             self.trigger(name, args);
         }
     }
@@ -843,7 +887,7 @@ define('shape/collision/manager',[],function() {
         this.queue = [];
     }
     CollisionManager.prototype.when = function(one, two, then) {
-        this.queue.push([one, two, then]);
+        this.queue.push({one: one, two: two, then: then, distance: 0});
         return this;
     }
     CollisionManager.prototype.length = function(one, two) {
@@ -851,7 +895,7 @@ define('shape/collision/manager',[],function() {
             dy = two.y - one.y,
             dz = two.z - one.z;
 
-        return Math.pow((dx * dx) + (dy * dy) + (dz + dz), 1/2);
+        return Math.pow((dx * dx) + (dy * dy) + (dz * dz), 1/2);
     }
     CollisionManager.prototype.radius = function(shape) {
         return shape.width / 2;
@@ -863,8 +907,14 @@ define('shape/collision/manager',[],function() {
         var one, two, then, length, delta, event;
         var self = this;
         this.queue.forEach(function(item, index) {
+            if (item.distance > 10) {
+                // its just simplification,
+                // I need to add here velocity?
+                --item.distance;
+                return;
+            }
             // Extract data
-            one = item[0], two = item[1], then = item[2];
+            one = item.one, two = item.two, then = item.then;
             // Calculate length
             length = self.length(self.center(one), self.center(two));
             delta = length - (self.radius(one) + self.radius(two));
@@ -883,6 +933,8 @@ define('shape/collision/manager',[],function() {
                 if (!event.preventRelease) {
                     self.queue.splice(index, 1);
                 }
+            } else {
+                item.distance = delta >> 0;
             }
         });
     }
@@ -892,8 +944,8 @@ define('shape/collision/manager',[],function() {
 ;
 define('shape/utils/assets',['event/event'], function(Event){
     function onComplete(assets) {
-        return function(e, name, image) {
-            assets[name] = image;
+        return function(e, name, object) {
+            assets[name] = object;
         }
     }
 
@@ -913,12 +965,16 @@ define('shape/utils/assets',['event/event'], function(Event){
     AssetUtil.prototype = new Event();
     AssetUtil.prototype.loadImage = function(name, path) {
         var self = this,
-            image = new Image();
+        image = new Image();
 
         image.src = this.baseURL + path;
         image.onload = function() {
-            self.trigger('complete', [name, image])
-            self.trigger('complete:' + name, [image])
+            var result = self.trigger('init:'+name, [image]);
+            if (result.count()) {
+                image = result.last();
+            }
+            self.trigger('complete', [name, image]);
+            self.trigger('complete:' + name, [image]);
         }
         image.onerror = function() {
             self.trigger('error', [name, image])
@@ -927,11 +983,15 @@ define('shape/utils/assets',['event/event'], function(Event){
     }
     AssetUtil.prototype.loadAudio = function(name, path) {
         var self = this,
-            audio = new Audio();
+        audio = new Audio();
 
         audio.src = this.baseURL + path;
         audio.preload = 'auto';
         audio.addEventListener('canplay', function() {
+            var result = self.trigger('init:'+name, [audio]);
+            if (result.count()) {
+                audio = result.last();
+            }
             self.trigger('complete', [name, audio])
             self.trigger('complete:' + name, [audio])
 
@@ -964,7 +1024,10 @@ define('shape/utils/assets',['event/event'], function(Event){
                         source.start(0);
                     }
                 };
-
+                var result = self.trigger('init:'+name, [audio]);
+                if (result.count()) {
+                    audio = result.last();
+                }
                 self.trigger('complete', [name, audio])
                 self.trigger('complete:' + name, [audio])
 
@@ -1069,6 +1132,7 @@ define('shape/utils/sprites',[],function() {
            this.frameNumber = this.frames <= ++this.frameNumber ? 0 : this.frameNumber;
         }
 
+        // console.log(this.imageData)
         var dx = this.frameNumber * this.frameWidth;
         stage.putImageData(
             this.imageData.patch(stage, x, y, this.frameWidth).data(),
@@ -1094,12 +1158,12 @@ function (Shape, Point, PointCollection) {
 
     function TextShape(x, y, z, text, options) {
         this.state_ = this.STATE_CLEAN;
+        this.points_ = new PointCollection(new Point(x, y, z));
         this.text_ = text;
         this.options(options)
-        this.points_ = new PointCollection(new Point(x, y, z));
     }
     TextShape.constructor = TextShape;
-    TextShape.prototype = new Shape();
+    TextShape.prototype = Object.create(Shape.prototype);
     TextShape.prototype.options = function(options) {
         if (arguments.length) {
             options = options || {};
@@ -1341,7 +1405,7 @@ function(
         item instanceof PointCollection
             ? (item.each(func) || func(item.center))
             : item instanceof Shape
-                ? item.points().each(func)
+                ? each(item.points(), func)
                 : item instanceof Stage
                     ? item.each(function(child) { each(child.points(), func) })
                     : func(item);
@@ -1355,17 +1419,19 @@ function(
     Projection.constructor = Projection;
     Projection.prototype = new ProjectionInterface();
     Projection.prototype.project = function(point) {
+        var self = this;
         function task(point) {
-            if (point.z > -this.distance) {
-                var scale = this.distance / (this.distance + point.z >> 0);
-                point.xpos = this.x + point.x * scale >> 0;
-                point.ypos = this.y + point.y * scale >> 0;
+            if (point.z > -self.distance) {
+                var scale = self.distance / (self.distance + point.z >> 0);
+                point.xpos = (self.x + (point.x * scale)) >> 0;
+                point.ypos = (self.y + (point.y * scale)) >> 0;
                 point.scale = scale;
             }
         }
-        each(point, task.bind(this));
+        each(point, task);
     }
     Projection.prototype.rotateY = function(point, angle) {
+        angle = angle >> 0;
         angle = angle * Math.PI / 180;
         var cos = Math.cos(angle), sin = Math.sin(angle);
         function task(point) {
@@ -1383,6 +1449,7 @@ function(
         each(point, task);
     }
     Projection.prototype.rotateX = function(point, angle) {
+        angle = angle >> 0;
         angle = angle * Math.PI / 180;
         var cos = Math.cos(angle), sin = Math.sin(angle);
         function task(point) {
@@ -1426,11 +1493,11 @@ define('shape/stage/canvas',['shape/stage/interface'], function(Stage){
         }
     }
     CanvasStage.prototype.clean = function() {
-        this.context.cleanRect(0,0,this.width, this.height);
+        this.context.clearRect(0,0,this.width, this.height);
     }
     CanvasStage.prototype.render = function() {
         var self = this;
-        this.context.clearRect(0,0,this.width, this.height);
+        this.clean();
         this.each(function(child) {
             if (child.STATE_RENDERED !== child.state()) {
                 child.render(self);
@@ -1516,7 +1583,7 @@ define('shape/stage/canvas3d',['shape/stage/canvas'], function(CanvasStage){
 
     Canvas3DStage.prototype.render = function() {
         var state, self = this;
-        this.context.clearRect(0,0,this.width, this.height);
+        this.clean();
         this.each(function(child){
             // state = child.state();
             state = child.STATE_DIRTY;
@@ -1533,7 +1600,7 @@ define('shape/stage/canvas3d',['shape/stage/canvas'], function(CanvasStage){
 })
 ;
 define(
-'game/service',[
+    'game/service',[
     'game/config',
     'shape/shape/cube',
     'shape/shape/image',
@@ -1580,7 +1647,7 @@ function(
     GameStage,
     Projection,
     Canvas3DStage
- ) {
+) {
     function ServiceManager(game, canvas) {
         this.game = game;
         this.instances = {
@@ -1613,6 +1680,15 @@ function(
             am.loadImage('gift-red', 'gift-red.png');
             am.loadAudio2('melody', 'melody.mp3');
             am.loadAudio2('ring', 'ring.mp3');
+
+            am.on('init:reindeer', function(e, object) {
+                return new SpriteUtil(
+                    new ImageDataUtil(object),
+                    40,
+                    40
+                );
+            });
+
             return am;
         })
     }
@@ -1675,9 +1751,7 @@ function(
                 this.gameStage(),
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
-            ).on('finish', function() {
-                this.stateMachineMove().trigger('right.face.visible')
-            }.bind(this));
+            );
         })
     }
     ServiceManager.prototype.actionShowLeftEdge = function() {
@@ -1686,9 +1760,7 @@ function(
                 this.gameStage(),
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
-            ).on('finish', function() {
-                this.stateMachineMove().trigger('left.face.visible')
-            }.bind(this));
+            );
         })
     }
     ServiceManager.prototype.actionShowUpEdge = function() {
@@ -1697,9 +1769,7 @@ function(
                 this.gameStage(),
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
-            ).on('finish', function() {
-                this.stateMachineMove().trigger('up.face.visible')
-            }.bind(this));
+            );
         })
     }
     ServiceManager.prototype.actionShowDownEdge = function() {
@@ -1708,24 +1778,14 @@ function(
                 this.gameStage(),
                 this.config().ROTATION_ANGLE_STEP,
                 this.config().RIGHT_ANGLE
-            ).on('finish', function() {
-                this.stateMachineMove().trigger('down.face.visible')
-            }.bind(this));
+            );
         })
     }
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
             var shape = new SpriteShape(0, 0, -this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2, this.config().CUBE_FIELD_SIZE);
-            var am = this.assetManager();
 
-            am.get('reindeer', function(object) {
-                var sprite = new SpriteUtil(
-                    new ImageDataUtil(object),
-                    40,
-                    40
-                );
-                shape.setSprite(sprite);
-            });
+            this.assetManager().get('reindeer', shape.setSprite.bind(shape));
 
             return shape;
         })
@@ -1788,17 +1848,16 @@ function(
         })
         this.stateMachine.on('enter:start', function(e) {
             self.currentStage = self.service.startStage();
-        });
+        })
         this.stateMachine.on('enter:end', function() {
             document.getElementById('santa').className += ' happy';
-        });
-
+        })
 
         // Manage game stage
         this.stateMachine.on('enter:left', function(e) {
             self.actionManager.set('move', self.service.actionMoveLeft());
             e.lock(self.actionManager.proxy('canStop', 'move'));
-        });
+        })
         this.stateMachine.on('enter:right', function(e) {
             self.actionManager.set('move', self.service.actionMoveRight());
             e.lock(self.actionManager.proxy('canStop', 'move'));
@@ -1813,19 +1872,31 @@ function(
         })
         this.stateMachine.on('enter:show_right_face', function() {
             self.actionManager.remove('move');
-            self.actionManager.set('rotate', self.service.actionShowRightEdge());
-        });
+            self.actionManager.set(
+                'rotate',
+                self.service.actionShowRightEdge().on('finish', self.stateMachine.proxy('right.face.visible'))
+            );
+        })
         this.stateMachine.on('enter:show_left_face', function() {
             self.actionManager.remove('move');
-            self.actionManager.set('rotate', self.service.actionShowLeftEdge());
+            self.actionManager.set(
+                'rotate',
+                self.service.actionShowLeftEdge().on('finish', self.stateMachine.proxy('left.face.visible'))
+            );
         });
         this.stateMachine.on('enter:show_up_face', function() {
             self.actionManager.remove('move');
-            self.actionManager.set('rotate', self.service.actionShowUpEdge());
+            self.actionManager.set(
+                'rotate',
+                self.service.actionShowUpEdge().on('finish', self.stateMachine.proxy('up.face.visible'))
+            );
         });
         this.stateMachine.on('enter:show_down_face', function() {
             self.actionManager.remove('move');
-            self.actionManager.set('rotate', self.service.actionShowDownEdge());
+            self.actionManager.set(
+                'rotate',
+                self.service.actionShowDownEdge().on('finish', self.stateMachine.proxy('down.face.visible'))
+            );
         });
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
