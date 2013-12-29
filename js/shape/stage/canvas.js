@@ -26,7 +26,7 @@ define(['shape/stage/interface'], function(Stage){
         }
     }
     CanvasStage.prototype.clean = function() {
-        this.context.clearRect(0,0,this.width, this.height);
+        this.context.clearRect(0, 0, this.width, this.height);
     }
     CanvasStage.prototype.render = function() {
         var self = this;
