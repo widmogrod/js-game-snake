@@ -108,10 +108,10 @@ function(
             var timestamp = function() { return new Date().getTime()};
 
             var last, time = timestamp();
-            var d = document.getElementById('fps');
+            // var d = document.getElementById('fps');
 
             function loop() {
-                last = timestamp();
+                // last = timestamp();
 
                 // if (self.enemies.count <= self.collect) {
                 // self.stateMachine.trigger('found.gifts');
@@ -126,9 +126,8 @@ function(
                 self.stateMachine.run();
                 self.currentStage.tick();
 
-                d.innerText = 1000 / (last - time) >> 0;
-
-                time = last;
+                // d.innerText = 1000 / (last - time) >> 0;
+                // time = last;
             }
             requestAnimationFrame(loop);
         }
