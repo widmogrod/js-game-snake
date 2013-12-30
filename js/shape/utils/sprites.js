@@ -9,7 +9,7 @@ define(function() {
         this.counter = 0;
     }
 
-    SpriteUtil.prototype.put = function(stage, x, y) {
+    SpriteUtil.prototype.put = function(stage, point) {
         if (++this.counter % this.tick == 0) {
            this.counter = 0;
            this.frameNumber = this.frames <= ++this.frameNumber ? 0 : this.frameNumber;
@@ -17,6 +17,7 @@ define(function() {
 
         // console.log(this.imageData)
         var dx = this.frameNumber * this.frameWidth;
+        var x = point.xpos, y = point.ypos;
         stage.putImageData(
             this.imageData.patch(stage, x, y, this.frameWidth).data(),
             x - dx,

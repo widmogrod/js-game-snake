@@ -40,7 +40,7 @@ function (Shape, Point, PointCollection) {
         }
 
         // stage.drawImage(this.image, center.xpos, center.ypos, width, height);
-        stage.drawImage(this.image, center.xpos, center.ypos, this.width, this.height);
+        stage.drawImage(this.image, center, this.width, this.height);
     }
 
     return ImageShape;

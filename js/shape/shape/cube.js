@@ -45,10 +45,10 @@ function(Shape, Point, PointCollection) {
             face = faces[i];
             point = this.points_.get(face[0]);
             stage.beginPath();
-            stage.moveTo(point.xpos, point.ypos);
+            stage.moveTo(point);
             for (var j = 3; j > 0; j--) {
                 point = this.points_.get(face[j]);
-                stage.lineTo(point.xpos, point.ypos);
+                stage.lineTo(point);
             }
             // stage.closePath();
             stage.fillStyle(this.color);

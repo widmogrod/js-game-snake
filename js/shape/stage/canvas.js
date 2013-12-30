@@ -38,8 +38,8 @@ define(['shape/stage/interface'], function(Stage){
             }
         })
     };
-    CanvasStage.prototype.fillRect = function(x, y, width, height) {
-        this.context.fillRect(x, y, width, height);
+    CanvasStage.prototype.fillRect = function(point, width, height) {
+        this.context.fillRect(point.xpos, point.ypos, width, height);
     }
     CanvasStage.prototype.beginPath = function() {
         this.context.beginPath();
@@ -53,19 +53,19 @@ define(['shape/stage/interface'], function(Stage){
     CanvasStage.prototype.stroke = function() {
         this.context.stroke();
     }
-    CanvasStage.prototype.moveTo = function(x, y) {
-        this.context.moveTo(x, y);
+    CanvasStage.prototype.moveTo = function(point) {
+        this.context.moveTo(point.xpos, point.ypos);
     }
-    CanvasStage.prototype.lineTo = function(x, y) {
-        this.context.lineTo(x, y);
+    CanvasStage.prototype.lineTo = function(point) {
+        this.context.lineTo(point.xpos, point.ypos);
     }
     CanvasStage.prototype.fillStyle = function(style) {
         this.context.fillStyle = style;
     }
-    CanvasStage.prototype.fillText = function(text, x, y, options) {
+    CanvasStage.prototype.fillText = function(text, point, options) {
         this.context.font = options.style + ' ' + options.weigth + ' ' + options.size + ' ' + options.font; //' italic bold 12px sans-serif';
         this.context.textBaseline = options.baseline;
-        this.context.fillText(text, x, y);
+        this.context.fillText(text, point.xpos, point.ypos);
     }
     CanvasStage.prototype.getImageData = function(x, y, width, height) {
         return this.context.getImageData(x, y, width, height);
@@ -73,11 +73,8 @@ define(['shape/stage/interface'], function(Stage){
     CanvasStage.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
         this.context.putImageData(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight);
     }
-    CanvasStage.prototype.drawImage = function(img, x, y, width, height) {
-        this.context.drawImage(img, x, y, width, height);
-    }
-    CanvasStage.prototype.setTransform = function(skewX, skewY, scalX, scalY, moveX, moveY) {
-        this.context.setTransform(scalX || 1, skewX, skewY, scalY || 1, moveX || 0, 0);
+    CanvasStage.prototype.drawImage = function(img, point, width, height) {
+        this.context.drawImage(img, point.xpos, point.ypos, width, height);
     }
 
     return CanvasStage;

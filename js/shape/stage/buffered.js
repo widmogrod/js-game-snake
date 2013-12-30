@@ -49,30 +49,28 @@ define(['shape/stage/interface'], function(Stage){
 
         this.buffer = [];
 
-        // console.log(this.context);
         for (; i < length; i++) {
             method = buffer[i][0];
             args = buffer[i][1];
             switch(method) {
                 case 'stroke':       this.context.stroke(); break;
                 case 'fill':         this.context.fill(); break;
-                case 'fillRect':     this.context.fillRect(args[0], args[1], args[2], args[3]); break;
+                case 'fillRect':     this.context.fillRect(args[0].xpos, args[0].ypos, args[1], args[2]); break;
                 case 'fillStyle':    this.context.fillStyle = args[0]; break;
-                case 'fillText':     this.context.fillText(args[0], args[1], args[2]); break;
+                case 'fillText':     this.context.fillText(args[0], args[1].xpos, args[1].ypos); break;
                 case 'beginPath':    this.context.beginPath(); break;
                 case 'closePath':    this.context.closePath(); break;
-                case 'moveTo':       this.context.moveTo(args[0], args[1]); break;
-                case 'lineTo':       this.context.lineTo(args[0], args[1]); break;
+                case 'moveTo':       this.context.moveTo(args[0].xpos, args[0].ypos); break;
+                case 'lineTo':       this.context.lineTo(args[0].xpos, args[0].ypos); break;
                 case 'font':         this.context.font = args[0]; break;
                 case 'textBaseline': this.context.textBaseline = args[0]; break;
                 case 'putImageData': this.context.putImageData(args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                case 'drawImage':    this.context.drawImage(args[0], args[1], args[2], args[3], args[4]); break;
-                case 'setTransform': this.context.setTransform(args[0], args[1], args[2], args[3], args[4], args[5]); break;
+                case 'drawImage':    this.context.drawImage(args[0], args[1].xpos, args[1].ypos, args[2], args[3]); break;
             }
         }
     }
-    BufferedCanvasStage.prototype.fillRect = function(x, y, width, height) {
-        this.buffer.push(['fillRect', [x, y, width, height]]);
+    BufferedCanvasStage.prototype.fillRect = function(point, width, height) {
+        this.buffer.push(['fillRect', [point, width, height]]);
     }
     BufferedCanvasStage.prototype.beginPath = function() {
         this.buffer.push(['beginPath']);
@@ -86,19 +84,19 @@ define(['shape/stage/interface'], function(Stage){
     BufferedCanvasStage.prototype.stroke = function() {
         this.buffer.push(['stroke']);
     }
-    BufferedCanvasStage.prototype.moveTo = function(x, y) {
-        this.buffer.push(['moveTo', [x, y]]);
+    BufferedCanvasStage.prototype.moveTo = function(point) {
+        this.buffer.push(['moveTo', [point]]);
     }
-    BufferedCanvasStage.prototype.lineTo = function(x, y) {
-        this.buffer.push(['lineTo', [x, y]]);
+    BufferedCanvasStage.prototype.lineTo = function(point) {
+        this.buffer.push(['lineTo', [point]]);
     }
     BufferedCanvasStage.prototype.fillStyle = function(style) {
         this.buffer.push(['fillStyle', [style]]);
     }
-    BufferedCanvasStage.prototype.fillText = function(text, x, y, options) {
+    BufferedCanvasStage.prototype.fillText = function(text, point, options) {
         this.buffer.push(['font', [options.style + ' ' + options.weigth + ' ' + options.size + ' ' + options.font]]);
         this.buffer.push(['textBaseline', [options.baseline]]);
-        this.buffer.push(['fillText', [text, x, y]]);
+        this.buffer.push(['fillText', [text, point]]);
     }
     BufferedCanvasStage.prototype.getImageData = function(x, y, width, height) {
         return this.context.getImageData(x, y, width, height);
@@ -106,11 +104,8 @@ define(['shape/stage/interface'], function(Stage){
     BufferedCanvasStage.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
         this.buffer.push(['putImageData', [imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight]]);
     }
-    BufferedCanvasStage.prototype.drawImage = function(img, x, y, width, height) {
-        this.buffer.push(['drawImage', [img, x, y, width, height]]);
-    }
-    BufferedCanvasStage.prototype.setTransform = function(skewX, skewY, scalX, scalY, moveX, moveY) {
-        this.buffer.push(['setTransform', [scalX || 1, skewX, skewY, scalY || 1, moveX || 0, 0]]);
+    BufferedCanvasStage.prototype.drawImage = function(img, point, width, height) {
+        this.buffer.push(['drawImage', [img, point, width, height]]);
     }
 
     return BufferedCanvasStage;

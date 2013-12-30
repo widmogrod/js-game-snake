@@ -36,7 +36,7 @@ function (Shape, Point, PointCollection) {
             return;
         }
 
-        this.image.put(stage, center.xpos, center.ypos);
+        this.image.put(stage, center);
     }
 
     return SpriteShape;

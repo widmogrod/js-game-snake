@@ -33,7 +33,7 @@ function (Shape, Point, PointCollection) {
             options = this.options();
 
         stage.fillStyle(options.color);
-        stage.fillText(this.text_, center.xpos, center.ypos, options);
+        stage.fillText(this.text_, center, options);
     }
 
     return TextShape;

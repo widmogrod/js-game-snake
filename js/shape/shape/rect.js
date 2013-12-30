@@ -31,9 +31,9 @@ function (Shape, Point, PointCollection) {
         this.points_.each(function(point, i){
             if (i == 0) {
                 stage.beginPath();
-                stage.moveTo(point.xpos, point.ypos);
+                stage.moveTo(point);
             } else {
-                stage.lineTo(point.xpos, point.ypos);
+                stage.lineTo(point);
             }
         })
         stage.fillStyle(this.color);
