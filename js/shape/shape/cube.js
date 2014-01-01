@@ -49,14 +49,14 @@ function(Shape, Point, PointCollection, VectorUtil) {
             face = faces[i];
 
             normal = VectorUtil.normalFromPoints(
-                this.points_.get(face[1]),
                 this.points_.get(face[0]),
-                this.points_.get(face[3])
+                this.points_.get(face[1]),
+                this.points_.get(face[2])
             );
 
             normal = normal.normalize();
             angle = new VectorUtil(camera).angle(normal) * 180 / Math.PI >> 0;
-            if (angle >= 90) continue;
+            if (angle < 91) continue;
 
             point = this.points_.get(face[0]);
             stage.moveTo(point);
