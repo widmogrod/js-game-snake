@@ -182,6 +182,8 @@ function(
     }
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
+            return new CubeShape(0, 0, -this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2, this.config().CUBE_FIELD_SIZE);
+
             var shape = new SpriteShape(0, 0, -this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2, this.config().CUBE_FIELD_SIZE);
 
             this.assetManager().get('reindeer', shape.setSprite.bind(shape));

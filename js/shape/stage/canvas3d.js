@@ -1,4 +1,4 @@
-define(['shape/stage/buffered'], function(BufferedCanvasStage){
+define(['shape/stage/imagedata', 'shape/point/point'], function(BufferedCanvasStage, Point){
     "use strict";
 
     function Canvas3DStage(canvas, projection) {
@@ -8,6 +8,9 @@ define(['shape/stage/buffered'], function(BufferedCanvasStage){
         this.childs = [];
         this.projection = projection;
         this.buffer = [];
+        this.imageData = this.context.getImageData(0, 0, canvas.width, canvas.height);
+        this.zbuffer = Array(this.width * this.height);
+        this.nullPoint = new Point(0,0,0);
     }
     Canvas3DStage.constructor = Canvas3DStage;
     Canvas3DStage.prototype = Object.create(BufferedCanvasStage.prototype);
@@ -22,6 +25,8 @@ define(['shape/stage/buffered'], function(BufferedCanvasStage){
                 self.projection.project(child.points());
                 child.render(self);
                 child.state(child.STATE_RENDERED);
+            } else {
+                child.area();
             }
         })
 

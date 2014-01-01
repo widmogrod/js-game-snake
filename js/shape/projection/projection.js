@@ -1,6 +1,7 @@
 define([
     'shape/projection/interface',
     'shape/point/collection',
+    'shape/point/point',
     'shape/shape/interface',
     'shape/stage/interface',
     'shape/utils/angle'
@@ -8,6 +9,7 @@ define([
 function(
     ProjectionInterface,
     PointCollection,
+    Point,
     Shape,
     Stage,
     Angle
@@ -28,6 +30,8 @@ function(
         this.distance = distance;
         this.x = x;
         this.y = y;
+
+        this.camera = new Point(0, 0, this.distance);
     }
     Projection.constructor = Projection;
     Projection.prototype = new ProjectionInterface();
@@ -35,7 +39,7 @@ function(
         var self = this;
         function task(point) {
             if (point.z > -self.distance) {
-                var scale = self.distance / (self.distance + point.z >> 0);
+                var scale = self.distance / (self.distance - point.z >> 0);
                 point.xpos = (self.x + (point.x * scale)) >> 0;
                 point.ypos = (self.y + (point.y * scale)) >> 0;
                 point.scale = scale;

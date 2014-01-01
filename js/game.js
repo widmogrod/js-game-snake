@@ -127,6 +127,7 @@ function(
                 self.currentStage.tick();
 
                 // d.innerText = 1000 / (last - time) >> 0;
+
                 // time = last;
             }
             requestAnimationFrame(loop);

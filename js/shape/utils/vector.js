@@ -27,6 +27,22 @@ define(['shape/point/point'], function(Point) {
 
         return Math.acos(angle);
     }
+    VectorUtil.normalFromPoints = function(point0, point1, point2) {
+        // vectors on the plane
+        var U = new Point(point1.x - point0.x, point1.y - point0.y, point1.z - point0.z);
+        var V = new Point(point2.x - point0.x, point2.y - point0.y, point2.z - point0.z);
+
+        // cross product
+        var i, j, k;
+
+        i = U.y * V.z - U.z * V.y;
+        j = U.z * V.x - U.x * V.z;
+        k = U.x * V.y - U.y * V.x;
+
+        var normal = new Point(i, -j, k);
+
+        return normal;
+    }
 
     return VectorUtil;
 })
