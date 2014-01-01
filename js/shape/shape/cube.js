@@ -43,7 +43,7 @@ function(Shape, Point, PointCollection, VectorUtil) {
         var face, point, normal, camera, angle;
         var i = 0, length = faces.length;
 
-        camera = stage.projection.camera;
+        camera =  new VectorUtil(stage.projection.camera);
 
         for (; i < length; i++) {
             face = faces[i];
@@ -55,7 +55,7 @@ function(Shape, Point, PointCollection, VectorUtil) {
             );
 
             normal = normal.normalize();
-            angle = new VectorUtil(camera).angle(normal) * 180 / Math.PI >> 0;
+            angle = camera.angle(normal) * 180 / Math.PI >> 0;
             if (angle < 91) continue;
 
             point = this.points_.get(face[0]);
