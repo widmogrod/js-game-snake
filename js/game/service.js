@@ -20,7 +20,7 @@ define(
     'shape/utils/sprites',
     'game/stage/start',
     'game/stage/game',
-    'shape/projection/projection',
+    'shape/projection/camera',
     'shape/stage/canvas3d'
 ],
 function(
@@ -44,7 +44,7 @@ function(
     SpriteUtil,
     StartStage,
     GameStage,
-    Projection,
+    CameraProjection,
     Canvas3DStage
 ) {
     function ServiceManager(game, canvas) {
@@ -92,11 +92,13 @@ function(
         })
     }
     ServiceManager.prototype.giftFactory = function(x, y, z) {
-        var am = this.assetManager();
-        var gift = Math.random() > 0.5 ? 'gift-red' : 'gift-blue';
-        var image = new ImageShape(x, y, z, this.config().CUBE_FIELD_SIZE, this.config().CUBE_FIELD_SIZE);
-        am.get(gift, image.setImage.bind(image));
-        return image;
+        // var am = this.assetManager();
+        // var gift = Math.random() > 0.5 ? 'gift-red' : 'gift-blue';
+        // var image = new ImageShape(x, y, z, this.config().CUBE_FIELD_SIZE, this.config().CUBE_FIELD_SIZE);
+        // am.get(gift, image.setImage.bind(image));
+        // return image;
+
+        return new CubeShape(x, y, z, this.config().CUBE_FIELD_SIZE, {r:0, g: 255, b:0, a:255})
     }
     ServiceManager.prototype.actionManager = function() {
         return this.get('actionManager', function() {
@@ -182,7 +184,13 @@ function(
     }
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
-            return new CubeShape(0, 0, -this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2, this.config().CUBE_FIELD_SIZE);
+            return new CubeShape(
+                0,
+                0,
+                this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2,
+                this.config().CUBE_FIELD_SIZE,
+                {r:255, g:0, b:0, a:255}
+            );
 
             var shape = new SpriteShape(0, 0, -this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2, this.config().CUBE_FIELD_SIZE);
 
@@ -210,7 +218,7 @@ function(
     }
     ServiceManager.prototype.projection = function() {
         return this.get('projection', function() {
-            return new Projection(1270, this.canvas().width / 2, this.canvas().height / 2);
+            return new CameraProjection(1270, this.canvas().width / 2, this.canvas().height / 2);
         });
     }
     ServiceManager.prototype.createStage = function() {

@@ -24,7 +24,7 @@ function(Shape, Point, PointCollection, VectorUtil) {
         this.points_ = new PointCollection(new Point(x, y, z));
 
         this.width = width || 10;
-        this.color = color || '#333333';
+        this.color = color || {r:0, g:0, b:0, a:255};
 
         var halfWidth = this.width / 2;
 
@@ -44,6 +44,7 @@ function(Shape, Point, PointCollection, VectorUtil) {
         var i = 0, length = faces.length;
 
         camera =  new VectorUtil(stage.projection.camera);
+        stage.fillStyle(this.color);
 
         for (; i < length; i++) {
             face = faces[i];
@@ -64,6 +65,7 @@ function(Shape, Point, PointCollection, VectorUtil) {
                 point = this.points_.get(face[j]);
                 stage.lineTo(point);
             }
+            stage.fill();
             stage.stroke();
         }
     }

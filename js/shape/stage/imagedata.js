@@ -60,25 +60,43 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
         this.buffer = [];
         this.position = this.nullPoint;
         this.color = {r:0, g:0, b:0, a:255};
+        var fill = [];
 
         for (; i < length; i++) {
             method = buffer[i][0];
             args = buffer[i][1];
             switch(method) {
-                // case 'stroke':       this.context.stroke(); break;
-                // case 'fill':         this.context.fill(); break;
+                case 'stroke':
+                    // fill = [];
+                    break;
+
+                case 'fill':
+                    if (fill.length < 3) break;
+                    // console.log(fill);
+                    // console.log(fill.pop(), fill.pop(), fill.pop())
+                        this.fillTriangle(fill[0], fill[1], fill[2]);
+                        this.fillTriangle(fill[2], fill[3], fill[0]);
+                    fill = [];
+                    break;
+
                 // case 'fillRect':     this.context.fillRect(args[0].xpos, args[0].ypos, args[1], args[2]); break;
                 case 'fillStyle':
                     this.color = typeof args[0] === 'object' ? args[0] : {r:0, g:0, b:0, a:255};
                     // this.context.fillStyle = 'rgba('+ this.color.r +','+ this.color.g +','+ this.color.b +',1)';
-                    break; // this.context.fillStyle = args[0]; break;
+                    break;
+
                 // case 'fillText':     this.context.fillText(args[0], args[1].xpos, args[1].ypos); break;
-                // case 'beginPath':    this.context.beginPath(); break;
+                case 'beginPath':
+                    fill = [];
+                    break;
+
                 // case 'closePath':    this.context.closePath(); break;
                 case 'moveTo':
                     // this.context.moveTo(args[0].xpos, args[0].ypos);
                     this.position = args[0];
+                    // fill.push(args[0]);
                     break;
+
                 case 'lineTo':
                     // this.context.lineTo(args[0].xpos, args[0].ypos);
                 // this.context.stroke();
@@ -86,6 +104,7 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
                 // this.drawBline(this.position, args[0]);
                 // this.drawLine(this.position, args[0]);
                     this.position = args[0];
+                    fill.push(args[0]);
                     break;
 
                 // case 'font':         this.context.font = args[0]; break;
@@ -96,6 +115,82 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
         }
 
         this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
+    }
+    ImageDataStage.prototype.fillTriangle = function(p1, p2, p3) {
+        var top, middle, bottom, a;
+
+        var min = Math.min(p1.ypos, p2.ypos, p3.ypos);
+        var max = Math.max(p1.ypos, p2.ypos, p3.ypos);
+
+        for (var i = 0; i < 3; i++) {
+            a = arguments[i];
+            switch(true) {
+                case min === a.ypos && !top: top = a;
+                case max === a.ypos && !bottom: bottom = a;
+                default: middle = a;
+            }
+        }
+
+        // console.log(top, middle, bottom)
+
+        var x, y, x0, x1, y0, y1, z = 0;
+        var z0, z1, lz, rz;
+
+        var lx, rx;
+        var fromX, toX;
+        var lineX, lineY;
+
+        x0 = top.xpos;
+        y0 = top.ypos;
+        z0 = top.z;
+        // console.log(top.ypos, middle.ypos);
+        for (var y = top.ypos; y < middle.ypos; y++) {
+            x1 = middle.xpos;
+            y1 = middle.ypos;
+            z1 = middle.z;
+
+            // lx = x0;
+            // if (x0 !== x1) {
+            lx = this.interpolate(y0, y1, x0, x1, y);
+            lz = this.interpolate(y0, y1, z0, z1, y);
+            // }
+            // console.log(lz);
+
+            // rx = 116;
+            // console.log(y0 != y1 && x0 != x1);
+            x1 = bottom.xpos;
+            y1 = bottom.ypos;
+            z1 = bottom.z;
+            rx = x1;
+            rz = lz;
+            // console.log(x0, x1, y0, y1);
+            if (x0 !== x1) {
+                rx = this.interpolate(y0, y1, x0, x1, y);
+                rz = this.interpolate(y0, y1, z0, z1, y);
+            }
+            // console.log(lx, rx)
+                // console.log(lz, rz);
+
+            fromX = Math.min(lx, rx);
+            toX = Math.max(lx, rx);
+
+            if (fromX === toX) continue;
+
+            var blz = lz;
+            if (fromX !== lx) {
+                lz = rz;
+                rz = blz;
+            }
+            // lz = fromX === lx ? lz : rx;
+
+            // console.log(fromX, toX)
+
+            for (lineX = fromX; lineX < toX; lineX++) {
+                z = this.interpolate(fromX, toX, lz, rz, lineX);
+                // console.log(z)
+                this.drawPoint(new Point(lineX, y, z), this.color);
+            }
+        }
     }
     ImageDataStage.prototype.drawCline = function(point0, point1) {
         var x, y, x0, x1, y0, y1, z = 0;
