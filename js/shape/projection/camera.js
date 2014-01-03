@@ -1,6 +1,7 @@
 define([
     'shape/projection/interface',
     'math/matrix',
+    'math/vector3',
     'shape/point/collection',
     'shape/point/point',
     'shape/shape/interface',
@@ -10,6 +11,7 @@ define([
 function(
     CameraProjectionInterface,
     Matrix,
+    Vector3,
     PointCollection,
     Point,
     Shape,
@@ -43,9 +45,9 @@ function(
         ]);
 
 
-        var eye = new Point(0, 0, 100);
-        var target = new Point(0,0,0);
-        var up = new Point(0, 1, 0);
+        var eye = new Vector3(0, 0, 100);
+        var target = new Vector3(0,0,0);
+        var up = new Vector3(0, 1, 0);
 
         var zaxis = eye.subtract(target).normalize();
         var xaxis = up.cross(zaxis).normalize();
@@ -69,7 +71,7 @@ function(
 
         this.cameraMatrix = orientation.multiply(translation);
         // this.cameraMatrix = translation.multiply(orientation);
-        console.log(this.cameraMatrix.toString());
+        // console.log(this.cameraMatrix.toString());
         // this.cameraMatrix = new Matrix(4, [
         //     1, 0, 0, 0,
         //     0, 1, 0, 0,
@@ -85,20 +87,19 @@ function(
         e = 1 / Math.tan(FOV / 2);
         a = this.width/this.height;
 
-        // this.projectionMatrix = new Matrix(4, [
-        //     e, 0, 0, 0,
-        //     0, e/a, 0, 0,
-        //     0, 0, -(f + n)/(f - n), -(2 * f * n / (f - n)),
-        //     0, 0, -1, 0
-
-        // ]);
-        // infinite projection matrix
         this.projectionMatrix = new Matrix(4, [
             e, 0, 0, 0,
             0, e/a, 0, 0,
-            0, 0, -1, -2*n,
+            0, 0, -(f + n)/(f - n), -(2 * f * n / (f - n)),
             0, 0, -1, 0
         ]);
+        // infinite projection matrix
+        // this.projectionMatrix = new Matrix(4, [
+        //     e, 0, 0, 0,
+        //     0, e/a, 0, 0,
+        //     0, 0, -1, -2*n,
+        //     0, 0, -1, 0
+        // ]);
         // console.log(this.projectionMatrix.toString())
         // this.projectionMatrix = new Matrix(4, [
         //     this.width / 2, 0, 0, 0,
@@ -113,24 +114,26 @@ function(
 
     CameraProjection.constructor = CameraProjection;
     CameraProjection.prototype = new CameraProjectionInterface();
-    CameraProjection.prototype.vectorFromPoint = function (point) {
-        return new Matrix(4, [point.x, point.y, point.z, 1]);
-    }
-    CameraProjection.prototype.vectorToPoint = function(vector, point) {
-        point = point instanceof Point ? point : new Point(0, 0, 0);
-        point.x = vector.getAt(0, 0);
-        point.y = vector.getAt(1, 0);
-        point.z = vector.getAt(2, 0);
-        return point;
-    }
+    // CameraProjection.prototype.vectorFromPoint = function (point) {
+    //     return new Matrix(4, [point.x, point.y, point.z, 1]);
+    // }
+    // CameraProjection.prototype.vectorToPoint = function(vector, point) {
+    //     point = point instanceof Point ? point : new Point(0, 0, 0);
+    //     point.x = vector.getAt(0, 0);
+    //     point.y = vector.getAt(1, 0);
+    //     point.z = vector.getAt(2, 0);
+    //     return point;
+    // }
     CameraProjection.prototype.project = function(point) {
         var self = this, vector;
         // var t = this.projectionMatrix;
+
+        // t.multiply(self.wordMatrix).multiply(self.cameraMatrix);
         var t = self.wordMatrix.multiply(self.cameraMatrix).multiply(self.projectionMatrix);
         // console.log(t.toString())
         var r, w;
         function task(point) {
-            r = t.multiply(self.vectorFromPoint(point))
+            r = t.multiply(point)
             // console.log(r.toString());
             w = r.getAt(3, 0);
 
