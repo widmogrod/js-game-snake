@@ -9,10 +9,10 @@ define(['shape/point/interface', 'math/vector3'], function(PointInterface, Vecto
         this.ypos = y;
     }
     Point.constructor = Point;
+    Point.prototype = Object.create(Vector3.prototype);
     Point.prototype.toString = function() {
         return 'Point(' + this.x, this.y, this.z + ')';
     }
-    Point.prototype = Object.create(Vector3.prototype);
     Point.prototype.moveBy = function(x, y, z) {
         this.x += x;
         this.y += y;
