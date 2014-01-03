@@ -1,4 +1,4 @@
-define(['shape/point/interface', 'math/vector3'], function(PointInterface, Vector4) {
+define(['shape/point/interface', 'math/vector3', 'math/vector3'], function(PointInterface, Vector3, Vector4) {
     "use strict";
 
     function Point(x, y, z) {
@@ -28,6 +28,9 @@ define(['shape/point/interface', 'math/vector3'], function(PointInterface, Vecto
         this.y = y;
         this.z = z;
         this.data = [this.x, this.y, this.z, this.w]
+    }
+    Point.prototype.vector3 = function() {
+        return new Vector3(this.x, this.y, this.z);
     }
 
     return Point;
