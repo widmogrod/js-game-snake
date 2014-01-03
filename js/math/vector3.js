@@ -1,12 +1,20 @@
-define(function() {
+define(['math/matrix'], function(Matrix) {
     "use strict";
 
     function Vector3(x, y, z) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.rows = 3;
+        this.cols = 1;
+        this.data = [this.x, this.y, this.z]
+
     }
     Vector3.constructor = Vector3;
+    Vector3.prototype = Object.create(Matrix.prototype);
+    Vector3.prototype.toString = function() {
+        return 'Vector3(' + this.x, this.y, this.z + ')';
+    }
     Vector3.prototype.normalize = function() {
         var length = this.length();
         return new Vector3(

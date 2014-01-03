@@ -17,7 +17,7 @@ define(function(){
     }
     Matrix.prototype.toString = function() {
         var row, col,
-        result = '';
+        result = 'Matrix[' + this.cols + ',' + this.rows + ']' + "\n";
 
         for (row = 0; row < this.rows; row++) {
             result += '|'
