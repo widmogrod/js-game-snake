@@ -24,4 +24,26 @@ require(['game'], function(TetrisGame) {
 
     tetris = new TetrisGame(game);
     tetris.run();
+    //
+    // require(['math/matrix'], function(Matrix) {
+
+    //     var identity = new Matrix(3,
+    //                               1, 0, 0,
+    //                               0, 1, 0,
+    //                               0, 0, 1
+    //                              );
+    //     console.log(identity.toString());
+
+    //     var a = new Matrix(2, [1, 0, 2, -1, 3, 1]);
+    //     console.log(a.toString());
+
+    //     var b = new Matrix(3, [3, 1, 2, 1, 1, 0]);
+    //     console.log(b.toString());
+
+    //     var r = a.multiply(b);
+    //     console.log(r.toString());
+
+
+    // });
+
 });

@@ -74,8 +74,8 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
                     if (fill.length < 3) break;
                     // console.log(fill);
                     // console.log(fill.pop(), fill.pop(), fill.pop())
-                        this.fillTriangle(fill[0], fill[1], fill[2]);
-                        this.fillTriangle(fill[2], fill[3], fill[0]);
+                        // this.fillTriangle(fill[0], fill[1], fill[2]);
+                        // this.fillTriangle(fill[2], fill[3], fill[0]);
                     fill = [];
                     break;
 

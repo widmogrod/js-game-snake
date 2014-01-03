@@ -57,7 +57,7 @@ function(Shape, Point, PointCollection, VectorUtil) {
 
             normal = normal.normalize();
             angle = camera.angle(normal) * 180 / Math.PI >> 0;
-            if (angle < 91) continue;
+            // if (angle < 91) continue;
 
             point = this.points_.get(face[0]);
             stage.moveTo(point);

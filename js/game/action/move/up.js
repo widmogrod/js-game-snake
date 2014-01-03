@@ -10,7 +10,7 @@ define(['game/action/interface'], function(ActionInterface) {
     ActionMoveUp.prototype = new ActionInterface();
 
     ActionMoveUp.prototype.run = function() {
-        this.shape.points().moveBy(0, -this.speed, 0);
+        this.shape.points().moveBy(0, this.speed, 0);
         ++this.counter;
     }
     ActionMoveUp.prototype.canStop = function() {
