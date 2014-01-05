@@ -11,7 +11,18 @@ define(function(){
             throw RangeError('Matrix doesn\'t have valid rows number, given ' + this.rows + ', and counts ' + this.count);
         }
     }
+    Matrix.identity = function(rows) {
+        var cols = rows, data = [], step = rows + 1;
+        for (var i = 0, length = rows * cols; i < length; i++) {
+            data.push((i + step) % step == 0 ? 1 : 0);
+        }
+        return new Matrix(rows, data);
+    }
 
+    Matrix.prototype.setAt = function(row, column, value) {
+        this.data[this.cols * row + column] = value;
+        return this;
+    }
     Matrix.prototype.getAt = function(row, column) {
         return this.data[this.cols * row + column];
     }
@@ -52,6 +63,24 @@ define(function(){
         }
 
         return new Matrix(this.rows, data);
+    }
+    Matrix.prototype.transpose = function() {
+        var result = new Matrix(this.cols, Array(this.count));
+        for (var row = 0; row < this.rows; row++) {
+            for (var col = 0; col < this.cols; col++) {
+                result.setAt(col, row, this.getAt(row, col));
+            }
+        }
+        return result;
+    }
+     Matrix.prototype.scalar = function(scalar) {
+        var result = new Matrix(this.rows, Array(this.count));
+        for (var row = 0; row < this.rows; row++) {
+            for (var col = 0; col < this.cols; col++) {
+                result.setAt(row, col, scalar * this.getAt(row, col));
+            }
+        }
+        return result;
     }
 
     return Matrix;

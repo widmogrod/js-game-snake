@@ -2,6 +2,8 @@ define(
     [
     'game/config',
     'shape/shape/cube',
+    'shape/mesh/cube',
+    'shape/color',
     'shape/shape/image',
     'shape/shape/sprite',
     'game/action/manager',
@@ -26,6 +28,8 @@ define(
 function(
     GameConfig,
     CubeShape,
+    CubeMesh,
+    Color,
     ImageShape,
     SpriteShape,
     ActionManager,
@@ -98,6 +102,7 @@ function(
         // am.get(gift, image.setImage.bind(image));
         // return image;
 
+        return new CubeMesh(x, y, z, this.config().CUBE_FIELD_SIZE, Color.fromName('red'));
         return new CubeShape(x, y, z, this.config().CUBE_FIELD_SIZE, {r:0, g: 255, b:0, a:255})
     }
     ServiceManager.prototype.actionManager = function() {
@@ -184,6 +189,13 @@ function(
     }
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
+            return new CubeMesh(
+                0,
+                0,
+                this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2,
+                this.config().CUBE_FIELD_SIZE,
+                {r:255, g:0, b:0, a:255}
+            );
             return new CubeShape(
                 0,
                 0,

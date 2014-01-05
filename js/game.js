@@ -1,10 +1,12 @@
 define([
     'hammerjs',
-    'game/service'
+    'game/service',
+    'math/vector3'
 ],
 function(
     Hemmer,
-    ServiceManager
+    ServiceManager,
+    Vector3
 ) {
     /**
      * Description
@@ -32,22 +34,81 @@ function(
             document.getElementById('santa').className += ' happy';
         })
 
+        var p = self.service.projection();
+        var eye = new Vector3(0, 0, 0);
+        var at =  new Vector3(-1.5, 0, -1.5);
+        var up =  new Vector3(0, 1, 0);
+
+        var inputs = document.getElementsByTagName('input');
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs.item(i);
+            input.addEventListener('change', (function(input){
+                if (input.className === 'matrix-row') return function(e) {
+                    var value = parseFloat(input.value.replace(',', '.'));
+                    var d = input.dataset;
+
+                    d.col = parseInt(d.col);
+                    d.row = parseInt(d.row);
+                    switch(d.row) {
+                        case '0':
+                            if(d.col == 0) eye.x = value;
+                            if(d.col == 1) eye.y = value;
+                            if(d.col == 2) eye.z = value;
+                            break;
+                        case '1':
+                            if(d.col == 0) at.x = value;
+                            if(d.col == 1) at.y = value;
+                            if(d.col == 2) at.z = value;
+                            break;
+                        case '2':
+                            if(d.col == 0) up.x = value;
+                            if(d.col == 1) up.y = value;
+                            if(d.col == 2) up.z = value;
+                            break;
+                        default:
+                            console.log('miss row', d.row);
+                            break;
+                    }
+                    p.cameraMatrix = p.createCamera(eye, at, up);
+                    console.log('eye', eye.toString());
+                    console.log('at', at.toString());
+                    console.log('up', up.toString());
+                    console.log('new camera', p.cameraMatrix.toString());
+                    // p.cameraMatrix.setAt(
+                    //     +input.dataset.row,
+                    //     +input.dataset.col,
+                    //     +input.value
+                    // );
+                }
+
+                if (input.className === 'matrix-rotate') return function(e) {
+                    var value = parseFloat(input.value.replace(',', '.'));
+                    var d = input.dataset;
+                    p.rotateCamera(d.direction, value);
+                }
+
+            })(input));
+        }
+
+
         // Manage game stage
         this.stateMachine.on('enter:left', function(e) {
-            self.actionManager.set('move', self.service.actionMoveLeft());
-            e.lock(self.actionManager.proxy('canStop', 'move'));
+            p.rotateCamera('x', 10);
+            // self.actionManager.set('move', self.service.actionMoveLeft());
+            // e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:right', function(e) {
-            self.actionManager.set('move', self.service.actionMoveRight());
-            e.lock(self.actionManager.proxy('canStop', 'move'));
+            p.rotateCamera('x', -10);
+            // self.actionManager.set('move', self.service.actionMoveRight());
+            // e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:up', function(e) {
-            self.actionManager.set('move', self.service.actionMoveUp());
-            e.lock(self.actionManager.proxy('canStop', 'move'));
+            // self.actionManager.set('move', self.service.actionMoveUp());
+            // e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:down', function(e) {
-            self.actionManager.set('move', self.service.actionMoveDown());
-            e.lock(self.actionManager.proxy('canStop', 'move'));
+            // self.actionManager.set('move', self.service.actionMoveDown());
+            // e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:show_right_face', function() {
             self.actionManager.remove('move');
@@ -119,18 +180,19 @@ function(
                 // }
 
                 // One more time
-                requestAnimationFrame(loop);
+                // requestAnimationFrame(loop);
                 // Run actions
-                self.actionManager.run();
-                self.currentStage.updateState(self.stateMachine);
-                self.stateMachine.run();
+                // self.actionManager.run();
+                // self.currentStage.updateState(self.stateMachine);
+                // self.stateMachine.run();
                 self.currentStage.tick();
 
                 // d.innerText = 1000 / (last - time) >> 0;
 
                 // time = last;
             }
-            requestAnimationFrame(loop);
+            // requestAnimationFrame(loop);
+            setInterval(loop, 300)
         }
     };
 

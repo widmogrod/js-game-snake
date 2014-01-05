@@ -14,7 +14,7 @@ define(['math/matrix'], function(Matrix) {
     Vector4.constructor = Vector4;
     Vector4.prototype = Object.create(Matrix.prototype);
     Vector4.prototype.toString = function() {
-        return 'Vector4(' + this.x + ',' + this.y + ',' + this.z + ',' + this.w ')';
+        return 'Vector4(' + this.x + ',' + this.y + ',' + this.z + ',' + this.w + ')';
     }
     Vector4.prototype.normalize = function() {
         var length = this.length();

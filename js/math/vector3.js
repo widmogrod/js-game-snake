@@ -13,7 +13,7 @@ define(['math/matrix'], function(Matrix) {
     Vector3.constructor = Vector3;
     Vector3.prototype = Object.create(Matrix.prototype);
     Vector3.prototype.toString = function() {
-        return 'Vector3(' + this.x, this.y, this.z + ')';
+        return 'Vector3(' + this.x +','+ this.y +','+ this.z + ')';
     }
     Vector3.prototype.normalize = function() {
         var length = this.length();
@@ -24,9 +24,17 @@ define(['math/matrix'], function(Matrix) {
         );
     }
     Vector3.prototype.length = function() {
-        return Math.sqrt(
-            (this.x * this.x) + (this.y * this.y) + (this.z * this.z)
-        );
+        return Math.sqrt(this.lengthSqrt());
+    }
+    Vector3.prototype.lengthSqrt = function() {
+        return (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
+    }
+    Vector3.prototype.compare = function(vector) {
+        var a = this.lengthSqrt();
+        var b = vector.lengthSqrt();
+        if (a < b) return -1;
+        else if (a > b) return 1;
+        else return 0;
     }
     Vector3.prototype.subtract = function(vector) {
         return new Vector3(

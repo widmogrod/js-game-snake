@@ -15,7 +15,7 @@ define(['shape/point/interface', 'math/vector3', 'math/vector3'], function(Point
     Point.constructor = Point;
     Point.prototype = Object.create(Vector4.prototype);
     Point.prototype.toString = function() {
-        return 'Point(' + this.x, this.y, this.z + ')';
+        return 'Point(' + this.x + ',' + this.y + ',' + this.z + ',' + this.w + ')';
     }
     Point.prototype.moveBy = function(x, y, z) {
         this.x += x;
