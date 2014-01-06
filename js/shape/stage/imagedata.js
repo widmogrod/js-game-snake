@@ -96,6 +96,7 @@ define(['shape/stage/interface', 'shape/point/point', 'shape/color'], function(S
                 case 'closePath':
                     colors.shift();
                     break;
+
                 case 'moveTo':
                     // this.context.moveTo(args[0].xpos, args[0].ypos);
                     this.position = args[0];

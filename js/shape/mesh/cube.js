@@ -49,8 +49,8 @@ define(['shape/mesh/interface', 'math/vector3', 'shape/point/point'], function(M
             }
             stage.closePath();
             // stage.fill();
-            stage.stroke();
         }
+        stage.stroke();
     }
 
     return CubeMesh;

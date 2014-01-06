@@ -16,11 +16,11 @@ define(['shape/stage/imagedata', 'shape/point/point'], function(ImageDataStage, 
     Canvas3DStage.constructor = Canvas3DStage;
     Canvas3DStage.prototype = Object.create(ImageDataStage.prototype);
 
-    Canvas3DStage.prototype.fillStyle = function(color) {
-        this.color = color;
-        this.context.fillStyle = color.toString();
-        this.context.strokeStyle = color.toString();
-    }
+    // Canvas3DStage.prototype.fillStyle = function(color) {
+    //     this.color = color;
+    //     this.context.fillStyle = color.toString();
+    //     this.context.strokeStyle = color.toString();
+    // }
     Canvas3DStage.prototype.render = function() {
         var state, self = this;
         // this.context.clearRect(0, 0, this.width, this.height)
