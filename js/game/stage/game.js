@@ -1,9 +1,9 @@
-define(['shape/shape/cube'], function(CubeShape){
+define(['shape/shape/cube', 'shape/mesh/cube', 'shape/color'], function(CubeShape, CubeMesh, Color){
     function GameStage(serviceManager) {
         var config = serviceManager.config();
         var stage = serviceManager.createStage();
 
-        this.board = new CubeShape(0, 0, 0, config.BOARD_WIDTH, '#fff');
+        this.board = new CubeMesh(0, 0, 0, config.BOARD_WIDTH, Color.fromName('blue'));
         this.cube = serviceManager.cube();
         this.collect = 0;
         this.config = config;

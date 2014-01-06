@@ -1,4 +1,4 @@
-define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
+define(['shape/stage/interface', 'shape/point/point', 'shape/color'], function(Stage, Point, Color){
     "use strict";
 
     function ImageDataStage(canvas) {
@@ -11,7 +11,7 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
         this.zbuffer = Array(this.width * this.height);
         this.nullPoint = new Point(0,0,0);
         this.position = this.nullPoint;
-        this.color = {r:0, g:0, b:0, a:255};
+        this.color = Color.fromName('black');
     }
 
     ImageDataStage.constructor = ImageDataStage;
@@ -37,7 +37,7 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
         this.buffer = []
         this.zbuffer = []
         this.position = this.nullPoint;
-        this.color = {r:0, g:0, b:0, a:255};
+        this.color = Color.fromName('black');
    }
     ImageDataStage.prototype.render = function() {
         var self = this;
@@ -59,7 +59,8 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
 
         this.buffer = [];
         this.position = this.nullPoint;
-        this.color = {r:0, g:0, b:0, a:255};
+        // this.color = {r:0, g:0, b:0, a:255};
+        var colors = [this.color];
         var fill = [];
 
         for (; i < length; i++) {
@@ -81,16 +82,20 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
 
                 // case 'fillRect':     this.context.fillRect(args[0].xpos, args[0].ypos, args[1], args[2]); break;
                 case 'fillStyle':
-                    this.color = typeof args[0] === 'object' ? args[0] : {r:0, g:0, b:0, a:255};
+                    colors.push(
+                        args[0] instanceof Color ? args[0] : Color.fromName('black')
+                    );
                     // this.context.fillStyle = 'rgba('+ this.color.r +','+ this.color.g +','+ this.color.b +',1)';
                     break;
 
                 // case 'fillText':     this.context.fillText(args[0], args[1].xpos, args[1].ypos); break;
                 case 'beginPath':
-                    fill = [];
+                    this.color = colors.length ? colors[0] : this.color;
                     break;
 
-                // case 'closePath':    this.context.closePath(); break;
+                case 'closePath':
+                    colors.shift();
+                    break;
                 case 'moveTo':
                     // this.context.moveTo(args[0].xpos, args[0].ypos);
                     this.position = args[0];
@@ -100,6 +105,7 @@ define(['shape/stage/interface', 'shape/point/point'], function(Stage, Point){
                 case 'lineTo':
                     // this.context.lineTo(args[0].xpos, args[0].ypos);
                 // this.context.stroke();
+
                     this.drawCline(this.position, args[0]);
                 // this.drawBline(this.position, args[0]);
                 // this.drawLine(this.position, args[0]);

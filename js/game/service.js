@@ -194,7 +194,7 @@ function(
                 0,
                 this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2,
                 this.config().CUBE_FIELD_SIZE,
-                {r:255, g:0, b:0, a:255}
+                Color.fromName('green')
             );
             return new CubeShape(
                 0,

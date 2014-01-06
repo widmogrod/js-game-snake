@@ -23,16 +23,17 @@ function(
 
         // Move State Machine
         this.stateMachine = this.service.stateMachineMove();
+
         // Switch stages
         this.stateMachine.on('enter:play', function(e) {
             self.currentStage = self.service.gameStage();
-        })
+        });
         this.stateMachine.on('enter:start', function(e) {
             self.currentStage = self.service.startStage();
-        })
+        });
         this.stateMachine.on('enter:end', function() {
             document.getElementById('santa').className += ' happy';
-        })
+        });
 
         var p = self.service.projection();
         var eye = new Vector3(0, 0, 0);
@@ -93,22 +94,20 @@ function(
 
         // Manage game stage
         this.stateMachine.on('enter:left', function(e) {
-            p.rotateCamera('x', 10);
-            // self.actionManager.set('move', self.service.actionMoveLeft());
-            // e.lock(self.actionManager.proxy('canStop', 'move'));
+            self.actionManager.set('move', self.service.actionMoveLeft());
+            e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:right', function(e) {
-            p.rotateCamera('x', -10);
-            // self.actionManager.set('move', self.service.actionMoveRight());
-            // e.lock(self.actionManager.proxy('canStop', 'move'));
+            self.actionManager.set('move', self.service.actionMoveRight());
+            e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:up', function(e) {
-            // self.actionManager.set('move', self.service.actionMoveUp());
-            // e.lock(self.actionManager.proxy('canStop', 'move'));
+            self.actionManager.set('move', self.service.actionMoveUp());
+            e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:down', function(e) {
-            // self.actionManager.set('move', self.service.actionMoveDown());
-            // e.lock(self.actionManager.proxy('canStop', 'move'));
+            self.actionManager.set('move', self.service.actionMoveDown());
+            e.lock(self.actionManager.proxy('canStop', 'move'));
         })
         this.stateMachine.on('enter:show_right_face', function() {
             self.actionManager.remove('move');
@@ -180,19 +179,20 @@ function(
                 // }
 
                 // One more time
-                // requestAnimationFrame(loop);
+                requestAnimationFrame(loop);
                 // Run actions
-                // self.actionManager.run();
-                // self.currentStage.updateState(self.stateMachine);
-                // self.stateMachine.run();
+                self.actionManager.run();
+                self.currentStage.updateState(self.stateMachine);
+                self.stateMachine.run();
                 self.currentStage.tick();
 
                 // d.innerText = 1000 / (last - time) >> 0;
 
                 // time = last;
             }
-            // requestAnimationFrame(loop);
-            setInterval(loop, 300)
+            requestAnimationFrame(loop);
+            // setInterval(loop, 300)
+            // loop()
         }
     };
 

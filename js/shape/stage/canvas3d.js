@@ -1,4 +1,4 @@
-define(['shape/stage/canvas', 'shape/point/point'], function(CanvasStage, Point){
+define(['shape/stage/imagedata', 'shape/point/point'], function(ImageDataStage, Point){
     "use strict";
 
     function Canvas3DStage(canvas, projection) {
@@ -8,22 +8,24 @@ define(['shape/stage/canvas', 'shape/point/point'], function(CanvasStage, Point)
         this.height = canvas.height;
         this.childs = [];
         this.projection = projection;
-        // this.buffer = [];
-        // this.imageData = this.context.getImageData(0, 0, canvas.width, canvas.height);
-        // this.zbuffer = Array(this.width * this.height);
-        // this.nullPoint = new Point(0,0,0);
+        this.buffer = [];
+        this.imageData = this.context.getImageData(0, 0, canvas.width, canvas.height);
+        this.zbuffer = Array(this.width * this.height);
+        this.nullPoint = new Point(0,0,0);
     }
     Canvas3DStage.constructor = Canvas3DStage;
-    Canvas3DStage.prototype = Object.create(CanvasStage.prototype);
+    Canvas3DStage.prototype = Object.create(ImageDataStage.prototype);
 
-    CanvasStage.prototype.fillStyle = function(color) {
+    Canvas3DStage.prototype.fillStyle = function(color) {
+        this.color = color;
         this.context.fillStyle = color.toString();
         this.context.strokeStyle = color.toString();
     }
     Canvas3DStage.prototype.render = function() {
         var state, self = this;
-        this.context.clearRect(0, 0, this.width, this.height)
-        this.canvas.width = this.width;
+        // this.context.clearRect(0, 0, this.width, this.height)
+        // this.canvas.width = this.width;
+        this.clean();
         this.each(function(child){
             // state = child.state();
             // state = child.STATE_DIRTY;
@@ -36,7 +38,7 @@ define(['shape/stage/canvas', 'shape/point/point'], function(CanvasStage, Point)
             // }
         })
 
-        // this.flush();
+        this.flush();
     }
 
     return Canvas3DStage;
