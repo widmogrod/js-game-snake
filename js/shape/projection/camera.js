@@ -45,7 +45,9 @@ function(
         var c = this.createCamera(eye, at, up);
         this.cameraMatrix = c;
 
-        var p = this.createPerspectiveProjection(1000);
+        this.d = -1;
+
+        var p = this.createPerspectiveProjection(this.d);
         this.perspectiveMatrix = p;
     }
 
@@ -98,24 +100,42 @@ function(
         var self = this;
         var t, r, x, y, z, w;
         if (pointOrMesh instanceof MeshInterface) {
-            t = self.perspectiveMatrix;
-            t = t.multiply(self.cameraMatrix);
-            t = t.multiply(self.wordMatrix(pointOrMesh));
+            // t = self.perspectiveMatrix;
+            // t = t.multiply(self.cameraMatrix);
+            // t = t.multiply(self.wordMatrix(pointOrMesh));
+            t = self.wordMatrix(pointOrMesh);
             pointOrMesh.vertices.forEach(function(vertex){
-                r = t.multiply(vertex)
+                r = t.multiply(vertex);
+                r = self.cameraMatrix.multiply(r);
+                r = self.perspectiveMatrix.multiply(r);
+
 
                 x = r.getAt(0, 0);
                 y = r.getAt(1, 0);
                 z = r.getAt(2, 0);
                 w = r.getAt(3, 0);
 
-                x = x/w;
-                y = y/w;
-                z = z/w;
-                w = w/w;
+                if (z - w  < 0) {
+                    x = x/w;
+                    y = y/w;
+                    z = z/w;
+                    w = w/w;
+                }
+
+
+                // x *= self.width/5;
+                // y *= self.height/5;
+
+                // console.log(r.toString())
+                // console.log(x, y, z, w);
+                // vertex.xpos = self.x + self.x*x >> 0;
+                // vertex.ypos = self.y - self.y*y >> 0;
+
+                // vertex.xpos = x >> 0;
+                // vertex.ypos = y >> 0;
 
                 vertex.xpos = self.x + x >> 0;
-                vertex.ypos = self.y + y >> 0;
+                vertex.ypos = self.y - y >> 0;
             });
         } else {
             t = self.perspectiveMatrix;
@@ -145,6 +165,68 @@ function(
         this.cameraMatrix = this.cameraMatrix.multiply(temp);
     }
     CameraProjection.prototype.createCamera = function(eye, at, up) {
+        // eye = new Vector3(this.x, this.y, 0);
+        eye = new Vector3(0, 0, 100);
+        at  = new Vector3(0, 0, 0);
+        up  = new Vector3(0, 1, 0);
+
+        var zaxis = eye.subtract(at).normalize();
+        var xaxis = up.cross(zaxis).normalize();
+        var yaxis = xaxis.cross(zaxis);
+
+        console.log('eye', eye)
+        console.log('at', at)
+        console.log('up', up)
+        console.log('zaxis', zaxis.toString());
+        console.log('yaxis', yaxis.toString());
+        console.log('xaxis', xaxis.toString());
+
+        var t = new Vector3(this.x, this.y, 0);
+        var R, T;
+        var Ri, Ti;
+
+
+        T = new Matrix(4, [
+            1, 0, 0, eye.x,
+            0, 1, 0, eye.y,
+            0, 0, 1, eye.z,
+            0, 0, 0, 1
+
+        ])
+        Ti = new Matrix(4, [
+            1, 0, 0, -eye.x,
+            0, 1, 0, -eye.y,
+            0, 0, 1, -eye.z,
+            0, 0, 0, 1
+        ]);
+        console.log('T*Ti', T.multiply(Ti).toString());
+        console.log('Ti*T', Ti.multiply(T).toString());
+
+        // Ti = Matrix.identity(4);
+        console.log('Ti', Ti.toString())
+
+        R = new Matrix(4, [
+            xaxis.x, yaxis.x, -zaxis.x, 0,
+            xaxis.y, yaxis.y, -zaxis.y, 0,
+            xaxis.z, yaxis.z, -zaxis.z, 0,
+            0, 0, 0, 1,
+        ]);
+        // R.setAt(2, 2, -1);
+        console.log('R', R.toString())
+
+        Ri = R.transpose();
+
+        console.log('Ri', Ri.toString())
+
+        // g = T*R*S*v
+        // v = Si*Ri*Ti*g
+        // c = Sic*Ric*Tic*g;
+
+        var r = Ri.multiply(Ti);
+        var r = Ti.multiply(Ri);
+        console.log('V', r.toString())
+        return r;
+
         var zaxis = eye.subtract(at).normalize();
         var xaxis = up.cross(zaxis).normalize();
         var yaxis = xaxis.cross(zaxis);
@@ -174,11 +256,27 @@ function(
         // ]);
     }
     CameraProjection.prototype.createPerspectiveProjection = function(d) {
+        // return this.createPerspectiveFovLH(0.1, 10, this.width/this.height, 90)
+        var angle = 90;
+        var FOV = angle * Math.PI / 180;
+        var e = Math.tan(FOV / 2) * Math.abs(this.d) * 2;
+        var w, h;
+
+        w = h = this.height;
+        console.log('w=h=', w);
+        console.log('e=', e);
+        console.log('w/e', w/e)
+        return new Matrix(4, [
+            w/e, 0, 0, 0,
+            0, h/e, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 1/d, 0
+        ])
         return new Matrix(4, [
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
-            0, 0, 1/d, 1
+            0, 0, 1/d, 0
         ])
     }
 
