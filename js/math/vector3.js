@@ -10,6 +10,14 @@ define(['math/matrix'], function(Matrix) {
         this.data = [this.x, this.y, this.z]
 
     }
+
+    Vector3.up = function() {
+        return new Vector3(0, 1, 0);
+    }
+    Vector3.down = function() {
+        return new Vector3(0, -1, 0);
+    }
+
     Vector3.constructor = Vector3;
     Vector3.prototype = Object.create(Matrix.prototype);
     Vector3.prototype.toString = function() {
