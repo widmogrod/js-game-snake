@@ -230,7 +230,7 @@ function(
     }
     ServiceManager.prototype.projection = function() {
         return this.get('projection', function() {
-            return new CameraProjection(1270, this.canvas().width / 2, this.canvas().height / 2);
+            return new CameraProjection(this.canvas().width / 2, this.canvas().height / 2);
         });
     }
     ServiceManager.prototype.createStage = function() {
