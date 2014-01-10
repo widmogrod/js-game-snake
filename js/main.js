@@ -193,56 +193,285 @@ define('shape/shape/interface',['shape/point/collection'], function(PointCollect
     return Shape;
 })
 ;
-define('shape/point/point',['shape/point/interface'], function(PointInterface) {
+define('math/matrix',[],function(){
     
 
-    function Point(x, y, z) {
-        this.origin = {
-            x:x, y:y, z:z,
-            angle: {x:360, y:360,z:360}
-        };
+    function Matrix(rows, data) {
+        this.rows = rows;
+        this.data = arguments.length > 2 ? Array.prototype.slice.call(arguments, 1) : data;
+        this.count = this.data.length;
+        this.cols = this.count / this.rows;
+
+        if (this.count % this.rows !== 0) {
+            throw RangeError('Matrix doesn\'t have valid rows number, given ' + this.rows + ', and counts ' + this.count);
+        }
+    }
+    Matrix.identity = function(rows) {
+        var cols = rows, data = [], step = rows + 1;
+        for (var i = 0, length = rows * cols; i < length; i++) {
+            data.push((i + step) % step == 0 ? 1 : 0);
+        }
+        return new Matrix(rows, data);
+    }
+
+    Matrix.prototype.setAt = function(row, column, value) {
+        this.data[this.cols * row + column] = value;
+        return this;
+    }
+    Matrix.prototype.getAt = function(row, column) {
+        return this.data[this.cols * row + column];
+    }
+    Matrix.prototype.toString = function() {
+        var row, col,
+        result = 'Matrix[' + this.cols + ',' + this.rows + ']' + "\n";
+
+        for (row = 0; row < this.rows; row++) {
+            result += '|'
+            for (col = 0; col < this.cols; col++) {
+                result += "\t"
+                result += this.getAt(row, col);
+                result += "\t"
+            }
+            result += "|\n";
+        }
+
+        return result;
+    }
+    Matrix.prototype.multiply = function(matrix) {
+        if (this.cols !== matrix.rows) {
+            throw Error('Can\'t multiply matrix because number of rows ' + matrix.rows + ' is different from current matrix columns number ' + this.cols );
+        }
+
+        var row, col, a, b, idx, sum,
+            data = [];
+
+        for (row = 0; row < this.rows; row++) {
+            for (col = 0; col < matrix.cols; col++) {
+                sum = 0;
+                for (idx = 0; idx < matrix.rows; idx++) {
+                    a = this.getAt(row, idx);
+                    b = matrix.getAt(idx, col);
+                    sum += a * b;
+                }
+                data.push(sum);
+            }
+        }
+
+        return new Matrix(this.rows, data);
+    }
+    Matrix.prototype.transpose = function() {
+        var result = new Matrix(this.cols, Array(this.count));
+        for (var row = 0; row < this.rows; row++) {
+            for (var col = 0; col < this.cols; col++) {
+                result.setAt(col, row, this.getAt(row, col));
+            }
+        }
+        return result;
+    }
+     Matrix.prototype.scalar = function(scalar) {
+        var result = new Matrix(this.rows, Array(this.count));
+        for (var row = 0; row < this.rows; row++) {
+            for (var col = 0; col < this.cols; col++) {
+                result.setAt(row, col, scalar * this.getAt(row, col));
+            }
+        }
+        return result;
+    }
+
+    return Matrix;
+})
+;
+define('math/vector3',['math/matrix'], function(Matrix) {
+    
+
+    function Vector3(x, y, z) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.xpos = 0;
-        this.ypos = 0;
+        this.rows = 3;
+        this.cols = 1;
+        this.data = [this.x, this.y, this.z]
+
+    }
+
+    Vector3.up = function() {
+        return new Vector3(0, 1, 0);
+    }
+    Vector3.down = function() {
+        return new Vector3(0, -1, 0);
+    }
+
+    Vector3.constructor = Vector3;
+    Vector3.prototype = Object.create(Matrix.prototype);
+    Vector3.prototype.toString = function() {
+        return 'Vector3(' + this.x +','+ this.y +','+ this.z + ')';
+    }
+    Vector3.prototype.normalize = function() {
+        var length = this.length();
+        return new Vector3(
+            this.x / length,
+            this.y / length,
+            this.z / length
+        );
+    }
+    Vector3.prototype.length = function() {
+        return Math.sqrt(this.lengthSqrt());
+    }
+    Vector3.prototype.lengthSqrt = function() {
+        return (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
+    }
+    Vector3.prototype.compare = function(vector) {
+        var a = this.lengthSqrt();
+        var b = vector.lengthSqrt();
+        if (a < b) return -1;
+        else if (a > b) return 1;
+        else return 0;
+    }
+    Vector3.prototype.subtract = function(vector) {
+        return new Vector3(
+            (this.x - vector.x), (this.y - vector.y), (this.z - vector.z)
+        );
+    }
+    Vector3.prototype.add = function(vector) {
+        return new Vector3(
+            (this.x + vector.x), (this.y + vector.y), (this.z + vector.z)
+        );
+    }
+    Vector3.prototype.scale = function(scale) {
+        return new Vector3(
+            (this.x * scale), (this.y * scale), (this.z * scale)
+        );
+    }
+    Vector3.prototype.dot = function(vector) {
+        return (this.x * vector.x) + (this.y * vector.y) + (this.z * vector.z);
+    }
+    Vector3.prototype.angle = function(vector) {
+        var divisor = this.length() * vector.length();
+        if (divisor === 0) return null;
+
+        var angle = this.dot(vector) / divisor;
+
+        if (angle < -1) { angle = -1; }
+        if (angle > 1) { angle = 1; }
+
+        return Math.acos(angle);
+    }
+    Vector3.prototype.cross = function(vector) {
+        var i, j, k;
+
+        i = this.y * vector.z - this.z * vector.y;
+        j = this.z * vector.x - this.x * vector.z;
+        k = this.x * vector.y - this.y * vector.x;
+
+        return new Vector3(i, -j, k);
+    }
+
+    return Vector3;
+})
+;
+define('shape/point/point',['shape/point/interface', 'math/vector3', 'math/vector3'], function(PointInterface, Vector3, Vector4) {
+    
+
+    function Point(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = 1;
+        this.rows = 4;
+        this.cols = 1;
+        this.data = [this.x, this.y, this.z, this.w]
+        this.xpos = x;
+        this.ypos = y;
     }
     Point.constructor = Point;
-    Point.prototype = new PointInterface();
+    Point.prototype = Object.create(Vector4.prototype);
+    Point.prototype.toString = function() {
+        return 'Point(' + this.x + ',' + this.y + ',' + this.z + ',' + this.w + ')';
+    }
     Point.prototype.moveBy = function(x, y, z) {
         this.x += x;
         this.y += y;
         this.z += z;
+        this.data = [this.x, this.y, this.z, this.w]
     }
     Point.prototype.moveTo = function(x, y, z) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.data = [this.x, this.y, this.z, this.w]
     }
-    Point.prototype.length = function() {
-        return Math.sqrt(
-            (this.x * this.x) + (this.y * this.y) + (this.z * this.z)
-        );
+    Point.prototype.vector3 = function() {
+        return new Vector3(this.x, this.y, this.z);
     }
 
     return Point;
 })
 ;
+define('shape/utils/vector',['shape/point/point'], function(Point) {
+    function VectorUtil(vector) {
+        this.vector = vector instanceof Point ? vector : new Point(0,0,0);
+    }
+
+    VectorUtil.prototype.add = function(vector) {
+        return new VectorUtil(new Point(
+            this.vector.x + vector.x,
+            this.vector.y + vector.y,
+            this.vector.z + vector.z
+        ));
+    }
+    VectorUtil.prototype.dot = function(vector) {
+        return (this.vector.x * vector.x) + (this.vector.y * vector.y) + (this.vector.z * vector.z);
+    }
+    VectorUtil.prototype.direction = function(vector) {
+        return (this.vector.x - vector.x) + (this.vector.y - vector.y) + (this.vector.z - vector.z) > 0 ? 1 : -1;
+    }
+    VectorUtil.prototype.angle = function(vector) {
+        var divisor = this.vector.length() * vector.length();
+        if (divisor === 0) return null;
+
+        var angle = this.dot(vector) / divisor;
+
+        if (angle < -1) { angle = -1; }
+        if (angle > 1) { angle = 1; }
+
+        return Math.acos(angle);
+    }
+    VectorUtil.normalFromPoints = function(point0, point1, point2) {
+        // vectors on the plane
+        var U = new Point(point1.x - point0.x, point1.y - point0.y, point1.z - point0.z);
+        var V = new Point(point2.x - point0.x, point2.y - point0.y, point2.z - point0.z);
+
+        return cross(U, V);
+    }
+    VectorUtil.cross = cross;
+    function cross(U, V) {
+        var i, j, k;
+
+        i = U.y * V.z - U.z * V.y;
+        j = U.z * V.x - U.x * V.z;
+        k = U.x * V.y - U.y * V.x;
+
+        return new Point(i, -j, k);
+    }
+    return VectorUtil;
+})
+;
 define('shape/shape/cube',[
     'shape/shape/interface',
     'shape/point/point',
-    'shape/point/collection'
+    'shape/point/collection',
+    'shape/utils/vector'
 ],
-function(Shape, Point, PointCollection) {
+function(Shape, Point, PointCollection, VectorUtil) {
     
 
     var faces = [
-        [0,1,2,3],
-        [0,1,5,4],
+        [0,1,2,3], // back
+        [0,4,5,1],
         [0,3,7,4],
         [3,2,6,7],
-        [1,2,6,5],
-        [4,5,6,7]
+        [1,5,6,2],
+        [4,7,6,5] // front
     ];
 
     /**
@@ -253,7 +482,7 @@ function(Shape, Point, PointCollection) {
         this.points_ = new PointCollection(new Point(x, y, z));
 
         this.width = width || 10;
-        this.color = color || '#333333';
+        this.color = color || {r:0, g:0, b:0, a:255};
 
         var halfWidth = this.width / 2;
 
@@ -269,27 +498,154 @@ function(Shape, Point, PointCollection) {
     CubeShape.constructor = CubeShape;
     CubeShape.prototype = Object.create(Shape.prototype);
     CubeShape.prototype.render = function(stage) {
-        var face, point;
+        var face, point, normal, camera, angle;
         var i = 0, length = faces.length;
+
+        camera =  new VectorUtil(stage.projection.camera);
+        stage.fillStyle(this.color);
+
         for (; i < length; i++) {
             face = faces[i];
+
+            normal = VectorUtil.normalFromPoints(
+                this.points_.get(face[0]),
+                this.points_.get(face[1]),
+                this.points_.get(face[2])
+            );
+
+            normal = normal.normalize();
+            angle = camera.angle(normal) * 180 / Math.PI >> 0;
+            // if (angle < 91) continue;
+
             point = this.points_.get(face[0]);
-            stage.beginPath();
-            stage.moveTo(point.xpos, point.ypos);
-            for (var j = 3; j > 0; j--) {
+            stage.moveTo(point);
+            for (var j = 3; j >= 0; j--) {
                 point = this.points_.get(face[j]);
-                stage.lineTo(point.xpos, point.ypos);
+                stage.lineTo(point);
             }
-            // stage.closePath();
-            stage.fillStyle(this.color);
-            // stage.stroke();
             stage.fill();
+            stage.stroke();
         }
     }
 
     return CubeShape;
 });
 
+define('shape/mesh/interface',['math/matrix', 'math/vector3'], function(Matrix, Vector3){
+    
+
+    function MeshInterface() {
+        this.rotation = new Vector3(0, 0, 0);
+        this.translation = new Vector3(0, 0, 0);
+        this.scale = new Vector3(1, 1, 1);
+        this.vertices = [];
+    }
+
+    MeshInterface.prototype.center = function() { return this.translation; }
+    MeshInterface.prototype.modelMatrix = function() {
+        return new Matrix(4, [
+            this.scale.x, 0, 0, this.translation.x,
+            0, this.scale.y, 0, this.translation.y,
+            0, 0, this.scale.z, this.translation.z,
+            0, 0, 0, 1
+        ]);
+    }
+    MeshInterface.prototype.render = function(stage) {
+
+    }
+
+    return MeshInterface;
+})
+;
+define('shape/mesh/cube',['shape/mesh/interface', 'math/vector3', 'shape/point/point'], function(MeshInterface, Vector3, Point) {
+    
+
+    var faces = [
+        [0,1,2,3], // back
+        [0,4,5,1],
+        [0,3,7,4],
+        [3,2,6,7],
+        [1,5,6,2],
+        [4,7,6,5] // front
+    ];
+
+    function CubeMesh(x, y, z, width, color) {
+        this.rotation = new Vector3(0, 0, 0);
+        this.translation = new Vector3(x, y, z);
+        this.scale = new Vector3(1, 1, 1);
+
+        var hw = width/2 >> 0;
+
+        this.vertices = [];
+        this.vertices.push(new Point(- hw, - hw, - hw));
+        this.vertices.push(new Point(  hw, - hw, - hw));
+        this.vertices.push(new Point(  hw,   hw, - hw));
+        this.vertices.push(new Point(- hw,   hw, - hw));
+        this.vertices.push(new Point(- hw, - hw,   hw));
+        this.vertices.push(new Point(  hw, - hw,   hw));
+        this.vertices.push(new Point(  hw,   hw,   hw));
+        this.vertices.push(new Point(- hw, + hw, + hw));
+
+        this.width = width;
+        this.color = color;
+    }
+    CubeMesh.prototype = Object.create(MeshInterface.prototype);
+    CubeMesh.prototype.render = function(stage) {
+        var face, point;
+        var i = 0, length = faces.length;
+
+        stage.fillStyle(this.color);
+
+        for (; i < length; i++) {
+            face = faces[i];
+
+            point = this.vertices[face[0]];
+            stage.beginPath();
+            stage.moveTo(point);
+            for (var j = 3; j >= 0; j--) {
+                point = this.vertices[face[j]];
+                stage.lineTo(point);
+            }
+            stage.closePath();
+            // stage.fill();
+            stage.stroke();
+        }
+    }
+
+    return CubeMesh;
+})
+;
+define('shape/color',[],function(){
+    
+
+    function Color() {
+        this.r = 0;
+        this.g = 0;
+        this.b = 0;
+        this.a = 255;
+    }
+
+    Color.fromName = function(name) {
+        var result = new Color();
+
+        switch(name) {
+            case 'red':   result.r = 255; break;
+            case 'green': result.g = 255; break;
+            case 'blue':  result.b = 255; break;
+            case 'orange':  result.r = 255; result.g = 165; break;
+        }
+
+        return result;
+    }
+
+    Color.prototype.toString = function() {
+        return 'rgba('+ this.r +','+ this.g +','+ this.b +', '+ this.a / 255 +')';
+    }
+
+    return Color;
+
+})
+;
 define('shape/shape/image',[
     'shape/shape/interface',
     'shape/point/point',
@@ -332,7 +688,7 @@ function (Shape, Point, PointCollection) {
         }
 
         // stage.drawImage(this.image, center.xpos, center.ypos, width, height);
-        stage.drawImage(this.image, center.xpos, center.ypos, this.width, this.height);
+        stage.drawImage(this.image, center, this.width, this.height);
     }
 
     return ImageShape;
@@ -376,7 +732,7 @@ function (Shape, Point, PointCollection) {
             return;
         }
 
-        this.image.put(stage, center.xpos, center.ypos);
+        this.image.put(stage, center);
     }
 
     return SpriteShape;
@@ -677,7 +1033,8 @@ define('game/action/move/right',['game/action/interface'], function(ActionInterf
     ActionMoveRight.prototype = new ActionInterface();
 
     ActionMoveRight.prototype.run = function() {
-        this.shape.points().moveBy(this.speed, 0, 0);
+        this.shape.translation.x += this.speed;
+        // this.shape.points().moveBy(this.speed, 0, 0);
         ++this.counter;
     }
     ActionMoveRight.prototype.canStop = function() {
@@ -699,7 +1056,8 @@ define('game/action/move/left',['game/action/interface'], function(ActionInterfa
     ActionMoveLeft.prototype = new ActionInterface();
 
     ActionMoveLeft.prototype.run = function() {
-        this.shape.points().moveBy(-this.speed, 0, 0);
+        this.shape.translation.x -= this.speed;
+        // this.shape.points().moveBy(-this.speed, 0, 0);
         ++this.counter;
     }
     ActionMoveLeft.prototype.canStop = function() {
@@ -721,7 +1079,8 @@ define('game/action/move/up',['game/action/interface'], function(ActionInterface
     ActionMoveUp.prototype = new ActionInterface();
 
     ActionMoveUp.prototype.run = function() {
-        this.shape.points().moveBy(0, -this.speed, 0);
+        this.shape.translation.y += this.speed;
+        // this.shape.points().moveBy(0, this.speed, 0);
         ++this.counter;
     }
     ActionMoveUp.prototype.canStop = function() {
@@ -743,7 +1102,8 @@ define('game/action/move/down',['game/action/interface'], function(ActionInterfa
     ActionMoveDown.prototype = new ActionInterface();
 
     ActionMoveDown.prototype.run = function() {
-        this.shape.points().moveBy(0, this.speed, 0);
+        this.shape.translation.y -= this.speed;
+        // this.shape.points().moveBy(0, -this.speed, 0);
         ++this.counter;
     }
     ActionMoveDown.prototype.canStop = function() {
@@ -1126,7 +1486,7 @@ define('shape/utils/sprites',[],function() {
         this.counter = 0;
     }
 
-    SpriteUtil.prototype.put = function(stage, x, y) {
+    SpriteUtil.prototype.put = function(stage, point) {
         if (++this.counter % this.tick == 0) {
            this.counter = 0;
            this.frameNumber = this.frames <= ++this.frameNumber ? 0 : this.frameNumber;
@@ -1134,6 +1494,7 @@ define('shape/utils/sprites',[],function() {
 
         // console.log(this.imageData)
         var dx = this.frameNumber * this.frameWidth;
+        var x = point.xpos, y = point.ypos;
         stage.putImageData(
             this.imageData.patch(stage, x, y, this.frameWidth).data(),
             x - dx,
@@ -1183,25 +1544,32 @@ function (Shape, Point, PointCollection) {
             options = this.options();
 
         stage.fillStyle(options.color);
-        stage.fillText(this.text_, center.xpos, center.ypos, options);
+        stage.fillText(this.text_, center, options);
     }
 
     return TextShape;
 });
 
-define('game/stage/start',['shape/shape/text'], function(TextShape){
+define('game/stage/start',['shape/shape/text', 'shape/shape/cube', 'shape/mesh/cube', 'shape/color'], function(TextShape, CubeShape, CubeMesh, Color){
     function StartStage(serviceManager) {
         var config = serviceManager.config();
         var stage = serviceManager.createStage();
 
-        stage.addChild(new TextShape(
-            -120, 0, 10,
-            'To start game hit enter or swipe',
-            {
-                size: '20px',
-                color: 'black'
-            }
-        ));
+        // stage.addChild(new CubeShape(0, 0, 0, 200, 'red'));
+        var cube = new CubeMesh(0, 0, -10, 40, Color.fromName('red'));
+        cube.rotation.x = 45;
+        cube.rotation.y = 45;
+        cube.rotation.z = 45;
+        stage.addChild(cube);
+
+        var cube = new CubeMesh(100, 0, 0, 40, Color.fromName('blue'));
+        cube.rotation.x = 45;
+        stage.addChild(cube);
+
+        var cube = new CubeMesh(0, 100, 0, 40, Color.fromName('green'));
+        stage.addChild(cube);
+        var cube = new CubeMesh(100, 100, 0, 40, Color.fromName('orange'));
+        stage.addChild(cube);
 
         this.stage = stage;
     }
@@ -1215,12 +1583,12 @@ define('game/stage/start',['shape/shape/text'], function(TextShape){
     return StartStage;
 })
 ;
-define('game/stage/game',['shape/shape/cube'], function(CubeShape){
+define('game/stage/game',['shape/shape/cube', 'shape/mesh/cube', 'shape/color'], function(CubeShape, CubeMesh, Color){
     function GameStage(serviceManager) {
         var config = serviceManager.config();
         var stage = serviceManager.createStage();
 
-        this.board = new CubeShape(0, 0, 0, config.BOARD_WIDTH, '#fff');
+        this.board = new CubeMesh(0, 0, 0, config.BOARD_WIDTH, Color.fromName('blue'));
         this.cube = serviceManager.cube();
         this.collect = 0;
         this.config = config;
@@ -1329,19 +1697,180 @@ define('game/stage/game',['shape/shape/cube'], function(CubeShape){
     return GameStage;
 })
 ;
-define('shape/projection/interface',[],function(){
+define('math/matrix4',['math/matrix'], function(Matrix){
     
 
-    function ProjectionInterface() {}
-    ProjectionInterface.constructor = ProjectionInterface;
-    ProjectionInterface.prototype = {
-        'rotateX' : function(point, angle) {},
-        'rotateY' : function(point, angle) {},
-        'rotateZ' : function(point, angle) {},
-        'project' : function(point) {}
-    };
+    var TO_RADIAN = Math.PI / 180;
 
-    return ProjectionInterface;
+    function Matrix4(data) {
+        this.rows = 4;
+        this.data = data;
+        this.count = 16;
+        this.cols = 4;
+    }
+
+    Matrix4.prototype = Object.create(Matrix.prototype);
+    Matrix4.prototype.setTranslation = function(x, y, z) {
+        this.setAt(0, 3, x);
+        this.setAt(1, 3, y);
+        this.setAt(2, 3, z);
+    }
+    Matrix4.prototype.setTranslationVector = function(vector) {
+        this.setTranslation(vector.x, vector.y, vector.z);
+    }
+
+    Matrix4.identity = function() {
+        return new Matrix4([
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ]);
+    }
+    Matrix4.translation = function(vector) {
+        var result = Matrix4.identity();
+        result.setTranslationVector(vector);
+        return result;
+    }
+    Matrix4.rotation = function(vector) {
+        var result = Matrix4.identity();
+        if (vector.x != 0) {
+            result = result.multiply(Matrix4.rotationX(vector.x));
+        }
+        if (vector.y != 0) {
+            result = result.multiply(Matrix4.rotationY(vector.y));
+        }
+        if (vector.z != 0) {
+            result = result.multiply(Matrix4.rotationZ(vector.z));
+        }
+        return result;
+    }
+    Matrix4.rotationX = function(angle) {
+        angle *= TO_RADIAN;
+        var sin = Math.sin(angle), cos = Math.cos(angle);
+        return new Matrix(4, [
+            1, 0, 0, 0,
+            0, cos, sin, 0,
+            0, -sin, cos, 0,
+            0, 0, 0, 1
+        ]);
+    }
+    Matrix4.rotationY = function(angle) {
+        angle *= TO_RADIAN;
+        var sin = Math.sin(angle), cos = Math.cos(angle);
+        return new Matrix(4, [
+            cos, 0, -sin, 0,
+            0, 1, 0, 0,
+            sin, 0, cos, 0,
+            0, 0, 0, 1
+        ]);
+    }
+    Matrix4.rotationZ = function(angle) {
+        angle *= TO_RADIAN;
+        var sin = Math.sin(angle), cos = Math.cos(angle);
+        return new Matrix(4, [
+            cos, -sin, 0, 0,
+            sin, cos, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ]);
+    }
+    Matrix4.lookAtLH = function(eye, at, up) {
+        var zaxis = eye.subtract(at).normalize();
+        var xaxis = up.cross(zaxis).normalize();
+        var yaxis = xaxis.cross(zaxis);
+
+        var Ti = new Matrix(4, [
+            1, 0, 0, -eye.x,
+            0, 1, 0, -eye.y,
+            0, 0, 1, -eye.z,
+            0, 0, 0, 1
+        ]);
+
+        var Ri = new Matrix(4, [
+            xaxis.x, yaxis.x, zaxis.x, 0,
+            xaxis.y, yaxis.y, zaxis.y, 0,
+            xaxis.z, yaxis.z, zaxis.z, 0,
+            0, 0, 0, 1,
+        ]).transpose();
+
+        return Ti.multiply(Ri);
+    }
+    Matrix4.perspectiveProjection = function(width, height, angle, d) {
+        angle *= TO_RADIAN / 2;
+        d = d || -1;
+
+        var e = Math.tan(angle) * Math.abs(d) * 2;
+
+        return new Matrix(4, [
+            width/e, 0, 0, 0,
+            0, height/e, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 1/d, 0
+        ]);
+    }
+
+    return Matrix4;
+});
+
+define('shape/projection/camera',[
+    'math/matrix4',
+    'math/vector3'
+],
+function(
+    Matrix4,
+    Vector3
+) {
+    
+
+    function CameraProjection(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width || 450;
+        this.height = height || 450;
+
+        var eye = new Vector3(0, 0, 400);
+        var at =  new Vector3(0, 0, 0);
+        var up =  new Vector3(0, 1, 0);
+
+        this.viewMatrix = Matrix4.lookAtLH(eye, at, up);
+        this.projectionMatrix = Matrix4.perspectiveProjection(this.width, this.height, 90);
+    }
+
+    CameraProjection.constructor = CameraProjection;
+    CameraProjection.prototype.project = function(mesh) {
+        var transformationMatrix, r, x, y, z, w, wordMatrix, self = this;
+
+        wordMatrix = Matrix4.translation(mesh.translation).multiply(
+            Matrix4.rotation(mesh.rotation)
+        );
+
+        transformationMatrix = this.projectionMatrix;
+        transformationMatrix = transformationMatrix.multiply(this.viewMatrix);
+        transformationMatrix = transformationMatrix.multiply(wordMatrix);
+
+        mesh.vertices.forEach(function(vertex){
+            r = transformationMatrix.multiply(vertex);
+
+            x = r.getAt(0, 0);
+            y = r.getAt(1, 0);
+            z = r.getAt(2, 0);
+            w = r.getAt(3, 0);
+
+            // normalize
+            if (z - w  < 0) {
+                x = x/w;
+                y = y/w;
+                z = z/w;
+                w = w/w;
+            }
+
+            vertex.xpos = self.x + x >> 0;
+            vertex.ypos = self.y - y >> 0;
+        });
+    }
+
+    return CameraProjection;
 })
 ;
 define('shape/stage/interface',[],function(){
@@ -1359,150 +1888,63 @@ define('shape/stage/interface',[],function(){
         'removeChild': function() {},
         'stroke': function() {},
         'fill': function() {},
-        'fillRect': function(x, y, width, height) {},
+        'fillRect': function(point, width, height) {},
         'fillStyle': function(style) {},
-        'fillText': function(text, x, y, options) {},
+        'fillText': function(text, point, options) {},
         'beginPath': function() {},
         'closePath': function() {},
-        'moveTo': function(x, y) {},
-        'lineTo': function(x, y) {},
+        'moveTo': function(point) {},
+        'lineTo': function(point) {},
         'getImageData': function(img, x, y, width, height) {},
         'putImageData': function(x, y, width, height) {},
-        'drawImage': function(img, x, y, width, height) {},
-        'setTransform': function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {}
+        'drawImage': function(img, point, width, height) {}
     };
 
     return Stage;
 })
 ;
-define('shape/utils/angle',[],function() {
-    function AngleUtil() {};
-
-    AngleUtil.TO_RADIANS = Math.PI/180;
-    AngleUtil.normalize = function(angle) {
-        angle = angle >> 0;
-        if (angle > 360) return angle % 360;
-        if (angle < -360) return -(angle % 360);
-        if (angle === -360) return 1;
-        if (angle < 1) return 360 + angle;
-        return angle;
-    }
-
-    return AngleUtil;
-})
-;
-define('shape/projection/projection',[
-    'shape/projection/interface',
-    'shape/point/collection',
-    'shape/shape/interface',
-    'shape/stage/interface',
-    'shape/utils/angle'
-],
-function(
-    ProjectionInterface,
-    PointCollection,
-    Shape,
-    Stage,
-    Angle
-) {
+define('shape/stage/imagedata',['shape/stage/interface', 'shape/point/point', 'shape/color'], function(Stage, Point, Color){
     
 
-    function each(item, func) {
-        item instanceof PointCollection
-            ? (item.each(func) || func(item.center))
-            : item instanceof Shape
-                ? each(item.points(), func)
-                : item instanceof Stage
-                    ? item.each(function(child) { each(child.points(), func) })
-                    : func(item);
-    }
-
-    function Projection(distance, x, y) {
-        this.distance = distance;
-        this.x = x;
-        this.y = y;
-    }
-    Projection.constructor = Projection;
-    Projection.prototype = new ProjectionInterface();
-    Projection.prototype.project = function(point) {
-        var self = this;
-        function task(point) {
-            if (point.z > -self.distance) {
-                var scale = self.distance / (self.distance + point.z >> 0);
-                point.xpos = (self.x + (point.x * scale)) >> 0;
-                point.ypos = (self.y + (point.y * scale)) >> 0;
-                point.scale = scale;
-            }
-        }
-        each(point, task);
-    }
-    Projection.prototype.rotateY = function(point, angle) {
-        angle = angle >> 0;
-        angle = angle * Math.PI / 180;
-        var cos = Math.cos(angle), sin = Math.sin(angle);
-        function task(point) {
-            // point.origin.angle.y = Angle.normalize(point.origin.angle.y + angle);
-            // angle = point.origin.angle.y * Math.PI / 180;
-            // var cos = Math.cos(angle), sin = Math.sin(angle);
-            // var x1 = point.origin.x * cos - point.origin.z * sin,
-            //     z1 = point.origin.z * cos + point.origin.x * sin;
-            var x1 = point.x * cos - point.z * sin,
-                z1 = point.z * cos + point.x * sin;
-
-            point.x = x1;
-            point.z = z1;
-        }
-        each(point, task);
-    }
-    Projection.prototype.rotateX = function(point, angle) {
-        angle = angle >> 0;
-        angle = angle * Math.PI / 180;
-        var cos = Math.cos(angle), sin = Math.sin(angle);
-        function task(point) {
-            var y1 = point.y * cos - point.z * sin,
-                z1 = point.z * cos + point.y * sin;
-
-            point.y = y1;
-            point.z = z1;
-        }
-        each(point, task);
-    }
-
-    return Projection;
-})
-;
-define('shape/stage/buffered',['shape/stage/interface'], function(Stage){
-    
-
-    function BufferedCanvasStage(canvas) {
+    function ImageDataStage(canvas) {
         this.context = canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
         this.childs = [];
         this.buffer = [];
+        // this.imageData = this.context.getImageData(0, 0, canvas.width, canvas.height);
+        this.zbuffer = Array(this.width * this.height);
+        this.nullPoint = new Point(0,0,0);
+        this.position = this.nullPoint;
+        this.color = Color.fromName('black');
     }
 
-    BufferedCanvasStage.constructor = BufferedCanvasStage;
-    BufferedCanvasStage.prototype = new Stage();
-    BufferedCanvasStage.prototype.each = function(callback) {
+    ImageDataStage.constructor = ImageDataStage;
+    ImageDataStage.prototype = new Stage();
+    ImageDataStage.prototype.each = function(callback) {
         var i = 0, length = this.childs.length;
         for (; i < length; i++) {
             callback(this.childs[i], i);
         }
     }
-    BufferedCanvasStage.prototype.addChild = function(shape) {
+    ImageDataStage.prototype.addChild = function(shape) {
         this.childs.push(shape);
     };
-    BufferedCanvasStage.prototype.removeChild = function(shape) {
+    ImageDataStage.prototype.removeChild = function(shape) {
         var index = this.childs.indexOf(shape);
         if (-1 !== index) {
             this.childs.splice(index, 1);
         }
     }
-    BufferedCanvasStage.prototype.clean = function() {
+    ImageDataStage.prototype.clean = function() {
         this.context.clearRect(0, 0, this.width, this.height);
-    }
-    BufferedCanvasStage.prototype.render = function() {
+        this.imageData = this.context.getImageData(0, 0, this.width, this.height);
+        this.buffer = []
+        this.zbuffer = []
+        this.position = this.nullPoint;
+        this.color = Color.fromName('black');
+   }
+    ImageDataStage.prototype.render = function() {
         var self = this;
         this.clean();
         this.each(function(child) {
@@ -1514,106 +1956,328 @@ define('shape/stage/buffered',['shape/stage/interface'], function(Stage){
 
         this.flush();
     };
-    BufferedCanvasStage.prototype.flush = function() {
+    ImageDataStage.prototype.flush = function() {
         var method, args;
         var i = 0,
         buffer = this.buffer,
         length = buffer.length;
 
         this.buffer = [];
+        this.position = this.nullPoint;
+        // this.color = {r:0, g:0, b:0, a:255};
+        var colors = [this.color];
+        var fill = [];
 
-        // console.log(this.context);
         for (; i < length; i++) {
             method = buffer[i][0];
             args = buffer[i][1];
             switch(method) {
-                case 'stroke': this.context.stroke(); break;
-                case 'fill': this.context.fill(); break;
-                case 'fillRect': this.context.fillRect(args[0], args[1], args[2], args[3]); break;
-                case 'fillStyle': this.context.fillStyle = args[0]; break;
-                case 'fillText': this.context.fillText(args[0], args[1], args[2]); break;
-                case 'beginPath': this.context.beginPath(); break;
-                case 'closePath': this.context.closePath(); break;
-                case 'moveTo': this.context.moveTo(args[0], args[1]); break;
-                case 'lineTo': this.context.lineTo(args[0], args[1]); break;
-                case 'font': this.context.font = args[0]; break;
-                case 'textBaseline': this.context.textBaseline = args[0]; break;
-                case 'putImageData': this.context.putImageData(args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                case 'drawImage': this.context.drawImage(args[0], args[1], args[2], args[3], args[4]); break;
-                case 'setTransform': this.context.setTransform(args[0], args[1], args[2], args[3], args[4], args[5]); break;
+                case 'stroke':
+                    // fill = [];
+                    break;
+
+                case 'fill':
+                    if (fill.length < 3) break;
+                    // console.log(fill);
+                    // console.log(fill.pop(), fill.pop(), fill.pop())
+                        // this.fillTriangle(fill[0], fill[1], fill[2]);
+                        // this.fillTriangle(fill[2], fill[3], fill[0]);
+                    fill = [];
+                    break;
+
+                // case 'fillRect':     this.context.fillRect(args[0].xpos, args[0].ypos, args[1], args[2]); break;
+                case 'fillStyle':
+                    colors.push(
+                        args[0] instanceof Color ? args[0] : Color.fromName('black')
+                    );
+                    // this.context.fillStyle = 'rgba('+ this.color.r +','+ this.color.g +','+ this.color.b +',1)';
+                    break;
+
+                // case 'fillText':     this.context.fillText(args[0], args[1].xpos, args[1].ypos); break;
+                case 'beginPath':
+                    this.color = colors.length ? colors[0] : this.color;
+                    break;
+
+                case 'closePath':
+                    colors.shift();
+                    break;
+                case 'moveTo':
+                    // this.context.moveTo(args[0].xpos, args[0].ypos);
+                    this.position = args[0];
+                    // fill.push(args[0]);
+                    break;
+
+                case 'lineTo':
+                    // this.context.lineTo(args[0].xpos, args[0].ypos);
+                // this.context.stroke();
+
+                    this.drawCline(this.position, args[0]);
+                // this.drawBline(this.position, args[0]);
+                // this.drawLine(this.position, args[0]);
+                    this.position = args[0];
+                    fill.push(args[0]);
+                    break;
+
+                // case 'font':         this.context.font = args[0]; break;
+                // case 'textBaseline': this.context.textBaseline = args[0]; break;
+                // case 'putImageData': this.context.putImageData(args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
+                // case 'drawImage':    this.context.drawImage(args[0], args[1].xpos, args[1].ypos, args[2], args[3]); break;
+            }
+        }
+
+        this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
+    }
+    ImageDataStage.prototype.fillTriangle = function(p1, p2, p3) {
+        var top, middle, bottom, a;
+
+        var min = Math.min(p1.ypos, p2.ypos, p3.ypos);
+        var max = Math.max(p1.ypos, p2.ypos, p3.ypos);
+
+        for (var i = 0; i < 3; i++) {
+            a = arguments[i];
+            switch(true) {
+                case min === a.ypos && !top: top = a;
+                case max === a.ypos && !bottom: bottom = a;
+                default: middle = a;
+            }
+        }
+
+        // console.log(top, middle, bottom)
+
+        var x, y, x0, x1, y0, y1, z = 0;
+        var z0, z1, lz, rz;
+
+        var lx, rx;
+        var fromX, toX;
+        var lineX, lineY;
+
+        x0 = top.xpos;
+        y0 = top.ypos;
+        z0 = top.z;
+        // console.log(top.ypos, middle.ypos);
+        for (var y = top.ypos; y < middle.ypos; y++) {
+            x1 = middle.xpos;
+            y1 = middle.ypos;
+            z1 = middle.z;
+
+            // lx = x0;
+            // if (x0 !== x1) {
+            lx = this.interpolate(y0, y1, x0, x1, y);
+            lz = this.interpolate(y0, y1, z0, z1, y);
+            // }
+            // console.log(lz);
+
+            // rx = 116;
+            // console.log(y0 != y1 && x0 != x1);
+            x1 = bottom.xpos;
+            y1 = bottom.ypos;
+            z1 = bottom.z;
+            rx = x1;
+            rz = lz;
+            // console.log(x0, x1, y0, y1);
+            if (x0 !== x1) {
+                rx = this.interpolate(y0, y1, x0, x1, y);
+                rz = this.interpolate(y0, y1, z0, z1, y);
+            }
+            // console.log(lx, rx)
+                // console.log(lz, rz);
+
+            fromX = Math.min(lx, rx);
+            toX = Math.max(lx, rx);
+
+            if (fromX === toX) continue;
+
+            var blz = lz;
+            if (fromX !== lx) {
+                lz = rz;
+                rz = blz;
+            }
+            // lz = fromX === lx ? lz : rx;
+
+            // console.log(fromX, toX)
+
+            for (lineX = fromX; lineX < toX; lineX++) {
+                z = this.interpolate(fromX, toX, lz, rz, lineX);
+                // console.log(z)
+                this.drawPoint(new Point(lineX, y, z), this.color);
             }
         }
     }
-    BufferedCanvasStage.prototype.fillRect = function(x, y, width, height) {
-        this.buffer.push(['fillRect', [x, y, width, height]]);
+    ImageDataStage.prototype.drawCline = function(point0, point1) {
+        var x, y, x0, x1, y0, y1, z = 0;
+
+        if (point1.ypos > point0.ypos) {
+            x0 = point0.xpos >> 0;
+            y0 = point0.ypos >> 0;
+            x1 = point1.xpos >> 0;
+            y1 = point1.ypos >> 0;
+            for (y = y0; y < y1; y++) {
+                x = this.interpolate(y0, y1, x0, x1, y);
+                this.drawPoint(new Point(x, y, z), this.color);
+            }
+        } else if (point1.ypos < point0.ypos) {
+            x0 = point1.xpos >> 0;
+            y0 = point1.ypos >> 0;
+            x1 = point0.xpos >> 0;
+            y1 = point0.ypos >> 0;
+            for (y = y0; y < y1; y++) {
+                x = this.interpolate(y0, y1, x0, x1, y);
+                this.drawPoint(new Point(x, y, z), this.color);
+            }
+        }
+
+        if (point1.xpos > point0.xpos) {
+            x0 = point0.xpos;
+            y0 = point0.ypos;
+            x1 = point1.xpos;
+            y1 = point1.ypos;
+            for (x = x0; x < x1; x++) {
+                y = this.interpolate(x0, x1, y0, y1, x);
+                this.drawPoint(new Point(x, y, z), this.color);
+            }
+        } else if (point1.xpos < point0.xpos) {
+            x0 = point1.xpos >> 0;
+            y0 = point1.ypos >> 0;
+            x1 = point0.xpos >> 0;
+            y1 = point0.ypos >> 0;
+            for (x = x0; x < x1; x++) {
+                y = this.interpolate(x0, x1, y0, y1, x);
+                this.drawPoint(new Point(x, y, z), this.color);
+            }
+        }
     }
-    BufferedCanvasStage.prototype.beginPath = function() {
+    ImageDataStage.prototype.drawLine = function (point0, point1) {
+        var dist = point1.subtract(point0).length2();
+
+        // If the distance between the 2 points is less than 2 pixels
+        // We're exiting
+        if(dist < 2) {
+            return;
+        }
+
+        // Find the middle point between first & second point
+        var middlePoint = point0.add((point1.subtract(point0)).scale(0.5));
+        // We draw this point on screen
+        this.drawPoint(middlePoint);
+        // Recursive algorithm launched between first & middle point
+        // and between middle & second point
+        this.drawLine(point0, middlePoint);
+        this.drawLine(middlePoint, point1);
+    };
+    ImageDataStage.prototype.drawBline = function (point0, point1) {
+        var x0 = point0.xpos >> 0;
+        var y0 = point0.ypos >> 0;
+        var x1 = point1.xpos >> 0;
+        var y1 = point1.ypos >> 0;
+        var dx = Math.abs(x1 - x0);
+        var dy = Math.abs(y1 - y0);
+        var sx = (x0 < x1) ? 1 : -1;
+        var sy = (y0 < y1) ? 1 : -1;
+        var err = dx - dy;
+        while(true) {
+            this.drawPoint(new Point(x0, y0, 0));
+            if((x0 == x1) && (y0 == y1)) break;
+            var e2 = 2 * err;
+            if(e2 > -dy) { err -= dy; x0 += sx; }
+            if(e2 < dx) { err += dx; y0 += sy; }
+        }
+    };
+    ImageDataStage.prototype.interpolate = function(x0, x1, y0, y1, x) {
+        return (y0 + ((y1 - y0) * (x - x0) / (x1- x0))) >> 0;
+    }
+    ImageDataStage.prototype.drawPoint = function(point) {
+        this.drawPixel(point.x, point.y, point.z, this.color)
+    }
+    ImageDataStage.prototype.drawPixel = function(x, y, z, color) {
+        if (x < 0 || x > this.width || y < 0 || y > this.height) return;
+        this.putPixel(x, y, z, color);
+    }
+    ImageDataStage.prototype.putPixel = function(x, y, z, color) {
+        var index = (y * this.width) + x;
+        var index4 = index * 4;
+
+        if (this.zbuffer[index] < z) return;
+        this.zbuffer[index] = z;
+
+        this.imageData.data[index4]     = color.r;
+        this.imageData.data[index4 + 1] = color.g;
+        this.imageData.data[index4 + 2] = color.b;
+        this.imageData.data[index4 + 3] = color.a;
+    }
+    ImageDataStage.prototype.fillRect = function(point, width, height) {
+        this.buffer.push(['fillRect', [point, width, height]]);
+    }
+    ImageDataStage.prototype.beginPath = function() {
         this.buffer.push(['beginPath']);
     }
-    BufferedCanvasStage.prototype.closePath = function() {
+    ImageDataStage.prototype.closePath = function() {
         this.buffer.push(['closePath']);
     }
-    BufferedCanvasStage.prototype.fill = function() {
+    ImageDataStage.prototype.fill = function() {
         this.buffer.push(['fill']);
     }
-    BufferedCanvasStage.prototype.stroke = function() {
+    ImageDataStage.prototype.stroke = function() {
         this.buffer.push(['stroke']);
     }
-    BufferedCanvasStage.prototype.moveTo = function(x, y) {
-        this.buffer.push(['moveTo', [x, y]]);
+    ImageDataStage.prototype.moveTo = function(point) {
+        this.buffer.push(['moveTo', [point]]);
     }
-    BufferedCanvasStage.prototype.lineTo = function(x, y) {
-        this.buffer.push(['lineTo', [x, y]]);
+    ImageDataStage.prototype.lineTo = function(point) {
+        this.buffer.push(['lineTo', [point]]);
     }
-    BufferedCanvasStage.prototype.fillStyle = function(style) {
+    ImageDataStage.prototype.fillStyle = function(style) {
         this.buffer.push(['fillStyle', [style]]);
     }
-    BufferedCanvasStage.prototype.fillText = function(text, x, y, options) {
+    ImageDataStage.prototype.fillText = function(text, point, options) {
         this.buffer.push(['font', [options.style + ' ' + options.weigth + ' ' + options.size + ' ' + options.font]]);
         this.buffer.push(['textBaseline', [options.baseline]]);
-        this.buffer.push(['fillText', [text, x, y]]);
+        this.buffer.push(['fillText', [text, point]]);
     }
-    BufferedCanvasStage.prototype.getImageData = function(x, y, width, height) {
+    ImageDataStage.prototype.getImageData = function(x, y, width, height) {
         return this.context.getImageData(x, y, width, height);
     }
-    BufferedCanvasStage.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
+    ImageDataStage.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
         this.buffer.push(['putImageData', [imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight]]);
     }
-    BufferedCanvasStage.prototype.drawImage = function(img, x, y, width, height) {
-        this.buffer.push(['drawImage', [img, x, y, width, height]]);
-    }
-    BufferedCanvasStage.prototype.setTransform = function(skewX, skewY, scalX, scalY, moveX, moveY) {
-        this.buffer.push(['setTransform', [scalX || 1, skewX, skewY, scalY || 1, moveX || 0, 0]]);
+    ImageDataStage.prototype.drawImage = function(img, point, width, height) {
+        this.buffer.push(['drawImage', [img, point, width, height]]);
     }
 
-    return BufferedCanvasStage;
+    return ImageDataStage;
 })
 ;
-define('shape/stage/canvas3d',['shape/stage/buffered'], function(BufferedCanvasStage){
+define('shape/stage/canvas3d',['shape/stage/imagedata', 'shape/point/point'], function(ImageDataStage, Point){
     
 
     function Canvas3DStage(canvas, projection) {
+        this.canvas = canvas;
         this.context = canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
         this.childs = [];
         this.projection = projection;
         this.buffer = [];
+        this.imageData = this.context.getImageData(0, 0, canvas.width, canvas.height);
+        this.zbuffer = Array(this.width * this.height);
+        this.nullPoint = new Point(0,0,0);
     }
     Canvas3DStage.constructor = Canvas3DStage;
-    Canvas3DStage.prototype = Object.create(BufferedCanvasStage.prototype);
-
+    Canvas3DStage.prototype = Object.create(ImageDataStage.prototype);
     Canvas3DStage.prototype.render = function() {
         var state, self = this;
+        // this.context.clearRect(0, 0, this.width, this.height)
+        // this.canvas.width = this.width;
         this.clean();
         this.each(function(child){
             // state = child.state();
-            state = child.STATE_DIRTY;
-            if (child.STATE_RENDERED !== state) {
-                self.projection.project(child.points());
+            // state = child.STATE_DIRTY;
+            // if (child.STATE_RENDERED !== state) {
+                self.projection.project(child);
                 child.render(self);
-                child.state(child.STATE_RENDERED);
-            }
+                // child.state(child.STATE_RENDERED);
+            // } else {
+                // child.area();
+            // }
         })
 
         this.flush();
@@ -1626,6 +2290,8 @@ define(
     'game/service',[
     'game/config',
     'shape/shape/cube',
+    'shape/mesh/cube',
+    'shape/color',
     'shape/shape/image',
     'shape/shape/sprite',
     'game/action/manager',
@@ -1644,12 +2310,14 @@ define(
     'shape/utils/sprites',
     'game/stage/start',
     'game/stage/game',
-    'shape/projection/projection',
+    'shape/projection/camera',
     'shape/stage/canvas3d'
 ],
 function(
     GameConfig,
     CubeShape,
+    CubeMesh,
+    Color,
     ImageShape,
     SpriteShape,
     ActionManager,
@@ -1668,7 +2336,7 @@ function(
     SpriteUtil,
     StartStage,
     GameStage,
-    Projection,
+    CameraProjection,
     Canvas3DStage
 ) {
     function ServiceManager(game, canvas) {
@@ -1716,11 +2384,14 @@ function(
         })
     }
     ServiceManager.prototype.giftFactory = function(x, y, z) {
-        var am = this.assetManager();
-        var gift = Math.random() > 0.5 ? 'gift-red' : 'gift-blue';
-        var image = new ImageShape(x, y, z, this.config().CUBE_FIELD_SIZE, this.config().CUBE_FIELD_SIZE);
-        am.get(gift, image.setImage.bind(image));
-        return image;
+        // var am = this.assetManager();
+        // var gift = Math.random() > 0.5 ? 'gift-red' : 'gift-blue';
+        // var image = new ImageShape(x, y, z, this.config().CUBE_FIELD_SIZE, this.config().CUBE_FIELD_SIZE);
+        // am.get(gift, image.setImage.bind(image));
+        // return image;
+
+        return new CubeMesh(x, y, z, this.config().CUBE_FIELD_SIZE, Color.fromName('red'));
+        return new CubeShape(x, y, z, this.config().CUBE_FIELD_SIZE, {r:0, g: 255, b:0, a:255})
     }
     ServiceManager.prototype.actionManager = function() {
         return this.get('actionManager', function() {
@@ -1806,6 +2477,21 @@ function(
     }
     ServiceManager.prototype.cube = function() {
         return this.get('cube', function() {
+            return new CubeMesh(
+                0,
+                0,
+                this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2,
+                this.config().CUBE_FIELD_SIZE,
+                Color.fromName('green')
+            );
+            return new CubeShape(
+                0,
+                0,
+                this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2,
+                this.config().CUBE_FIELD_SIZE,
+                {r:255, g:0, b:0, a:255}
+            );
+
             var shape = new SpriteShape(0, 0, -this.config().BOARD_WIDTH / 2 + this.config().CUBE_FIELD_SIZE / 2, this.config().CUBE_FIELD_SIZE);
 
             this.assetManager().get('reindeer', shape.setSprite.bind(shape));
@@ -1832,7 +2518,7 @@ function(
     }
     ServiceManager.prototype.projection = function() {
         return this.get('projection', function() {
-            return new Projection(1270, this.canvas().width / 2, this.canvas().height / 2);
+            return new CameraProjection(this.canvas().width / 2, this.canvas().height / 2);
         });
     }
     ServiceManager.prototype.createStage = function() {
@@ -1844,11 +2530,13 @@ function(
 ;
 define('game',[
     'hammerjs',
-    'game/service'
+    'game/service',
+    'math/vector3'
 ],
 function(
     Hemmer,
-    ServiceManager
+    ServiceManager,
+    Vector3
 ) {
     /**
      * Description
@@ -1865,16 +2553,17 @@ function(
 
         // Move State Machine
         this.stateMachine = this.service.stateMachineMove();
+
         // Switch stages
         this.stateMachine.on('enter:play', function(e) {
             self.currentStage = self.service.gameStage();
-        })
+        });
         this.stateMachine.on('enter:start', function(e) {
             self.currentStage = self.service.startStage();
-        })
+        });
         this.stateMachine.on('enter:end', function() {
             document.getElementById('santa').className += ' happy';
-        })
+        });
 
         // Manage game stage
         this.stateMachine.on('enter:left', function(e) {
@@ -1952,10 +2641,10 @@ function(
             var timestamp = function() { return new Date().getTime()};
 
             var last, time = timestamp();
-            var d = document.getElementById('fps');
+            // var d = document.getElementById('fps');
 
             function loop() {
-                last = timestamp();
+                // last = timestamp();
 
                 // if (self.enemies.count <= self.collect) {
                 // self.stateMachine.trigger('found.gifts');
@@ -1970,11 +2659,13 @@ function(
                 self.stateMachine.run();
                 self.currentStage.tick();
 
-                d.innerText = 1000 / (last - time) >> 0;
+                // d.innerText = 1000 / (last - time) >> 0;
 
-                time = last;
+                // time = last;
             }
             requestAnimationFrame(loop);
+            // setInterval(loop, 300)
+            // loop()
         }
     };
 
@@ -2007,6 +2698,20 @@ require(['game'], function(TetrisGame) {
 
     tetris = new TetrisGame(game);
     tetris.run();
+
+    // require(['math/matrix'], function(Matrix) {
+    //     var identity = Matrix.identity(3);
+    //     console.log(identity.toString());
+    //     var a = new Matrix(2, [1, 0, 2, -1, 3, 1]);
+    //     console.log('a', a.toString());
+    //     console.log('scalar', a.scalar(-1).toString());
+    //     console.log('transposed', a.transpose().toString());
+    //     var b = new Matrix(3, [3, 1, 2, 1, 1, 0]);
+    //     console.log(b.toString());
+    //     var r = a.multiply(b);
+    //     console.log(r.toString());
+    // });
+
 });
 
 define("main", function(){});

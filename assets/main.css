@@ -82,5 +82,5 @@
 
 html, body {margin:0; padding:0}
 body {
-    background: #fff url(background.gif) 50% -300px repeat-x;
+    /* background: #fff url(background.gif) 50% -300px repeat-x; */
 }
