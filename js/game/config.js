@@ -72,7 +72,7 @@ define(function(){
     }
 
     GameConfig.BOARD_WIDTH = GameConfig.CUBE_FIELD_SIZE * GameConfig.CUBE_FIELDS_ON_BOARD;
-    GameConfig.BOARD_EDGE = (GameConfig.BOARD_WIDTH / 2) - GameConfig.CUBE_FIELD_SIZE >> 0;
+    GameConfig.BOARD_EDGE = GameConfig.BOARD_WIDTH / 2 - GameConfig.CUBE_FIELD_SIZE / 2;
 
     return GameConfig;
 })

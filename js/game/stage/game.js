@@ -23,10 +23,10 @@ define(['shape/shape/cube', 'shape/mesh/cube', 'shape/color'], function(CubeShap
 
     GameStage.prototype.lastRandomValue = null;
     GameStage.prototype.rotateX = function(angle) {
-        this.service.projection().rotateX(this.stage, angle);
+        this.service.projection().rotation.x += angle;
     }
     GameStage.prototype.rotateY = function(angle) {
-        this.service.projection().rotateY(this.stage, angle);
+        this.service.projection().rotation.y += angle;
     }
     GameStage.prototype.giftFactory = function(x, y, z) {
         return this.service.giftFactory(x, y, z);
@@ -42,9 +42,9 @@ define(['shape/shape/cube', 'shape/mesh/cube', 'shape/color'], function(CubeShap
             stateMachine.trigger('edge.right');
         } else if (x < -boardX) {
             stateMachine.trigger('edge.left');
-        } else if (y < -boardY) {
-            stateMachine.trigger('edge.up');
         } else if (y > boardY) {
+            stateMachine.trigger('edge.up');
+        } else if (y < -boardY) {
             stateMachine.trigger('edge.down');
         }
     }

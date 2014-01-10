@@ -111,7 +111,6 @@ function(
             var timestamp = function() { return new Date().getTime()};
 
             var last, time = timestamp();
-            // var d = document.getElementById('fps');
 
             function loop() {
                 // last = timestamp();
@@ -128,8 +127,6 @@ function(
                 self.currentStage.updateState(self.stateMachine);
                 self.stateMachine.run();
                 self.currentStage.tick();
-
-                // d.innerText = 1000 / (last - time) >> 0;
 
                 // time = last;
             }

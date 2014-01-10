@@ -15,7 +15,7 @@ define(['game/action/interface'], function(ActionInterface) {
     ActionShowUpEdge.prototype.run = function() {
         if (this.canStop()) return;
 
-        this.gameStage.rotateX(this.speed);
+        this.gameStage.rotateX(-this.speed);
 
         this.counter += this.speed;
     }

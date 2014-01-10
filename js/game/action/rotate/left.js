@@ -15,7 +15,7 @@ define(['game/action/interface'], function(ActionInterface) {
     ActionShowLeftEdge.prototype.run = function() {
         if (this.canStop()) return;
 
-        this.gameStage.rotateY(this.speed);
+        this.gameStage.rotateY(-this.speed);
 
         this.counter += this.speed;
     }

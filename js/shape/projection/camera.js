@@ -13,10 +13,11 @@ function(
         this.y = y;
         this.width = width || 450;
         this.height = height || 450;
+        this.rotation = new Vector3(0, 0, 0);
 
         var eye = new Vector3(0, 0, 400);
         var at =  new Vector3(0, 0, 0);
-        var up =  new Vector3(0, 1, 0);
+        var up =  Vector3.up();
 
         this.viewMatrix = Matrix4.lookAtLH(eye, at, up);
         this.projectionMatrix = Matrix4.perspectiveProjection(this.width, this.height, 90);
@@ -24,14 +25,15 @@ function(
 
     CameraProjection.constructor = CameraProjection;
     CameraProjection.prototype.project = function(mesh) {
-        var transformationMatrix, r, x, y, z, w, wordMatrix, self = this;
+        var viewMatrix, transformationMatrix, r, x, y, z, w, wordMatrix, self = this;
 
         wordMatrix = Matrix4.translation(mesh.translation).multiply(
             Matrix4.rotation(mesh.rotation)
         );
+        viewMatrix = this.viewMatrix.multiply(Matrix4.rotation(this.rotation));
 
         transformationMatrix = this.projectionMatrix;
-        transformationMatrix = transformationMatrix.multiply(this.viewMatrix);
+        transformationMatrix = transformationMatrix.multiply(viewMatrix);
         transformationMatrix = transformationMatrix.multiply(wordMatrix);
 
         mesh.vertices.forEach(function(vertex){
