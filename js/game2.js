@@ -25,25 +25,28 @@ function(
     function SomeGame(canvas) {
         this.renderer = new Renderer(canvas);
 
+        var viewportMain = new Viewport(0, 0, 450, 225);
         this.renderMain = new ShapeRender(
-            new Viewport(0, 0, 450, 225),
+            viewportMain,
             this.renderer,
             Matrix4.lookAtLH(
-                new Vector3(0, 0, 50),
+                new Vector3(0, 0, 100),
                 Vector3.zero(),
                 Vector3.up()
             ).multiply(Matrix4.rotationX(-90)),
-            Matrix4.perspectiveProjection(100, 100, 90)
+            Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
+
+        var viewportTwo = new Viewport(0, 225, 450, 225);
         this.renderTwo = new ShapeRender(
-            new Viewport(0, 225, 450, 225),
+            viewportTwo,
             this.renderer,
             Matrix4.lookAtLH(
                 new Vector3(0, 0, 11),
                 Vector3.zero(),
                 Vector3.up()
             ),
-            Matrix4.perspectiveProjection(100, 100, 90)
+            Matrix4.perspectiveProjection(viewportTwo.width, viewportTwo.height, 90)
         );
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
@@ -75,7 +78,7 @@ function(
         }
 
         // Bind camera orientation to the cube
-        var eye = this.cube.translation.subtract(position.toVector().scale(10));
+        var eye = this.cube.translation.subtract(position.toVector().scale(20));
         var at = this.cube.translation.add(position.toVector());
         this.renderTwo.viewMatrix = Matrix4.lookAtLH(eye, at, Vector3.up());
 

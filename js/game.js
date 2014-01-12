@@ -131,7 +131,7 @@ function(
                 // }
 
                 // One more time
-                requestAnimationFrame(loop);
+                // requestAnimationFrame(loop);
                 // Run actions
                 self.actionManager.run();
                 self.currentStage.updateState(self.stateMachine);
