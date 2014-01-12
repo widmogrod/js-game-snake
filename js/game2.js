@@ -1,5 +1,4 @@
 define([
-    'hammerjs',
     'shape/renderer/renderer',
     'shape/render',
     'shape/viewport',
@@ -10,7 +9,6 @@ define([
     'shape/color'
 ],
 function(
-    Hemmer,
     Renderer,
     ShapeRender,
     Viewport,
