@@ -11,17 +11,6 @@ define([
 ) {
     'use strict';
 
-    var e = new Vector3(0, 0, 50);
-    var a = new Vector3(0, 0, 0);
-    var z = e.subtract(a).normalize()
-    var x = Vector3.left().cross(z).normalize();
-
-    // console.log(e.subtract(a).toString())
-    // console.log(a.subtract(e).toString())
-
-    console.log('z', z.toString());
-    console.log('x', x.toString());
-
     function ShapeRender(viewport, renderer, viewMatrix, projectionMatrix) {
         this.viewport = viewport;
         this.renderer = renderer;
