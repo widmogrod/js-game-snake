@@ -62,11 +62,11 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
 
                 // case 'fillText':     this.context.fillText(args[0], args[1].x, args[1].y); break;
                 case 'beginPath':
-                    this.color = colors.length ? colors[0] : this.color;
+                    this.color = colors.length ? colors[colors.length - 1] : this.color;
                 break;
 
                 case 'closePath':
-                    colors.shift();
+                    // colors.shift();
                 break;
                 case 'moveTo':
                     // this.context.moveTo(args[0].x, args[0].y);

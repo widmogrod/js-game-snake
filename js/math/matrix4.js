@@ -95,7 +95,7 @@ define(['math/matrix'], function(Matrix){
             0, 0, 0, 1,
         ]).transpose();
 
-        return Ti.multiply(Ri);
+        return Ri.multiply(Ti);
     }
     Matrix4.perspectiveProjection = function(width, height, angle, d) {
         angle *= TO_RADIAN / 2;

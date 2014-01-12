@@ -63,7 +63,9 @@ define([
                 var pointC = c(vertexC, transformationMatrix);
 
                 if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
+                this.renderer.fillStyle(mesh.color)
                 this.drawTriangle(pointA, pointB, pointC);
+                this.renderer.fillStyle(Color.fromName('blue'));
                 this.drawLine(pointA, pointN);
             }
         }
@@ -98,7 +100,6 @@ define([
         return result;
     }
     ShapeRender.prototype.drawLine = function(a, b) {
-        this.renderer.fillStyle(Color.fromName('red'));
         this.renderer.beginPath();
         this.renderer.moveTo(a);
         this.renderer.lineTo(b);
@@ -106,7 +107,6 @@ define([
         this.renderer.stroke();
     }
     ShapeRender.prototype.drawTriangle = function(a, b, c) {
-        this.renderer.fillStyle(Color.fromName('blue'));
         this.renderer.beginPath();
         this.renderer.moveTo(a);
         this.renderer.lineTo(b);
