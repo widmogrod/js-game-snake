@@ -29,6 +29,17 @@ define(['shape/point/interface', 'math/vector3', 'math/vector3'], function(Point
         this.z = z;
         this.data = [this.x, this.y, this.z, this.w]
     }
+    Point.prototype.clone = function() {
+        return new Point(this.x, this.y, this.z);
+    }
+    Point.prototype.add = function(point) {
+        var v = Vector3.prototype.add.call(this, point);
+        return new Point(v.x, v.y, v.z);
+    }
+    Point.prototype.normalize = function() {
+        var v = Vector4.prototype.normalize.call(this);
+        return new Point(v.x, v.y, v.z);
+    }
     Point.prototype.vector3 = function() {
         return new Vector3(this.x, this.y, this.z);
     }

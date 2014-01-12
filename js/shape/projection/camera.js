@@ -27,12 +27,14 @@ function(
     CameraProjection.prototype.project = function(mesh) {
         var viewMatrix, transformationMatrix, r, x, y, z, w, wordMatrix, self = this;
 
-        wordMatrix = Matrix4.translation(mesh.translation).multiply(
-            Matrix4.rotation(mesh.rotation)
-        );
+        wordMatrix = mesh.wordMatrix();
+        // wordMatrix = Matrix4.translation(mesh.translation).multiply(
+        //     Matrix4.rotation(mesh.rotation)
+        // );
         viewMatrix = this.viewMatrix.multiply(Matrix4.rotation(this.rotation));
 
         transformationMatrix = this.projectionMatrix;
+        // transformationMatrix = viewMatrix;
         transformationMatrix = transformationMatrix.multiply(viewMatrix);
         transformationMatrix = transformationMatrix.multiply(wordMatrix);
 

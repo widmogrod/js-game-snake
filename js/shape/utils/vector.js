@@ -29,8 +29,8 @@ define(['shape/point/point'], function(Point) {
     }
     VectorUtil.normalFromPoints = function(point0, point1, point2) {
         // vectors on the plane
-        var U = new Point(point1.x - point0.x, point1.y - point0.y, point1.z - point0.z);
-        var V = new Point(point2.x - point0.x, point2.y - point0.y, point2.z - point0.z);
+        var U = new Point(point1.getAt(0, 0) - point0.getAt(0, 0), point1.getAt(1, 0) - point0.getAt(1, 0), point1.getAt(2, 0) - point0.getAt(2, 0));
+        var V = new Point(point2.getAt(0, 0) - point0.getAt(0, 0), point2.getAt(1, 0) - point0.getAt(1, 0), point2.getAt(2, 0) - point0.getAt(2, 0));
 
         return cross(U, V);
     }
@@ -38,9 +38,9 @@ define(['shape/point/point'], function(Point) {
     function cross(U, V) {
         var i, j, k;
 
-        i = U.y * V.z - U.z * V.y;
-        j = U.z * V.x - U.x * V.z;
-        k = U.x * V.y - U.y * V.x;
+        i = U.getAt(1, 0) * V.getAt(2, 0) - U.getAt(2, 0) * V.getAt(1, 0);
+        j = U.getAt(2, 0) * V.getAt(0, 0) - U.getAt(0, 0) * V.getAt(2, 0);
+        k = U.getAt(0, 0) * V.getAt(1, 0) - U.getAt(1, 0) * V.getAt(0, 0);
 
         return new Point(i, -j, k);
     }

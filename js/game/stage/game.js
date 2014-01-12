@@ -1,4 +1,4 @@
-define(['shape/shape/cube', 'shape/mesh/cube', 'shape/color'], function(CubeShape, CubeMesh, Color){
+define(['shape/shape/cube', 'shape/mesh/cube', 'shape/color', 'math/matrix4', 'math/vector3'], function(CubeShape, CubeMesh, Color, Matrix4, Vector3){
     function GameStage(serviceManager) {
         var config = serviceManager.config();
         var stage = serviceManager.createStage();
@@ -17,36 +17,69 @@ define(['shape/shape/cube', 'shape/mesh/cube', 'shape/color'], function(CubeShap
         this.stage.addChild(this.cube);
     }
     GameStage.prototype.tick = function() {
-        this.collisionManager.run()
+
+        // var eye = new Vector3(0, 0, 500);
+        // var eye = new Vector3(0, 0, 0)
+        // var eye = this.cube.translation;
+        // eye.z += 10;
+        // var at = this.cube.translation;
+        var up = Vector3.up();
+
+        var at = this.cube.at();
+        var eye = this.cube.eye();
+        // var n =  this.cube.normal();
+         // n = new Vector3(n.getAt(0, 0), n.getAt(1, 0), n.getAt(2, 0));
+        // eye = at.add(at.normalize().scale(200))
+        // eye = at;
+// 9        at = new Vector3(0, 0, 0)
+
+
+        // eye = at.scale(2)
+        // eye = n.scale(100)
+        // eye = n;
+        // eye = n.add(n.normalize())
+        // eye.add(new Vector3(1,1,1).scale(-100));
+        // eye = at.scale(2);
+        // console.log(this.cube.translation.toString(), this.cube.normal().toString());
+
+        this.stage.projection.viewMatrix = Matrix4.lookAtLH(eye, at, up)
+        // this.collisionManager.run()
+        this.stage.project();
         this.stage.render();
     }
 
     GameStage.prototype.lastRandomValue = null;
     GameStage.prototype.rotateX = function(angle) {
-        this.service.projection().rotation.x += angle;
+        // this.service.projection().rotation.x += angle;
     }
     GameStage.prototype.rotateY = function(angle) {
-        this.service.projection().rotation.y += angle;
+        // this.service.projection().rotation.y += angle;
     }
     GameStage.prototype.giftFactory = function(x, y, z) {
         return this.service.giftFactory(x, y, z);
     }
     GameStage.prototype.updateState = function(stateMachine) {
-        var x = this.cube.center().x;
-        var y = this.cube.center().y;
+        var x = this.cube.translation.x;
+        var y = this.cube.translation.y;
+        var z = this.cube.translation.z;
 
         var boardX = this.config.BOARD_EDGE;
         var boardY = this.config.BOARD_EDGE;
 
-        if (x > boardX) {
-            stateMachine.trigger('edge.right');
-        } else if (x < -boardX) {
-            stateMachine.trigger('edge.left');
-        } else if (y > boardY) {
-            stateMachine.trigger('edge.up');
-        } else if (y < -boardY) {
-            stateMachine.trigger('edge.down');
+        if (x >= boardX) {
+            // stateMachine.trigger('stop');
+            this.cube.rotation.y += 1
         }
+
+        // if (x > boardX) {
+        //     stateMachine.trigger('edge.right');
+        // } else if (x < -boardX) {
+        //     stateMachine.trigger('edge.left');
+        // } else if (y > boardY) {
+        //     stateMachine.trigger('edge.up');
+        // } else if (y < -boardY) {
+        //     stateMachine.trigger('edge.down');
+        // }
     }
     GameStage.prototype.spawnEnemies = function() {
         var enemies = [];

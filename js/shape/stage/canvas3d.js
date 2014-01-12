@@ -15,23 +15,18 @@ define(['shape/stage/imagedata', 'shape/point/point'], function(ImageDataStage, 
     }
     Canvas3DStage.constructor = Canvas3DStage;
     Canvas3DStage.prototype = Object.create(ImageDataStage.prototype);
+    Canvas3DStage.prototype.project = function() {
+        var self = this;
+        this.each(function(child){
+            self.projection.project(child);
+        })
+    }
     Canvas3DStage.prototype.render = function() {
-        var state, self = this;
-        // this.context.clearRect(0, 0, this.width, this.height)
-        // this.canvas.width = this.width;
+        var self = this;
         this.clean();
         this.each(function(child){
-            // state = child.state();
-            // state = child.STATE_DIRTY;
-            // if (child.STATE_RENDERED !== state) {
-                self.projection.project(child);
-                child.render(self);
-                // child.state(child.STATE_RENDERED);
-            // } else {
-                // child.area();
-            // }
+            child.render(self);
         })
-
         this.flush();
     }
 

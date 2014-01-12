@@ -22,6 +22,7 @@ define(['shape/shape/text', 'shape/shape/cube', 'shape/mesh/cube', 'shape/color'
         this.stage = stage;
     }
     StartStage.prototype.tick = function() {
+        this.stage.project();
         this.stage.render();
     }
 

@@ -11,6 +11,7 @@ define(['game/action/interface'], function(ActionInterface) {
 
     ActionMoveLeft.prototype.run = function() {
         this.shape.translation.x -= this.speed;
+        // this.shape.rotation.y += this.speed;
         // this.shape.points().moveBy(-this.speed, 0, 0);
         ++this.counter;
     }

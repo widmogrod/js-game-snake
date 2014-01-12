@@ -34,6 +34,9 @@ function(
         this.stateMachine.on('enter:end', function() {
             document.getElementById('santa').className += ' happy';
         });
+        this.stateMachine.on('enter:move_stop', function() {
+            self.actionManager.remove('move');
+        });
 
         // Manage game stage
         this.stateMachine.on('enter:left', function(e) {
@@ -96,13 +99,20 @@ function(
     TetrisGame.constructor = TetrisGame;
     TetrisGame.prototype = {
         'captureKeys' : function(e) {
+            // var p = this.service.projection();
+            var c = this.service.cube();
+
             switch(e.keyCode) {
                 case 37: e.preventDefault(); this.stateMachine.trigger('press.left'); break;
                 case 38: e.preventDefault(); this.stateMachine.trigger('press.up'); break;
                 case 39: e.preventDefault(); this.stateMachine.trigger('press.right'); break;
                 case 40: e.preventDefault(); this.stateMachine.trigger('press.down'); break;
                 case 13: e.preventDefault(); this.stateMachine.trigger('press.enter'); break;
-                // default: console.log(e.keyCode);
+                case 87: e.preventDefault(); c.rotation.x += 1; break; // w
+                case 83: e.preventDefault(); c.rotation.x -= 1; break; // s
+                case 65: e.preventDefault(); c.rotation.y += 1; break; // a
+                case 68: e.preventDefault(); c.rotation.y -= 1; break; // d
+                default: console.log(e.keyCode);
             }
         },
         'run': function() {

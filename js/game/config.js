@@ -8,7 +8,7 @@ define(function(){
         'ROTATION_MARGIN' : 80,
         // Cube is basic shape on the board
         'CUBE_FIELD_SIZE': 40,
-        'CUBE_FIELDS_ON_BOARD': 8,
+        'CUBE_FIELDS_ON_BOARD': 9,
         'GAME_STEP': 20,
         'GAME_SPEED': 2,
         'state': {
@@ -65,14 +65,15 @@ define(function(){
                 },
                 '*': {
                     'found.gifts': 'end',
-                    'init': 'start'
+                    'init': 'start',
+                    'stop' : 'move_stop'
                 }
             }
         }
     }
 
     GameConfig.BOARD_WIDTH = GameConfig.CUBE_FIELD_SIZE * GameConfig.CUBE_FIELDS_ON_BOARD;
-    GameConfig.BOARD_EDGE = GameConfig.BOARD_WIDTH / 2 - GameConfig.CUBE_FIELD_SIZE / 2;
+    GameConfig.BOARD_EDGE = (GameConfig.BOARD_WIDTH / 2)
 
     return GameConfig;
 })

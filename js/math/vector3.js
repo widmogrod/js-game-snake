@@ -11,11 +11,29 @@ define(['math/matrix'], function(Matrix) {
 
     }
 
+    Vector3.left = function() {
+        return new Vector3(-1, 0, 0);
+    }
+    Vector3.right = function() {
+        return new Vector3(1, 0, 0);
+    }
+    Vector3.forward = function() {
+        return new Vector3(0, 0, 1);
+    }
+    Vector3.back = function() {
+        return new Vector3(0, 0, -1);
+    }
     Vector3.up = function() {
         return new Vector3(0, 1, 0);
     }
     Vector3.down = function() {
         return new Vector3(0, -1, 0);
+    }
+    Vector3.zero = function() {
+        return new Vector3(0, 0, 0);
+    }
+    Vector3.one = function() {
+        return new Vector3(1, 1, 1);
     }
 
     Vector3.constructor = Vector3;
