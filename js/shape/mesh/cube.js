@@ -146,7 +146,7 @@ define([
 
         // stage.closePath();
         stage.stroke();
-}
+    }
 
     return CubeMesh;
 })
