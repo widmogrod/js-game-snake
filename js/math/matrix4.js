@@ -101,11 +101,14 @@ define(['math/matrix'], function(Matrix){
         angle *= TO_RADIAN / 2;
         d = d || -1;
 
-        var e = Math.tan(angle) * Math.abs(d) * 2;
+        var ratio = width/height;
+
+        var ew = Math.tan(angle) * Math.abs(d) * 2;
+        var eh = ew / ratio;
 
         return new Matrix(4, [
-            width/e, 0, 0, 0,
-            0, height/e, 0, 0,
+            width/ew, 0, 0, 0,
+            0, height/eh, 0, 0,
             0, 0, 1, 0,
             0, 0, 1/d, 0
         ]);
