@@ -11,6 +11,14 @@ define(['math/matrix'], function(Matrix){
     }
 
     Matrix4.prototype = Object.create(Matrix.prototype);
+    Matrix4.prototype.setScale = function(x, y, z) {
+        this.setAt(0, 0, x);
+        this.setAt(1, 1, y);
+        this.setAt(2, 2, z);
+    }
+    Matrix4.prototype.setScaleVector = function(vector) {
+        this.setScale(vector.x, vector.y, vector.z);
+    }
     Matrix4.prototype.setTranslation = function(x, y, z) {
         this.setAt(0, 3, x);
         this.setAt(1, 3, y);
@@ -27,6 +35,11 @@ define(['math/matrix'], function(Matrix){
             0, 0, 1, 0,
             0, 0, 0, 1
         ]);
+    }
+    Matrix4.scale = function(vector) {
+        var result = Matrix4.identity();
+        result.setScaleVector(vector);
+        return result;
     }
     Matrix4.translation = function(vector) {
         var result = Matrix4.identity();

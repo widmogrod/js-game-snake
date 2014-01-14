@@ -54,8 +54,8 @@ define([
                 if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
                 this.renderer.fillStyle(mesh.color)
                 this.drawTriangle(pointA, pointB, pointC);
-                this.renderer.fillStyle(Color.fromName('blue'));
-                this.drawLine(pointA, pointN);
+                // this.renderer.fillStyle(Color.fromName('blue'));
+                // this.drawLine(pointA, pointN);
             }
         }
     }

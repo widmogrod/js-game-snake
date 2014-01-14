@@ -1,4 +1,12 @@
-define(['event/event'], function(Event){
+define([
+    'event/event',
+    'shape/mesh/blenderdae'
+], function(
+    Event,
+    BlenderDaeMesh
+) {
+    'use strict';
+
     function onComplete(assets) {
         return function(e, name, object) {
             assets[name] = object;
@@ -94,6 +102,25 @@ define(['event/event'], function(Event){
         }
         request.send();
     }
+    AssetUtil.prototype.loadBlenderMesh = function(name, path) {
+        var self = this;
+        var request = new XMLHttpRequest();
+        request.open('GET', this.baseURL + path, true);
+        request.onload = function() {
+            var mesh;
+            if (request.status != 200) {
+                self.trigger('error', [path, mesh])
+                self.trigger('error:'+name, [mesh])
+            } else {
+                var xml = request.responseXML;
+                mesh = new BlenderDaeMesh(xml);
+                self.trigger('complete', [name, mesh])
+                self.trigger('complete:' + name, [mesh])
+            }
+        }
+        request.send();
+    }
+
     AssetUtil.prototype.has = function(name) {
         return this.assets.hasOwnProperty(name);
     }
