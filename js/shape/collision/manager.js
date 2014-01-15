@@ -1,59 +1,40 @@
 define(function() {
+    'use strict';
 
-    function CollisionManager() {
+    function CollisionManager(strategy) {
         this.queue = [];
+        this.strategy = strategy;
     }
     CollisionManager.prototype.when = function(one, two, then) {
-        this.queue.push({one: one, two: two, then: then, distance: 0});
+        this.queue.push({one: one, two: two, then: then});
         return this;
     }
-    CollisionManager.prototype.length = function(one, two) {
-        var dx = two.x - one.x,
-            dy = two.y - one.y,
-            dz = two.z - one.z;
 
-        return Math.pow((dx * dx) + (dy * dy) + (dz * dz), 1/2);
-    }
-    CollisionManager.prototype.radius = function(shape) {
-        return shape.width / 2;
-    }
-    CollisionManager.prototype.center = function (shape) {
-        return shape.center();
+    CollisionManager.prototype.createEvent = function(one, two) {
+        return {
+            object: one,
+            collide: two,
+            preventRelease: false
+        }
     }
     CollisionManager.prototype.run = function() {
-        var one, two, then, length, delta, event;
-        var self = this;
-        this.queue.forEach(function(item, index) {
-            if (item.distance > 10) {
-                // its just simplification,
-                // I need to add here velocity?
-                --item.distance;
-                return;
-            }
-            // Extract data
-            one = item.one, two = item.two, then = item.then;
-            // Calculate length
-            length = self.length(self.center(one), self.center(two));
-            delta = length - (self.radius(one) + self.radius(two));
+        var one, two, then, event;
+        for (var i = 0, length = this.queue.length; i < length; i++) {
+            one = this.queue[i].one,
+            two = this.queue[i].two,
+            then = this.queue[i].then;
 
-            if (delta < 0) {
+            if (this.strategy.isCollision(one, two)) {
                 // Yes, we've intersect
-                event = {
-                    object: one,
-                    collide: two,
-                    delta: delta,
-                    preventRelease: false
-                };
-
+                event = this.createEvent(one, two);
+                // Invoke then
                 then(event);
-
+                // And release collided object
                 if (!event.preventRelease) {
-                    self.queue.splice(index, 1);
+                    this.queue.splice(i, 1);
                 }
-            } else {
-                item.distance = delta >> 0;
             }
-        });
+        }
     }
 
     return CollisionManager;

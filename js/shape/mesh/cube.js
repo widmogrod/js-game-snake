@@ -12,8 +12,7 @@ define([
     VectorUtil,
     Matrix4,
     Face
-)
-{
+) {
     'use strict';
 
     var faces = [
@@ -35,11 +34,13 @@ define([
         this.vertices.push(new Vector3(  hw,   hw, - hw));
         this.vertices.push(new Vector3(  hw, - hw, - hw));
         this.vertices.push(new Vector3(- hw, - hw, - hw));
-
         this.vertices.push(new Vector3(- hw,   hw,   hw));
         this.vertices.push(new Vector3(  hw,   hw,   hw));
         this.vertices.push(new Vector3(  hw, - hw,   hw));
         this.vertices.push(new Vector3(- hw, - hw,   hw));
+
+        // in render step this will contains vertices projected on word space
+        this.verticesInWord = Array(8);
 
         this.faces.push(new Face(0, 1, 5));
         this.faces.push(new Face(5, 4, 0));

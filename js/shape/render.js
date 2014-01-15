@@ -34,18 +34,25 @@ define([
             mesh = meshes[i];
             wordMatrix = mesh.wordMatrix();
 
-            transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix).multiply(wordMatrix);
+            // Store vertices information in word matrix. Usefull for collision detection
+            mesh.vertices.forEach(function(vertex, index) {
+                var vector4 = wordMatrix.multiply(new Vector4(vertex.x, vertex.y, vertex.z, 1));
+                mesh.verticesInWord[index] = new Vector3(vector4.getAt(0, 0), vector4.getAt(1, 0), vector4.getAt(2, 0));
+            })
+
+            // transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix).multiply(wordMatrix);
+            transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
 
             cache = [];
             for (var f = 0, fl = mesh.faces.length; f < fl; f++) {
                 face = mesh.faces[f];
 
-                var vertexA = mesh.vertices[face.a];
-                var vertexB = mesh.vertices[face.b];
-                var vertexC = mesh.vertices[face.c];
+                var vertexA = mesh.verticesInWord[face.a];
+                var vertexB = mesh.verticesInWord[face.b];
+                var vertexC = mesh.verticesInWord[face.c];
 
-                var normal = vertexA.subtract(vertexB).cross(vertexA.subtract(vertexC)).normalize().scale(2);
-                var pointN = c(vertexA.add(normal), transformationMatrix);
+                // var normal = vertexA.subtract(vertexB).cross(vertexA.subtract(vertexC)).normalize().scale(2);
+                // var pointN = c(vertexA.add(normal), transformationMatrix);
 
                 var pointA = c(vertexA, transformationMatrix);
                 var pointB = c(vertexB, transformationMatrix);
