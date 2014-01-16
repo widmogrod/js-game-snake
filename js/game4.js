@@ -5,6 +5,7 @@ define([
     'math/matrix4',
     'math/vector3',
     'math/eangle',
+    'math/quaternion',
     'shape/mesh/cube',
     'shape/color',
     'game/config',
@@ -18,6 +19,7 @@ function(
     Matrix4,
     Vector3,
     EAngle,
+    Quaternion,
     CubeMesh,
     Color,
     GameConfig,
@@ -58,12 +60,19 @@ function(
             console.log('we have interacion', e);
         });
 
-        this.velocity = new EAngle(90, 0, 0);
+        var v = new Vector3(1, 0, 0);
+        var q1 = new Quaternion(new Vector3(0, 0, 1), 90);
+        var q2 = new Quaternion(new Vector3(0, 1, 0), 90);
+        var q3 = new Quaternion(new Vector3(1, 0, 0), 90);
 
-        console.log(new EAngle(0, 0, 0).toVector().toString());
-        console.log(new EAngle(180, 0, 0).toVector().toString());
-        console.log(new EAngle(0, 180, 0).toVector().toString());
-        console.log(new EAngle(0, 0, 90).toVector().toString());
+
+        console.log('q1', q1.toString(), v.toString(), q1.multiply(v).toString());
+        console.log('q2', q2.toString(), v.toString(), q2.multiply(v).toString());
+        console.log('q3', q3.toString(), v.toString(), q3.multiply(v).toString());
+
+
+
+        this.velocity = new Vector3(0, 10, 0);
     }
 
     SomeGame.prototype.captureKeys = function(e) {
@@ -72,7 +81,7 @@ function(
         switch(e.keyCode) {
             case 37: e.preventDefault(); this.cube.translation.x -= 10; break; // left
             case 39: e.preventDefault(); this.cube.translation.x += 10; break; // right
-            case 38: e.preventDefault(); this.cube.translation = this.cube.translation.add(this.velocity.toVector()); break; // up
+            case 38: e.preventDefault(); this.cube.translation = this.cube.translation.add(this.velocity); break; // up
             case 40: e.preventDefault(); this.cube.translation.y -= 10; break; // down
             case 87: e.preventDefault(); this.cube.translation.z -= 10; break; // w
             case 83: e.preventDefault(); this.cube.translation.z += 10; break; // s

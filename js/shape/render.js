@@ -36,11 +36,9 @@ define([
 
             // Store vertices information in word matrix. Usefull for collision detection
             mesh.vertices.forEach(function(vertex, index) {
-                var vector4 = wordMatrix.multiply(new Vector4(vertex.x, vertex.y, vertex.z, 1));
-                mesh.verticesInWord[index] = new Vector3(vector4.getAt(0, 0), vector4.getAt(1, 0), vector4.getAt(2, 0));
+                mesh.verticesInWord[index] = wordMatrix.multiply(vertex);
             })
 
-            // transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix).multiply(wordMatrix);
             transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
 
             cache = [];
@@ -57,6 +55,7 @@ define([
                 var pointA = c(vertexA, transformationMatrix);
                 var pointB = c(vertexB, transformationMatrix);
                 var pointC = c(vertexC, transformationMatrix);
+                // console.log(pointA.toString())
 
                 if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
                 this.renderer.fillStyle(mesh.color)
@@ -69,28 +68,25 @@ define([
     ShapeRender.prototype.project = function(vertex, transformationMatrix) {
         // Homogeneous coordinates
         var vector4 = new Vector4(vertex.x, vertex.y, vertex.z, 1);
-        var vector3 = this.transformCoordinates(
-            transformationMatrix.multiply(vector4)
-        );
+            vector4 = transformationMatrix.multiply(vector4);
+        var vector3 = this.transformCoordinates(vector4);
 
         vector3.x = this.viewport.x + this.viewport.width/2 + vector3.x >> 0;
         vector3.y = this.viewport.y + this.viewport.height/2 - vector3.y >> 0;
 
         return vector3;
     }
-    ShapeRender.prototype.transformCoordinates = function(matrix4x1) {
-        var result = Vector3.zero(),
-            z = matrix4x1.getAt(2, 0),
-            w = matrix4x1.getAt(3, 0);
+    ShapeRender.prototype.transformCoordinates = function(vector4) {
+        var result = Vector3.zero(), w = vector4.w;
 
         if (w > 0) {
-            result.x = matrix4x1.getAt(0, 0) / w;
-            result.y = matrix4x1.getAt(1, 0) / w;
-            result.z = matrix4x1.getAt(2, 0) / w;
+            result.x = vector4.x / w;
+            result.y = vector4.y / w;
+            result.z = vector4.z / w;
         } else if (w < 0) {
-            result.x = -matrix4x1.getAt(0, 0) / w;
-            result.y = -matrix4x1.getAt(1, 0) / w;
-            result.z = -matrix4x1.getAt(2, 0) / w;
+            result.x = -vector4.x / w;
+            result.y = -vector4.y / w;
+            result.z = -vector4.z / w;
         }
 
         return result;

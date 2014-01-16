@@ -1,4 +1,12 @@
-define(['math/matrix'], function(Matrix){
+define([
+    'math/matrix',
+    'math/vector3',
+    'math/vector4'
+], function(
+    Matrix,
+    Vector3,
+    Vector4
+) {
     'use strict';
 
     var TO_RADIAN = Math.PI / 180;
@@ -11,6 +19,38 @@ define(['math/matrix'], function(Matrix){
     }
 
     Matrix4.prototype = Object.create(Matrix.prototype);
+    Matrix4.prototype.constructor = Matrix4;
+    Matrix4.prototype.multiply = function(matrixOrVector) {
+        if (matrixOrVector instanceof Vector3) {
+            matrixOrVector = new Vector4(
+                matrixOrVector.x,
+                matrixOrVector.y,
+                matrixOrVector.z,
+                1
+            );
+        }
+
+        var result = Matrix.prototype.multiply.call(this, matrixOrVector);
+
+        if (matrixOrVector instanceof Vector3) {
+            result = new Vector3(
+                result.getAt(0, 0),
+                result.getAt(1, 0),
+                result.getAt(2, 0)
+            );
+        } else if (matrixOrVector instanceof Vector4) {
+            result = new Vector4(
+                result.getAt(0, 0),
+                result.getAt(1, 0),
+                result.getAt(2, 0),
+                result.getAt(3, 0)
+            );
+        } else {
+            result = new Matrix4(result.data);
+        }
+
+        return result;
+    }
     Matrix4.prototype.setScale = function(x, y, z) {
         this.setAt(0, 0, x);
         this.setAt(1, 1, y);
@@ -62,7 +102,7 @@ define(['math/matrix'], function(Matrix){
     Matrix4.rotationX = function(angle) {
         angle *= TO_RADIAN;
         var sin = Math.sin(angle), cos = Math.cos(angle);
-        return new Matrix(4, [
+        return new Matrix4([
             1, 0, 0, 0,
             0, cos, sin, 0,
             0, -sin, cos, 0,
@@ -72,7 +112,7 @@ define(['math/matrix'], function(Matrix){
     Matrix4.rotationY = function(angle) {
         angle *= TO_RADIAN;
         var sin = Math.sin(angle), cos = Math.cos(angle);
-        return new Matrix(4, [
+        return new Matrix4([
             cos, 0, -sin, 0,
             0, 1, 0, 0,
             sin, 0, cos, 0,
@@ -82,7 +122,7 @@ define(['math/matrix'], function(Matrix){
     Matrix4.rotationZ = function(angle) {
         angle *= TO_RADIAN;
         var sin = Math.sin(angle), cos = Math.cos(angle);
-        return new Matrix(4, [
+        return new Matrix4([
             cos, -sin, 0, 0,
             sin, cos, 0, 0,
             0, 0, 1, 0,
@@ -94,14 +134,14 @@ define(['math/matrix'], function(Matrix){
         var xaxis = up.cross(zaxis).normalize();
         var yaxis = xaxis.cross(zaxis);
 
-        var Ti = new Matrix(4, [
+        var Ti = new Matrix4([
             1, 0, 0, -eye.x,
             0, 1, 0, -eye.y,
             0, 0, 1, -eye.z,
             0, 0, 0, 1
         ]);
 
-        var Ri = new Matrix(4, [
+        var Ri = new Matrix4([
             xaxis.x, yaxis.x, zaxis.x, 0,
             xaxis.y, yaxis.y, zaxis.y, 0,
             xaxis.z, yaxis.z, zaxis.z, 0,
@@ -119,7 +159,7 @@ define(['math/matrix'], function(Matrix){
         var ew = Math.tan(angle) * Math.abs(d) * 2;
         var eh = ew / ratio;
 
-        return new Matrix(4, [
+        return new Matrix4([
             width/ew, 0, 0, 0,
             0, height/eh, 0, 0,
             0, 0, 1, 0,

@@ -19,6 +19,7 @@ define(function(){
         return new Matrix(rows, data);
     }
 
+    Matrix.prototype.constructor = Matrix;
     Matrix.prototype.setAt = function(row, column, value) {
         this.data[this.cols * row + column] = value;
         return this;
