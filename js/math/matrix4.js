@@ -150,6 +150,22 @@ define([
 
         return Ri.multiply(Ti);
     }
+    Matrix4.orthogonalProjection = function(width, height, angle, d) {
+        angle *= TO_RADIAN / 2;
+        d = d || -1;
+
+        var ratio = width/height;
+
+        var ew = Math.tan(angle) * Math.abs(d) * 2;
+        var eh = ew / ratio;
+
+        return new Matrix4([
+            1/ew, 0, 0, 0,
+            0, 1/eh, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ]);
+    }
     Matrix4.perspectiveProjection = function(width, height, angle, d) {
         angle *= TO_RADIAN / 2;
         d = d || -1;

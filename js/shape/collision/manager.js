@@ -17,6 +17,19 @@ define(function() {
             preventRelease: false
         }
     }
+    CollisionManager.prototype.raycast = function(origin, direction, distance, then) {
+        // console.log('o', origin.toString(), 'd', direction.toString())
+        // var target = origin.subtract(direction).scale(distance);
+        var target = direction.subtract(origin).scale(distance);
+        for (var i = 0, length = this.queue.length; i < length; i++) {
+            if (this.strategy.raycast(origin, target, this.queue[i].two)) {
+                then();
+                return true;
+            }
+        }
+
+        return false;
+    }
     CollisionManager.prototype.run = function() {
         var one, two, callback, event;
         for (var i = 0, length = this.queue.length; i < length; i++) {
