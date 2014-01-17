@@ -1,5 +1,5 @@
 define(['math/matrix'], function(Matrix) {
-    "use strict";
+    'use strict';
 
     function Vector3(x, y, z) {
         this.x = x;
@@ -39,7 +39,7 @@ define(['math/matrix'], function(Matrix) {
     Vector3.constructor = Vector3;
     Vector3.prototype = Object.create(Matrix.prototype);
     Vector3.prototype.toString = function() {
-        return 'Vector3(' + this.x +','+ this.y +','+ this.z + ')';
+        return 'Vector3(' + this.x.toFixed(3) +','+ this.y.toFixed(3) +','+ this.z.toFixed(3) + ')';
     }
     Vector3.prototype.clone = function() {
         return new Vector3(this.x, this.y, this.z);

@@ -60,17 +60,21 @@ function(
             console.log('we have interacion', e);
         });
 
-        var v = new Vector3(1, 0, 0);
-        var q1 = new Quaternion(new Vector3(0, 0, 1), 90);
-        var q2 = new Quaternion(new Vector3(0, 1, 0), 90);
-        var q3 = new Quaternion(new Vector3(1, 0, 0), 90);
-
+        var v = new Vector3(0, 1, 0);
+        // var q1 = new Quaternion(0, new Vector3(1, 0, 0));
+        var q1 = new Quaternion(1, 1, 0, 0);
+        var q2 = new Quaternion(90, new Vector3(1, 0, 0));
+        var q3 = new Quaternion(90, new Vector3(0, 1, 0));
+        var q4 = q3.multiply(q2);
+        var q5 = q2.multiply(q3);
 
         console.log('q1', q1.toString(), v.toString(), q1.multiply(v).toString());
         console.log('q2', q2.toString(), v.toString(), q2.multiply(v).toString());
-        console.log('q3', q3.toString(), v.toString(), q3.multiply(v).toString());
+        console.log('q4', q4.toString(), v.toString(), q4.multiply(v).toString());
+        console.log('q5', q5.toString(), v.toString(), q5.multiply(v).toString());
 
 
+        // this.cube.rotation = q1.multiply(v).v
 
         this.velocity = new Vector3(0, 10, 0);
     }

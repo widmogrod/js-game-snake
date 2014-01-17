@@ -35,7 +35,7 @@ define(function(){
             result += '|'
             for (col = 0; col < this.cols; col++) {
                 result += "\t"
-                result += this.getAt(row, col);
+                result += this.getAt(row, col).toFixed(3);
                 result += "\t"
             }
             result += "|\n";

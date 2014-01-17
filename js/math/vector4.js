@@ -1,5 +1,5 @@
 define(['math/matrix'], function(Matrix) {
-    "use strict";
+    'use strict';
 
     function Vector4(x, y, z, w) {
         this.x = x;
@@ -14,7 +14,7 @@ define(['math/matrix'], function(Matrix) {
     Vector4.constructor = Vector4;
     Vector4.prototype = Object.create(Matrix.prototype);
     Vector4.prototype.toString = function() {
-        return 'Vector4(' + this.x + ',' + this.y + ',' + this.z + ',' + this.w + ')';
+        return 'Vector4(' + this.x.toFixed(3) + ',' + this.y.toFixed(3) + ',' + this.z.toFixed(3) + ',' + this.w.toFixed(3) + ')';
     }
     Vector4.prototype.normalize = function() {
         var length = this.length();
