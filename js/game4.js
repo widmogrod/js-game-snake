@@ -4,7 +4,6 @@ define([
     'shape/viewport',
     'math/matrix4',
     'math/vector3',
-    'math/eangle',
     'math/quaternion',
     'shape/mesh/cube',
     'shape/color',
@@ -18,7 +17,6 @@ function(
     Viewport,
     Matrix4,
     Vector3,
-    EAngle,
     Quaternion,
     CubeMesh,
     Color,
@@ -36,7 +34,7 @@ function(
         this.engine = new ShapeRender(
             viewportMain,
             this.renderer,
-            Matrix4.lookAtLH(
+            Matrix4.lookAtRH(
                 new Vector3(0, 0, 500),
                 Vector3.zero(),
                 Vector3.up()
@@ -54,34 +52,20 @@ function(
         var mesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, Color.fromName('green'));
         this.meshes.push(mesh);
 
+        this.velocity = new Vector3(0, 0, -1);
+
         var self = this;
         this.collision.when(this.cube, mesh, function(e) {
             e.preventRelease = true;
-            console.log('we have interacion', e);
+            self.velocity = new Quaternion(90, Vector3.right()).multiply(self.velocity).v;
+            // self.velocity = Vector3.up()
+            console.log(self.velocity.toString())
+        }, function(e) {
+            e.preventRelease = true;
         });
-
-        var v = new Vector3(0, 1, 0);
-        // var q1 = new Quaternion(0, new Vector3(1, 0, 0));
-        var q1 = new Quaternion(1, 1, 0, 0);
-        var q2 = new Quaternion(90, new Vector3(1, 0, 0));
-        var q3 = new Quaternion(90, new Vector3(0, 1, 0));
-        var q4 = q3.multiply(q2);
-        var q5 = q2.multiply(q3);
-
-        console.log('q1', q1.toString(), v.toString(), q1.multiply(v).toString());
-        console.log('q2', q2.toString(), v.toString(), q2.multiply(v).toString());
-        console.log('q4', q4.toString(), v.toString(), q4.multiply(v).toString());
-        console.log('q5', q5.toString(), v.toString(), q5.multiply(v).toString());
-
-
-        // this.cube.rotation = q1.multiply(v).v
-
-        this.velocity = new Vector3(0, 10, 0);
     }
 
     SomeGame.prototype.captureKeys = function(e) {
-        // var position = EAngle.fromVector(this.cube.rotation);
-
         switch(e.keyCode) {
             case 37: e.preventDefault(); this.cube.translation.x -= 10; break; // left
             case 39: e.preventDefault(); this.cube.translation.x += 10; break; // right
@@ -95,7 +79,7 @@ function(
         // Bind camera orientation to the cube
         // var eye = this.cube.translation.subtract(position.toVector().scale(400));
         // var at = this.cube.translation.add(position.toVector());
-        // this.engine.viewMatrix = Matrix4.lookAtLH(eye, at, Vector3.up());
+        // this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, Vector3.up());
 
         this.run();
     }

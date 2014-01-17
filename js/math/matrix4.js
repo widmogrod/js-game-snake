@@ -129,7 +129,7 @@ define([
             0, 0, 0, 1
         ]);
     }
-    Matrix4.lookAtLH = function(eye, at, up) {
+    Matrix4.lookAtRH = function(eye, at, up) {
         var zaxis = eye.subtract(at).normalize();
         var xaxis = up.cross(zaxis).normalize();
         var yaxis = xaxis.cross(zaxis);

@@ -27,7 +27,7 @@ function(
         this.renderMain = new ShapeRender(
             viewportMain,
             this.renderer,
-            Matrix4.lookAtLH(
+            Matrix4.lookAtRH(
                 new Vector3(0, 0, 100),
                 Vector3.zero(),
                 Vector3.up()
@@ -39,7 +39,7 @@ function(
         this.renderTwo = new ShapeRender(
             viewportTwo,
             this.renderer,
-            Matrix4.lookAtLH(
+            Matrix4.lookAtRH(
                 new Vector3(0, 0, 11),
                 Vector3.zero(),
                 Vector3.up()
@@ -78,7 +78,7 @@ function(
         // Bind camera orientation to the cube
         var eye = this.cube.translation.subtract(position.toVector().scale(20));
         var at = this.cube.translation.add(position.toVector());
-        this.renderTwo.viewMatrix = Matrix4.lookAtLH(eye, at, Vector3.up());
+        this.renderTwo.viewMatrix = Matrix4.lookAtRH(eye, at, Vector3.up());
 
         this.run();
     }

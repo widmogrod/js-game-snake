@@ -33,7 +33,7 @@ function(
         this.engine = new ShapeRender(
             viewportMain,
             this.renderer,
-            Matrix4.lookAtLH(
+            Matrix4.lookAtRH(
                 new Vector3(0, 0, 700),
                 Vector3.zero(),
                 Vector3.up()
@@ -70,7 +70,7 @@ function(
         // Bind camera orientation to the player
         var eye = position.toVector().scale(30);
         var at = position.toVector();
-        this.engine.viewMatrix = Matrix4.lookAtLH(eye, at, Vector3.up());
+        this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, Vector3.up());
 
         this.run();
     }

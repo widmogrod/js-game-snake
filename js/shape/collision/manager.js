@@ -5,8 +5,8 @@ define(function() {
         this.queue = [];
         this.strategy = strategy;
     }
-    CollisionManager.prototype.when = function(one, two, then) {
-        this.queue.push({one: one, two: two, then: then});
+    CollisionManager.prototype.when = function(one, two, then, otherwise) {
+        this.queue.push({one: one, two: two, then: then, otherwise: otherwise});
         return this;
     }
 
@@ -18,21 +18,21 @@ define(function() {
         }
     }
     CollisionManager.prototype.run = function() {
-        var one, two, then, event;
+        var one, two, callback, event;
         for (var i = 0, length = this.queue.length; i < length; i++) {
             one = this.queue[i].one,
-            two = this.queue[i].two,
-            then = this.queue[i].then;
+            two = this.queue[i].two;
 
-            if (this.strategy.isCollision(one, two)) {
-                // Yes, we've intersect
-                event = this.createEvent(one, two);
-                // Invoke then
-                then(event);
-                // And release collided object
-                if (!event.preventRelease) {
-                    this.queue.splice(i, 1);
-                }
+            callback = this.strategy.isCollision(one, two)
+                ? this.queue[i].then
+                : this.queue[i].otherwise;
+
+            if (typeof callback !== 'function') continue;
+
+            event = this.createEvent(one, two);
+            callback(event);
+            if (!event.preventRelease) {
+                this.queue.splice(i, 1);
             }
         }
     }
