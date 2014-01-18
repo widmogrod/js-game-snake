@@ -8,7 +8,6 @@ define(['math/matrix'], function(Matrix) {
         this.rows = 3;
         this.cols = 1;
         this.data = [this.x, this.y, this.z]
-
     }
 
     Vector3.left = function() {
@@ -43,6 +42,9 @@ define(['math/matrix'], function(Matrix) {
     }
     Vector3.prototype.clone = function() {
         return new Vector3(this.x, this.y, this.z);
+    }
+    Vector3.prototype.get = function(index) {
+        return [this.x, this.y, this.z][index];
     }
     Vector3.prototype.normalize = function() {
         var length = this.length();

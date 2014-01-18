@@ -6,7 +6,7 @@ require.config({
     ,optimize: "none"
 });
 
-require(['game4'], function(TetrisGame) {
+require(['game5'], function(TetrisGame) {
     'use strict';
 
     var tetris, game;

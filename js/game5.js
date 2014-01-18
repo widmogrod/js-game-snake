@@ -10,7 +10,7 @@ define([
     'shape/color',
     'game/config',
     'shape/collision/manager',
-    'shape/collision/strategy/triangle'
+    'shape/collision/strategy/meshcube'
 ],
 function(
     Renderer,
@@ -24,13 +24,13 @@ function(
     Color,
     GameConfig,
     CollisionManager,
-    CollisionStrategyTriangle
+    CollisionStrategyMeshCube
 ) {
     'use strict';
 
     function SomeGame(canvas) {
         this.renderer = new Renderer(canvas);
-        this.collision = new CollisionManager(new CollisionStrategyTriangle());
+        this.collision = new CollisionManager(new CollisionStrategyMeshCube());
 
         var w = canvas.width;
         var h = canvas.height;
@@ -97,9 +97,17 @@ function(
 
         this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, Color.fromName('green'));
         this.meshes.push(this.bigMesh);
-        this.collision.push(this.bigMesh)
 
         this.velocity = new Quaternion(45, new Vector3(0, 1, 0)).multiply(new Vector3(0, 0, -1)).v;
+
+        var self = this;
+        this.collision.when(this.cube, this.bigMesh, function(e) {
+            e.preventRelease = true;
+            self.bigMesh.color = Color.fromName('blue');
+        }, function(e) {
+            e.preventRelease = true;
+            self.bigMesh.color = Color.fromName('green');
+        });
     }
 
     SomeGame.prototype.captureKeys = function(e) {
@@ -117,25 +125,10 @@ function(
     SomeGame.prototype.run = function() {
         this.renderer.clean();
         this.engine.render(this.meshes);
-
-        var from = this.cube.translation;
-        var to = this.cube.translation.add(this.velocity.scale(50));
-        var self = this;
-
-        self.bigMesh.color = Color.fromName('green');
-        this.collision.raycast(from, this.velocity, 15, function() {
-            console.log('collision')
-            self.bigMesh.color = Color.fromName('blue');
-        });
-
-        this.renderer.drawCline(
-            this.engine.project(from),
-            this.engine.project(to)
-        );
-
         this.topRight.render(this.meshes);
         this.bottomLeft.render(this.meshes);
         this.bottomRight.render(this.meshes);
+        this.collision.run();
         this.renderer.render();
     }
 

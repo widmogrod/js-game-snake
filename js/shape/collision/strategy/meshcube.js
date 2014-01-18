@@ -1,64 +1,47 @@
 define([
     'shape/collision/strategy/interface',
-    'math/vector4'
+    'math/vector3'
 ], function(
     CollisionStrategyInterface,
-    Vector4
+    Vector3
 ){
     'use strict';
-
-    function BoundBox(x, y, width, height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    }
 
     function CollisionStrategyMeshCube() {}
 
     CollisionStrategyMeshCube.prototype = Object.create(CollisionStrategyInterface.prototype);
-    CollisionStrategyMeshCube.prototype.bounds = function(mesh, plane) {
-        var vertex, top, bottom, left, right, a, b;
+    CollisionStrategyMeshCube.prototype.boundBox = function(mesh) {
+        var result = {};
+        var vertices = mesh.verticesInWord;
+        var vertex = vertices[0];
 
-        switch(plane) {
-            case 'x': a = 'y', b = 'z'; break;
-            case 'y': a = 'z', b = 'x'; break;
-            case 'z': a = 'x', b = 'y'; break;
+        result.min = vertex.clone();
+        result.max = vertex.clone();
+
+        for (var i = 1, length = vertices.length; i < length; i++) {
+            vertex = vertices[i];
+            if (result.min.x > vertex.x) result.min.x = vertex.x;
+            else if (result.max.x < vertex.x) result.max.x = vertex.x;
+
+            if (result.min.y > vertex.y) result.min.y = vertex.y;
+            else if (result.max.y < vertex.y) result.max.y = vertex.y;
+
+            if (result.min.z > vertex.z) result.min.z = vertex.z;
+            else if (result.max.z < vertex.z) result.max.z = vertex.z;
         }
-
-        // precalculate values
-        vertex = mesh.verticesInWord[0];
-        top = bottom = vertex[b];
-        left = right = vertex[a];
-
-        for (var i = 1, length = mesh.verticesInWord.length; i < length; i++) {
-            vertex = mesh.verticesInWord[i];
-            if (top < vertex[b]) top = vertex[b];
-            else if (bottom > vertex[b]) bottom = vertex[b];
-
-            if (left > vertex[a]) left = vertex[a];
-            else if (right < vertex[a]) right = vertex[a];
-        }
-
-        return new BoundBox(
-            left, top, right - left, top - bottom
-        );
-    }
-    CollisionStrategyMeshCube.prototype.test = function(boundOne, boundTwo) {
-        var distanceX = boundOne.x - boundTwo.x;
-        var distanceY = boundOne.y - boundTwo.y;
-        var intersectX = distanceX < 0 ? Math.abs(distanceX) < boundOne.width : distanceX < boundTwo.width;
-        var intersectY = distanceY < 0 ? Math.abs(distanceY) < boundTwo.height : distanceY < boundOne.height;
-        return intersectX && intersectY;
-    }
-    CollisionStrategyMeshCube.prototype.isCollision = function(one, two) {
-        var plane, result = true;
-
-        result && (plane = 'x') && (result = this.test(this.bounds(one, plane), this.bounds(two, plane)));
-        result && (plane = 'y') && (result = this.test(this.bounds(one, plane), this.bounds(two, plane)));
-        result && (plane = 'z') && (result = this.test(this.bounds(one, plane), this.bounds(two, plane)));
 
         return result;
+    }
+    CollisionStrategyMeshCube.prototype.isCollision = function(one, two) {
+        var a = this.boundBox(one);
+        var b = this.boundBox(two);
+
+        for(var i = 0; i < 3; i++) {
+            if (a.min.get(i) > b.max.get(i)) return false;
+            if (a.max.get(i) < b.min.get(i)) return false;
+        }
+
+        return true;
     }
 
     return CollisionStrategyMeshCube;
