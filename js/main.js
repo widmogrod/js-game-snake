@@ -1,12 +1,12 @@
 require.config({
     baseUrl: "js",
     paths: {
-        hammerjs: '../bower_components/hammerjs/dist/hammer.min'
+        hammerjs: '../bower_components/hammerjs/hammer.min'
     }
     ,optimize: "none"
 });
 
-require(['game5'], function(TetrisGame) {
+require(['game6'], function(TetrisGame) {
     'use strict';
 
     var tetris, game;

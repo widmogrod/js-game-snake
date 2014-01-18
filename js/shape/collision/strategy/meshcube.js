@@ -7,6 +7,9 @@ define([
 ){
     'use strict';
 
+    /**
+     * AABB
+     */
     function CollisionStrategyMeshCube() {}
 
     CollisionStrategyMeshCube.prototype = Object.create(CollisionStrategyInterface.prototype);
