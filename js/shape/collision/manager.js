@@ -3,10 +3,14 @@ define(function() {
 
     function CollisionManager(strategy) {
         this.queue = [];
+        this.actions = [];
         this.strategy = strategy;
     }
+    CollisionManager.prototype.push = function(object) {
+        this.queue.push(object);
+    }
     CollisionManager.prototype.when = function(one, two, then, otherwise) {
-        this.queue.push({one: one, two: two, then: then, otherwise: otherwise});
+        this.actions.push({one: one, two: two, then: then, otherwise: otherwise});
         return this;
     }
 
@@ -18,12 +22,11 @@ define(function() {
         }
     }
     CollisionManager.prototype.raycast = function(origin, direction, distance, then) {
-        // console.log('o', origin.toString(), 'd', direction.toString())
-        // var target = origin.subtract(direction).scale(distance);
-        var target = direction.subtract(origin).scale(distance);
+        var result;
         for (var i = 0, length = this.queue.length; i < length; i++) {
-            if (this.strategy.raycast(origin, target, this.queue[i].two)) {
-                then();
+            if (result = this.strategy.raycast(origin, direction, this.queue[i])) {
+                if (result.t < distance)
+                    then();
                 return true;
             }
         }
@@ -32,20 +35,20 @@ define(function() {
     }
     CollisionManager.prototype.run = function() {
         var one, two, callback, event;
-        for (var i = 0, length = this.queue.length; i < length; i++) {
-            one = this.queue[i].one,
-            two = this.queue[i].two;
+        for (var i = 0, length = this.actions.length; i < length; i++) {
+            one = this.actions[i].one,
+            two = this.actions[i].two;
 
             callback = this.strategy.isCollision(one, two)
-                ? this.queue[i].then
-                : this.queue[i].otherwise;
+                ? this.actions[i].then
+                : this.actions[i].otherwise;
 
             if (typeof callback !== 'function') continue;
 
             event = this.createEvent(one, two);
             callback(event);
             if (!event.preventRelease) {
-                this.queue.splice(i, 1);
+                this.actions.splice(i, 1);
             }
         }
     }

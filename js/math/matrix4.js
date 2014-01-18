@@ -21,7 +21,8 @@ define([
     Matrix4.prototype = Object.create(Matrix.prototype);
     Matrix4.prototype.constructor = Matrix4;
     Matrix4.prototype.multiply = function(matrixOrVector) {
-        if (matrixOrVector instanceof Vector3) {
+        var isVector3 = matrixOrVector instanceof Vector3;
+        if (isVector3) {
             matrixOrVector = new Vector4(
                 matrixOrVector.x,
                 matrixOrVector.y,
@@ -32,7 +33,7 @@ define([
 
         var result = Matrix.prototype.multiply.call(this, matrixOrVector);
 
-        if (matrixOrVector instanceof Vector3) {
+        if (isVector3) {
             result = new Vector3(
                 result.getAt(0, 0),
                 result.getAt(1, 0),

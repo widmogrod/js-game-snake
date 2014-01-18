@@ -95,13 +95,11 @@ define(['math/matrix'], function(Matrix) {
         return Math.acos(angle);
     }
     Vector3.prototype.cross = function(vector) {
-        var i, j, k;
-
-        i = this.y * vector.z - this.z * vector.y;
-        j = this.z * vector.x - this.x * vector.z;
-        k = this.x * vector.y - this.y * vector.x;
-
-        return new Vector3(i, -j, k);
+        return new Vector3(
+            this.y * vector.z - this.z * vector.y,
+            this.z * vector.x - this.x * vector.z,
+            this.x * vector.y - this.y * vector.x
+        );
     }
 
     return Vector3;

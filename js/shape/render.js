@@ -18,17 +18,7 @@ define([
         this.projectionMatrix = projectionMatrix;
     }
     ShapeRender.prototype.render = function(meshes) {
-        var transformationMatrix, wordMatrix, mesh, face, cache;
-
-        var self = this;
-        var c = function(vertex, transformationMatrix) {
-            var index = cache.indexOf(vertex);
-            if (-1 === index) {
-                cache.push(self.project(vertex, transformationMatrix));
-                index = cache.length -1;
-            }
-            return cache[index];
-        }
+        var wordMatrix, mesh, face;
 
         for (var i = 0, length = meshes.length; i < length; i++) {
             mesh = meshes[i];
@@ -39,9 +29,8 @@ define([
                 mesh.verticesInWord[index] = wordMatrix.multiply(vertex);
             })
 
-            transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+            this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
 
-            cache = [];
             for (var f = 0, fl = mesh.faces.length; f < fl; f++) {
                 face = mesh.faces[f];
 
@@ -50,11 +39,11 @@ define([
                 var vertexC = mesh.verticesInWord[face.c];
 
                 // var normal = vertexA.subtract(vertexB).cross(vertexA.subtract(vertexC)).normalize().scale(2);
-                // var pointN = c(vertexA.add(normal), transformationMatrix);
+                // var pointN = this.project(vertexA.add(normal));
 
-                var pointA = c(vertexA, transformationMatrix);
-                var pointB = c(vertexB, transformationMatrix);
-                var pointC = c(vertexC, transformationMatrix);
+                var pointA = this.project(vertexA);
+                var pointB = this.project(vertexB);
+                var pointC = this.project(vertexC);
                 // console.log(pointA.toString())
 
                 if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
@@ -65,10 +54,10 @@ define([
             }
         }
     }
-    ShapeRender.prototype.project = function(vertex, transformationMatrix) {
+    ShapeRender.prototype.project = function(vertex) {
         // Homogeneous coordinates
         var vector4 = new Vector4(vertex.x, vertex.y, vertex.z, 1);
-            vector4 = transformationMatrix.multiply(vector4);
+            vector4 = this.transformationMatrix.multiply(vector4);
         var vector3 = this.transformCoordinates(vector4);
 
         vector3.x = this.viewport.x + this.viewport.width/2 + vector3.x >> 0;
