@@ -11,13 +11,16 @@ require(['game6'], function(TetrisGame) {
 
     var tetris, game;
 
-    var ratio = devicePixelRatio = window.devicePixelRatio || 1;
-    ratio = 1/ratio;
+    var ratio = devicePixelRatio = window.devicePixelRatio || 1,
+        width = 640,
+        height = 640;
 
     game = document.createElement('canvas');
     game.setAttribute('id', 'board');
-    game.width = 640 * ratio;
-    game.height = 640 * ratio;
+    game.width = width * ratio;
+    game.height = height * ratio;
+    game.style.width = width + 'px';
+    game.style.height = height + 'px';
     document.body.appendChild(game);
 
     // Catch user events
