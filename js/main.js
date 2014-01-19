@@ -1396,7 +1396,7 @@ function(
                 Vector3.zero(),
                 Vector3.up()
             ).multiply(Matrix4.rotationX(90)),
-            Matrix4.orthogonalProjection(viewportMain.width, viewportMain.height, 90)
+            Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
         var viewportMain = new Viewport(w/2, w/2, w/2, h/2);
@@ -1408,7 +1408,7 @@ function(
                 Vector3.zero(),
                 Vector3.up()
              ).multiply(Matrix4.rotationY(90)),
-             Matrix4.orthogonalProjection(viewportMain.width, viewportMain.height, 90)
+             Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
         var viewportMain = new Viewport(0, w/2, w/2, h/2);
@@ -1420,7 +1420,7 @@ function(
                 Vector3.zero(),
                 Vector3.up()
              ),
-             Matrix4.orthogonalProjection(viewportMain.width, viewportMain.height, 90)
+             Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
@@ -1431,7 +1431,7 @@ function(
         this.meshes = []
         this.meshes.push(this.cube);
 
-        var mesh = new CoordinateMesh(-w/2 + 80, w/2 - 120, w/2 - 120);
+        var mesh = new CoordinateMesh(w/2, w/2, w/2);
         // mesh.scale = mesh.scale.scale(50);
         this.meshes.push(mesh);
 
@@ -1452,10 +1452,10 @@ function(
 
 
         this.distance = 500;
+        this.rotation = Vector3.zero();
 
         Hammer(document)
         .on('drag', function(e) {
-            // console.log(e.gesture)
             switch(e.gesture.direction) {
                 case 'left':
                     self.cube.rotation.y -= e.gesture.velocityX * 10;
@@ -1465,33 +1465,23 @@ function(
                     break;
                 case 'up':
                     self.cube.rotation.x += e.gesture.velocityY * 10;
-                    if (e.gesture.angle > -90) {
-                        self.cube.rotation.y -= e.gesture.velocityX * 10;
-                    } else {
-                        self.cube.rotation.y += e.gesture.velocityX * 10;
-                    }
                     break;
                 case 'down':
                     self.cube.rotation.x -= e.gesture.velocityY * 10;
-                    if (e.gesture.angle > 90) {
-                        self.cube.rotation.y -= e.gesture.velocityX * 10;
-                    } else {
-                        self.cube.rotation.y += e.gesture.velocityX * 10;
-                    }
                     break;
             }
+        })
+        .on('rotate', function(e){
+            self.rotation = new Quaternion(e.gesture.rotation, Vector3.forward()).multiply(self.rotation).v;
         })
         .on('pinch', function(e) {
             switch(e.type) {
                 case 'pinchin': self.distance += e.gesture.scale  * 100; break;
                 case 'pinchout': self.distance -= e.gesture.scale * 100; break;
             }
-
-            self.engine.viewMatrix = Matrix4.lookAtRH(
-                new Vector3(0, 0, self.distance),
-                Vector3.zero(),
-                Vector3.up()
-            );
+        })
+        .on('drag swipe rotate pinch', function(e) {
+            console.log(e.type);
         });
     }
 
@@ -1506,6 +1496,13 @@ function(
         }
     }
     SomeGame.prototype.run = function() {
+
+        this.engine.viewMatrix = Matrix4.lookAtRH(
+            new Vector3(0, 0, this.distance),
+            this.rotation,
+            Vector3.up()
+        );
+
         this.renderer.clean();
         this.engine.render(this.meshes);
         this.topRight.render(this.meshes);
