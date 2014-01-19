@@ -1418,7 +1418,7 @@ function(
         this.meshes = []
         this.meshes.push(this.cube);
 
-        var mesh = new CoordinateMesh(w/2, w/2, w/2);
+        var mesh = new CoordinateMesh(-w/2 * 1.2, w/2 * 1.2, 0);
         // mesh.scale = mesh.scale.scale(50);
         this.meshes.push(mesh);
 
@@ -1514,8 +1514,8 @@ require(['game6'], function(TetrisGame) {
     var tetris, game;
 
     var ratio = devicePixelRatio = window.devicePixelRatio || 1,
-        width = 640,
-        height = 640;
+        width = window.innerWidth,
+        height = window.innerHeight;
 
     game = document.createElement('canvas');
     game.setAttribute('id', 'board');
