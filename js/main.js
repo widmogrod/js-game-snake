@@ -1464,7 +1464,7 @@ function(
         // })
         .on('rotate', function(e){
             // console.log('rotate', e.gesture.rotation)
-            self.selectedMesh.rotation.z += e.gesture.rotation;// = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.selectedMesh.rotation).v;
+            self.selectedMesh.rotation.z += e.gesture.rotation/10;// = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.selectedMesh.rotation).v;
         })
         // .on('pinchin', function(e) {
         //     self.selectedMesh.transformation.z += e.gesture.scale * 10
