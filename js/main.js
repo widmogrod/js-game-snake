@@ -1441,8 +1441,10 @@ function(
         this.distance = 500;
         this.rotation = Vector3.zero();
 
-        Hammer(document)
-        .on('drag', function(e) {
+        Hammer(document, {
+            drag: false
+        })
+        .on('swipe', function(e) {
             switch(e.gesture.direction) {
                 case 'left':
                     self.cube.rotation.y -= e.gesture.velocityX * 10;
@@ -1458,7 +1460,11 @@ function(
                     break;
             }
         })
+        .on('transform', function(e) {
+            console.log('transform', e)
+        })
         .on('rotate', function(e){
+            console.log('rotate', e.gesture.rotation)
             self.rotation = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.rotation).v;
         })
         .on('pinchin', function(e) {
