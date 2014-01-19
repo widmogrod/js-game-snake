@@ -16,8 +16,8 @@
 @media only screen and (min-width : 1224px) {
     #board {
         position: absolute;
-        top: 120px;
-        left: 50%;
+        top: 0;
+        left: 0;
         margin-left:-300px;
         z-index:9999;
         image-rendering: crisp-edges;
