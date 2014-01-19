@@ -1446,25 +1446,27 @@ function(
         .on('swipe', function(e) {
             switch(e.gesture.direction) {
                 case 'left':
-                    self.cube.rotation.y -= e.gesture.velocityX * 10;
+                    self.selectedMesh.rotation.y -= e.gesture.velocityX * 10;
                     break;
                 case 'right':
-                    self.cube.rotation.y += e.gesture.velocityX * 10;
+                    self.selectedMesh.rotation.y += e.gesture.velocityX * 10;
                     break;
                 case 'up':
-                    self.cube.rotation.x += e.gesture.velocityY * 10;
+                    self.selectedMesh.rotation.x += e.gesture.velocityY * 10;
                     break;
                 case 'down':
-                    self.cube.rotation.x -= e.gesture.velocityY * 10;
+                    self.selectedMesh.rotation.x -= e.gesture.velocityY * 10;
                     break;
             }
         })
         .on('transform', function(e) {
-            console.log('transform', e)
+            self.selectedMesh.translation.x += e.gesture.deltaX;
+            self.selectedMesh.translation.y -= e.gesture.deltaY;
+            // console.log('transform', e)
         })
         .on('rotate', function(e){
-            console.log('rotate', e.gesture.rotation)
-            self.selectedMesh.rotation = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.rotation).v;
+            // console.log('rotate', e.gesture.rotation)
+            self.selectedMesh.rotation = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.selectedMesh.rotation).v;
         })
         // .on('pinchin', function(e) {
         //     self.selectedMesh.transformation.z += e.gesture.scale * 10
