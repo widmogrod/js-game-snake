@@ -67,7 +67,7 @@ module.exports = function(grunt) {
                     'rm -rf build',
                     'git commit -am "new realise"',
                     'git push origin gh-pages',
-                    'git checkout master'
+                    'git checkout master -f'
                 ].join(' && ')
             }
         },
