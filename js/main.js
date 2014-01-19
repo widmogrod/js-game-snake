@@ -1441,22 +1441,22 @@ function(
         this.selectedMesh = this.cube;
 
         Hammer(document)
-        .on('drag', function(e) {
-            switch(e.gesture.direction) {
-                case 'left':
-                    self.selectedMesh.rotation.y -= e.gesture.velocityX * 10;
-                    break;
-                case 'right':
-                    self.selectedMesh.rotation.y += e.gesture.velocityX * 10;
-                    break;
-                case 'up':
-                    self.selectedMesh.rotation.x += e.gesture.velocityY * 10;
-                    break;
-                case 'down':
-                    self.selectedMesh.rotation.x -= e.gesture.velocityY * 10;
-                    break;
-            }
-        })
+        // .on('drag', function(e) {
+        //     switch(e.gesture.direction) {
+        //         case 'left':
+        //             self.selectedMesh.rotation.y -= e.gesture.velocityX * 10;
+        //             break;
+        //         case 'right':
+        //             self.selectedMesh.rotation.y += e.gesture.velocityX * 10;
+        //             break;
+        //         case 'up':
+        //             self.selectedMesh.rotation.x += e.gesture.velocityY * 10;
+        //             break;
+        //         case 'down':
+        //             self.selectedMesh.rotation.x -= e.gesture.velocityY * 10;
+        //             break;
+        //     }
+        // })
         // .on('transform', function(e) {
         //     self.selectedMesh.translation.x += e.gesture.deltaX;
         //     self.selectedMesh.translation.y -= e.gesture.deltaY;
@@ -1502,7 +1502,7 @@ function(
         this.renderer.render();
         // requestAnimationFrame(this.run.bind(this))
 
-        setTimeout(this.run.bind(this), 500);
+        setTimeout(this.run.bind(this), 100);
     }
 
     return SomeGame;
