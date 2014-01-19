@@ -1440,10 +1440,8 @@ function(
 
         this.selectedMesh = this.cube;
 
-        Hammer(document, {
-            drag: false
-        })
-        .on('swipe', function(e) {
+        Hammer(document)
+        .on('drag', function(e) {
             switch(e.gesture.direction) {
                 case 'left':
                     self.selectedMesh.rotation.y -= e.gesture.velocityX * 10;
@@ -1459,11 +1457,11 @@ function(
                     break;
             }
         })
-        .on('transform', function(e) {
-            self.selectedMesh.translation.x += e.gesture.deltaX;
-            self.selectedMesh.translation.y -= e.gesture.deltaY;
-            // console.log('transform', e)
-        })
+        // .on('transform', function(e) {
+        //     self.selectedMesh.translation.x += e.gesture.deltaX;
+        //     self.selectedMesh.translation.y -= e.gesture.deltaY;
+        //     // console.log('transform', e)
+        // })
         .on('rotate', function(e){
             // console.log('rotate', e.gesture.rotation)
             self.selectedMesh.rotation = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.selectedMesh.rotation).v;
