@@ -1442,7 +1442,7 @@ function(
 
         Hammer(document, {
             prevent_mouseevents: true,
-            release: false,
+            // release: false,
             drag_lock_to_axis: true
         })
         .on('drag', function(e) {
