@@ -88,7 +88,7 @@ function(
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
         this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
-        this.cube.rotation.y = 45;
+        // this.cube.rotation.y = 45;
 
         this.meshes = []
         this.meshes.push(this.cube);
