@@ -12,6 +12,7 @@ require(['game6'], function(TetrisGame) {
     var tetris, game;
 
     var ratio = devicePixelRatio = window.devicePixelRatio || 1;
+    ratio = 1/ratio;
 
     game = document.createElement('canvas');
     game.setAttribute('id', 'board');
