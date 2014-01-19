@@ -117,17 +117,36 @@ function(
 
         Hammer(document)
         .on('drag', function(e) {
+            // console.log(e.gesture)
             switch(e.gesture.direction) {
-                case 'left': self.cube.rotation.y -= e.gesture.velocityX * 10; break;
-                case 'right': self.cube.rotation.y += e.gesture.velocityX * 10; break;
-                case 'up': self.cube.rotation.x += e.gesture.velocityY * 10; break;
-                case 'down': self.cube.rotation.x -= e.gesture.velocityY * 10; break;
+                case 'left':
+                    self.cube.rotation.y -= e.gesture.velocityX * 10;
+                    break;
+                case 'right':
+                    self.cube.rotation.y += e.gesture.velocityX * 10;
+                    break;
+                case 'up':
+                    self.cube.rotation.x += e.gesture.velocityY * 10;
+                    if (e.gesture.angle > -90) {
+                        self.cube.rotation.y -= e.gesture.velocityX * 10;
+                    } else {
+                        self.cube.rotation.y += e.gesture.velocityX * 10;
+                    }
+                    break;
+                case 'down':
+                    self.cube.rotation.x -= e.gesture.velocityY * 10;
+                    if (e.gesture.angle > 90) {
+                        self.cube.rotation.y -= e.gesture.velocityX * 10;
+                    } else {
+                        self.cube.rotation.y += e.gesture.velocityX * 10;
+                    }
+                    break;
             }
         })
         .on('pinch', function(e) {
             switch(e.type) {
-                case 'pitchin': self.distance += e.gesture.scale  * 10; break;
-                case 'pitchout': self.distance -= e.gesture.scale * 10; break;
+                case 'pinchin': self.distance += e.gesture.scale  * 100; break;
+                case 'pinchout': self.distance -= e.gesture.scale * 100; break;
             }
 
             self.engine.viewMatrix = Matrix4.lookAtRH(
