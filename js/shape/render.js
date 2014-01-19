@@ -22,7 +22,11 @@ define([
 
         for (var i = 0, length = meshes.length; i < length; i++) {
             mesh = meshes[i];
-            wordMatrix = mesh.wordMatrix();
+            wordMatrix = Matrix4.translation(mesh.translation).multiply(
+                Matrix4.rotation(mesh.rotation).multiply(
+                    Matrix4.scale(mesh.scale)
+                )
+            );
 
             // Store vertices information in word matrix. Usefull for collision detection
             mesh.vertices.forEach(function(vertex, index) {
@@ -65,6 +69,10 @@ define([
 
         return vector3;
     }
+    ShapeRender.prototype.unproject = function(vector) {
+        // var matrix =
+    }
+
     ShapeRender.prototype.transformCoordinates = function(vector4) {
         var result = Vector3.zero(), w = vector4.w;
 
