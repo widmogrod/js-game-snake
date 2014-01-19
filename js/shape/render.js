@@ -70,7 +70,7 @@ define([
         return vector3;
     }
     ShapeRender.prototype.unproject = function(vector) {
-        // var matrix =
+        // todo
     }
 
     ShapeRender.prototype.transformCoordinates = function(vector4) {

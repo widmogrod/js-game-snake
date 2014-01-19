@@ -10,18 +10,5 @@ define(['math/matrix4', 'math/vector3'], function(Matrix4, Vector3){
         this.faces = [];
     }
 
-    MeshInterface.prototype.wordMatrix = function() {
-        return Matrix4.translation(this.translation).multiply(
-                   Matrix4.rotation(this.rotation).multiply(
-                       Matrix4.scale(this.scale)
-                   )
-               );
-        // return Matrix4.scale(this.scale).multiply(
-        //     Matrix4.translation(this.translation).multiply(
-        //         Matrix4.rotation(this.rotation)
-        //     )
-        // );
-    }
-
     return MeshInterface;
 })

@@ -134,17 +134,14 @@ function(
             }
         })
         .on('rotate', function(e){
-            self.rotation = new Quaternion(e.gesture.rotation, Vector3.forward()).multiply(self.rotation).v;
+            self.rotation = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.rotation).v;
         })
         .on('pinchin', function(e) {
-            self.distance -= e.gesture.scale  * 100
+            self.distance += e.gesture.scale * 10
         })
         .on('pinchout', function(e) {
-            self.distance += e.gesture.scale  * 100
+            self.distance -= e.gesture.scale * 10
         })
-        .on('drag swipe rotate pinch', function(e) {
-            console.log('global', e);
-        });
     }
 
     SomeGame.prototype.captureKeys = function(e) {
