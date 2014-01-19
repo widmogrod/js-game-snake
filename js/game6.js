@@ -136,14 +136,14 @@ function(
         .on('rotate', function(e){
             self.rotation = new Quaternion(e.gesture.rotation, Vector3.forward()).multiply(self.rotation).v;
         })
-        .on('pinch', function(e) {
-            switch(e.type) {
-                case 'pinchin': self.distance += e.gesture.scale  * 100; break;
-                case 'pinchout': self.distance -= e.gesture.scale * 100; break;
-            }
+        .on('pinchin', function(e) {
+            self.distance -= e.gesture.scale  * 100
+        })
+        .on('pinchout', function(e) {
+            self.distance += e.gesture.scale  * 100
         })
         .on('drag swipe rotate pinch', function(e) {
-            console.log(e);
+            console.log('global', e);
         });
     }
 
