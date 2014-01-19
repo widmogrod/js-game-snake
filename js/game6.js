@@ -93,7 +93,7 @@ function(
         this.meshes = []
         this.meshes.push(this.cube);
 
-        var mesh = new CoordinateMesh(w/2, w/2, w/2);
+        var mesh = new CoordinateMesh(-w/2 * 1.2, w/2 * 1.2, 0);
         // mesh.scale = mesh.scale.scale(50);
         this.meshes.push(mesh);
 
