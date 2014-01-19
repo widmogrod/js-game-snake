@@ -177,7 +177,9 @@ function(
         this.bottomRight.render(this.meshes);
         this.collision.run();
         this.renderer.render();
-        requestAnimationFrame(this.run.bind(this))
+        // requestAnimationFrame(this.run.bind(this))
+
+        setTimeout(this.run.bind(this), 500);
     }
 
     return SomeGame;
