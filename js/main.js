@@ -1481,7 +1481,7 @@ function(
             }
         })
         .on('drag swipe rotate pinch', function(e) {
-            console.log(e.type);
+            console.log(e);
         });
     }
 
