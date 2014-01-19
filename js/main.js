@@ -878,7 +878,7 @@ define('shape/render',[
         return vector3;
     }
     ShapeRender.prototype.unproject = function(vector) {
-        // var matrix =
+        // todo
     }
 
     ShapeRender.prototype.transformCoordinates = function(vector4) {
@@ -1001,19 +1001,6 @@ define('shape/mesh/interface',['math/matrix4', 'math/vector3'], function(Matrix4
         this.vertices = [];
         this.verticesInWord = [];
         this.faces = [];
-    }
-
-    MeshInterface.prototype.wordMatrix = function() {
-        return Matrix4.translation(this.translation).multiply(
-                   Matrix4.rotation(this.rotation).multiply(
-                       Matrix4.scale(this.scale)
-                   )
-               );
-        // return Matrix4.scale(this.scale).multiply(
-        //     Matrix4.translation(this.translation).multiply(
-        //         Matrix4.rotation(this.rotation)
-        //     )
-        // );
     }
 
     return MeshInterface;
@@ -1472,17 +1459,14 @@ function(
             }
         })
         .on('rotate', function(e){
-            self.rotation = new Quaternion(e.gesture.rotation, Vector3.forward()).multiply(self.rotation).v;
+            self.rotation = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.rotation).v;
         })
         .on('pinchin', function(e) {
-            self.distance -= e.gesture.scale  * 100
+            self.distance += e.gesture.scale * 10
         })
         .on('pinchout', function(e) {
-            self.distance += e.gesture.scale  * 100
+            self.distance -= e.gesture.scale * 10
         })
-        .on('drag swipe rotate pinch', function(e) {
-            console.log('global', e);
-        });
     }
 
     SomeGame.prototype.captureKeys = function(e) {
