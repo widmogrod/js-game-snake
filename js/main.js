@@ -1450,18 +1450,30 @@ function(
             self.bigMesh.color = Color.fromName('green');
         });
 
+
+        this.distance = 500;
+
         Hammer(document)
         .on('drag', function(e) {
             switch(e.gesture.direction) {
-                case 'left': self.cube.rotation.y += e.gesture.velocityX * 10; break;
-                case 'right': self.cube.rotation.y -= e.gesture.velocityX * 10; break;
+                case 'left': self.cube.rotation.y -= e.gesture.velocityX * 10; break;
+                case 'right': self.cube.rotation.y += e.gesture.velocityX * 10; break;
                 case 'up': self.cube.rotation.x += e.gesture.velocityY * 10; break;
                 case 'down': self.cube.rotation.x -= e.gesture.velocityY * 10; break;
             }
         })
-        // .on('pinchin', function(e) {
-        //     console.log('pinch', e)
-        // });
+        .on('pinch', function(e) {
+            switch(e.type) {
+                case 'pitchin': self.distance += e.gesture.scale  * 10; break;
+                case 'pitchout': self.distance -= e.gesture.scale * 10; break;
+            }
+
+            self.engine.viewMatrix = Matrix4.lookAtRH(
+                new Vector3(0, 0, self.distance),
+                Vector3.zero(),
+                Vector3.up()
+            );
+        });
     }
 
     SomeGame.prototype.captureKeys = function(e) {
@@ -1502,6 +1514,7 @@ require(['game6'], function(TetrisGame) {
     var tetris, game;
 
     var ratio = devicePixelRatio = window.devicePixelRatio || 1;
+    ratio = 1/ratio;
 
     game = document.createElement('canvas');
     game.setAttribute('id', 'board');
