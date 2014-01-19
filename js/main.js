@@ -1438,8 +1438,7 @@ function(
         });
 
 
-        this.distance = 500;
-        this.rotation = Vector3.zero();
+        this.selectedMesh = this.cube;
 
         Hammer(document, {
             drag: false
@@ -1465,14 +1464,14 @@ function(
         })
         .on('rotate', function(e){
             console.log('rotate', e.gesture.rotation)
-            self.rotation = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.rotation).v;
+            self.selectedMesh.rotation = new Quaternion(e.gesture.rotation, Vector3.up()).multiply(self.rotation).v;
         })
-        .on('pinchin', function(e) {
-            self.distance += e.gesture.scale * 10
-        })
-        .on('pinchout', function(e) {
-            self.distance -= e.gesture.scale * 10
-        })
+        // .on('pinchin', function(e) {
+        //     self.selectedMesh.transformation.z += e.gesture.scale * 10
+        // })
+        // .on('pinchout', function(e) {
+        //     self.selectedMesh.transformation.z -= e.gesture.scale * 10
+        // })
     }
 
     SomeGame.prototype.captureKeys = function(e) {
@@ -1487,11 +1486,12 @@ function(
     }
     SomeGame.prototype.run = function() {
 
-        this.engine.viewMatrix = Matrix4.lookAtRH(
-            new Vector3(0, 0, this.distance),
-            this.rotation,
-            Vector3.up()
-        );
+        // this.selectedMesh.translation.z = self.distance;
+        // this.engine.viewMatrix = Matrix4.lookAtRH(
+        //     new Vector3(0, 0, this.distance),
+        //     this.rotation,
+        //     Vector3.up()
+        // );
 
         this.renderer.clean();
         this.engine.render(this.meshes);
