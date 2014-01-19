@@ -115,7 +115,11 @@ function(
 
         this.selectedMesh = this.cube;
 
-        Hammer(document)
+        Hammer(document, {
+            prevent_mouseevents: true,
+            release: false,
+            drag_lock_to_axis: true
+        })
         .on('drag', function(e) {
             e.gesture.preventDefault();
             switch(e.gesture.direction) {
