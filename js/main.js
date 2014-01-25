@@ -1225,16 +1225,18 @@ define('shape/collision/manager',[],function() {
             preventRelease: false
         }
     }
-    CollisionManager.prototype.raycast = function(origin, direction, distance, then) {
-        var result;
+    CollisionManager.prototype.raycast = function(origin, direction, distance, then, otherwise) {
+        var result, found = false;
         for (var i = 0, length = this.queue.length; i < length; i++) {
             if (result = this.strategy.raycast(origin, direction, this.queue[i])) {
+                found = true;
                 if (result.t < distance)
                     then();
                 return true;
             }
         }
 
+        !found && otherwise && otherwise();
         return false;
     }
     CollisionManager.prototype.run = function() {
@@ -1266,64 +1268,309 @@ define('shape/collision/strategy/interface',[],function(){
     function CollisionStrategyInterface() {}
 
     CollisionStrategyInterface.prototype.isCollision = function(one, two) {}
-    CollisionStrategyInterface.prototype.raycast = function(origin, target, object) {}
+    CollisionStrategyInterface.prototype.raycast = function(origin, direction, object) {}
 
     return CollisionStrategyInterface;
 })
 ;
-define('shape/collision/strategy/meshcube',[
-    'shape/collision/strategy/interface',
-    'math/vector3'
+define('shape/collision/strategy/triangle',[
+    'shape/collision/strategy/interface'
 ], function(
-    CollisionStrategyInterface,
-    Vector3
+    CollisionStrategyInterface
 ){
     
 
+    var EPSILON = 0.000001;
+
     /**
-     * AABB
+     * Möller–Trumbore intersection algorithm
+     *
+     * http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
      */
-    function CollisionStrategyMeshCube() {}
+    function CollisionStrategyTriangle() {}
 
-    CollisionStrategyMeshCube.prototype = Object.create(CollisionStrategyInterface.prototype);
-    CollisionStrategyMeshCube.prototype.boundBox = function(mesh) {
-        var result = {};
-        var vertices = mesh.verticesInWord;
-        var vertex = vertices[0];
+    CollisionStrategyTriangle.prototype = Object.create(CollisionStrategyInterface.prototype);
+    CollisionStrategyTriangle.prototype.raycast = function(origin, direction, mesh) {
+        var face, event, closest;
 
-        result.min = vertex.clone();
-        result.max = vertex.clone();
+        for (var i = 0, length = mesh.faces.length; i < length; i++) {
+            face = mesh.faces[i];
+            event = {};
+            if (this.triangle(
+                mesh.verticesInWord[face.a],
+                mesh.verticesInWord[face.b],
+                mesh.verticesInWord[face.c],
+                origin,
+                direction,
+                event
+            )) {
+                if (!closest || closest.t > event.t) {
+                    closest = event;
+                }
+            }
+        }
 
-        for (var i = 1, length = vertices.length; i < length; i++) {
-            vertex = vertices[i];
-            if (result.min.x > vertex.x) result.min.x = vertex.x;
-            else if (result.max.x < vertex.x) result.max.x = vertex.x;
+        return closest;
+    }
+    CollisionStrategyTriangle.prototype.isCollision = function(ray, mesh) {}
+    CollisionStrategyTriangle.prototype.triangle = function(V1, V2, V3, O, D, event) {
+        var e1, e2;  //Edge1, Edge2
+        var P, Q, T;
+        var det, inv_det, u, v;
+        var t;
 
-            if (result.min.y > vertex.y) result.min.y = vertex.y;
-            else if (result.max.y < vertex.y) result.max.y = vertex.y;
+        //Find vectors for two edges sharing V1
+        e1 = V2.subtract(V1);
+        e2 = V3.subtract(V1);
+        // SUB(e1, V2, V1);
+        // SUB(e2, V3, V1);
+        //Begin calculating determinant - also used to calculate u parameter
+        P = D.cross(e2);
+        // CROSS(P, D, e2);
+        //if determinant is near zero, ray lies in plane of triangle
+        det = e1.dot(P);
+        // det = DOT(e1, P);
+        //NOT CULLING
 
-            if (result.min.z > vertex.z) result.min.z = vertex.z;
-            else if (result.max.z < vertex.z) result.max.z = vertex.z;
+        if(det > -EPSILON && det < EPSILON) return false;
+        inv_det = 1 / det;
+
+        //calculate distance from V1 to ray origin
+        T = O.subtract(V1);
+        // SUB(T, O, V1);
+
+        //Calculate u parameter and test bound
+        u = T.dot(P) * inv_det;
+
+        event.u = u;
+
+        // u = DOT(T, P) * inv_det;
+        //The intersection lies outside of the triangle
+        if(u < 0 || u > 1) return false;
+
+        //Prepare to test v parameter
+        Q = T.cross(e1);
+        // CROSS(Q, T, e1);
+
+        //Calculate V parameter and test bound
+        v = D.dot(Q) * inv_det;
+
+        event.v = v;
+
+        // v = DOT(D, Q) * inv_det;
+        //The intersection lies outside of the triangle
+        if(v < 0 || u + v  > 1) return false;
+
+        t = e2.dot(Q) * inv_det;
+        // t = DOT(e2, Q) * inv_det;
+        event.t = t;
+
+        if(t > EPSILON) { //ray intersection
+            return true;
+        }
+
+        // No hit, no win
+        return false;
+    }
+
+    return CollisionStrategyTriangle;
+})
+;
+define('event/result',[],function(){
+    function Result(event) {
+        this.event = event;
+        this.results = [];
+    }
+    Result.prototype.count = function() {
+        return this.results.length;
+    }
+    Result.prototype.push = function(value) {
+        this.results.push(value);
+    }
+    Result.prototype.last = function(defaults) {
+        var c = this.count();
+        return c ? this.results[c - 1] : defaults;
+    }
+    Result.prototype.each = function(func) {
+        this.results.forEach(func);
+    }
+
+    return Result;
+})
+;
+define('event/event',['event/result'], function(Result){
+    function createEvent() {
+        var stopPropagation = false;
+        return {
+            stopPropagation: function(flag) {
+                if (arguments.length) {
+                    stopPropagation = !!flag;
+                } else {
+                    return stopPropagation;
+                }
+            }
+        }
+    }
+
+    function hash(array) {
+        var result = '';
+
+        if (array === undefined) return result;
+
+        array.forEach(function(item){
+            switch(Object.prototype.toString.call(item).slice(8, -1)) {
+                default:
+                    result += item;
+                    break;
+
+                case 'Array':
+                    result += hash(item);
+                    break;
+
+                case 'Object':
+                    for (var i in item) {
+                        if (item.hasOwnProperty(i))
+                            result += hash(item)
+                    }
+                    break;
+            }
+        })
+        return result;
+    }
+
+    function Event() {
+        this.events = {};
+        this.proxies = {};
+    }
+    Event.prototype.on = function(name, callback) {
+        this.events[name] = this.events[name] ? this.events[name] : [];
+        if (-1 === this.events[name].indexOf(callback)) {
+            this.events[name].push(callback);
+        }
+        return this;
+    }
+    Event.prototype.trigger = function(name, args) {
+        var value, events;
+        var event = typeof this.createEvent === 'function' ? this.createEvent() : createEvent(),
+        result = new Result(event);
+
+        if (!this.events.hasOwnProperty(name)) {
+            return result;
+        }
+
+        args = [event].concat(args);
+        events = this.events[name];
+
+        for (var i = 0, length = events.length; i < length; i++) {
+            value = events[i].apply(null, args);
+            result.push(value);
+            if (event.stopPropagation()) break;
         }
 
         return result;
     }
-    CollisionStrategyMeshCube.prototype.isCollision = function(one, two) {
-        var a = this.boundBox(one);
-        var b = this.boundBox(two);
+    Event.prototype.proxy = function(name, args) {
+        var self = this, key = name + hash(args);
 
-        for(var i = 0; i < 3; i++) {
-            if (a.min.get(i) > b.max.get(i)) return false;
-            if (a.max.get(i) < b.min.get(i)) return false;
+        return this.proxies[key]
+            ? this.proxies[key]
+            : this.proxies[key] = function proxy(event) {
+            self.trigger(name, args);
         }
-
-        return true;
     }
 
-    return CollisionStrategyMeshCube;
+    return Event;
 })
 ;
-define('game6',[
+define('state',['event/event'], function(Event){
+    function onChange(from, to, context) {
+        return function() {
+            var results;
+            if (null !== context.state && (context.state !== from && from !== '*')) {
+                return;
+            }
+
+            if (context.unlock && !context.unlock()) {
+                context.postponed = onChange(from, to, context);
+                return;
+            }
+
+            context.unlock = null;
+            context.state = to;
+            context.trigger('change', [from, to]);
+            results = context.trigger('enter:' + to, [from]);
+            if (results.event.hasLocks()) {
+                context.unlock = results.event.unlock;
+            }
+        }
+    }
+
+    function each(data, func) {
+        for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+                func(data[key], key);
+            }
+        }
+    }
+
+    function StateMachine(states) {
+        var self = this;
+        self.events = {};
+        self.state = null;
+        self.unlock = null;
+
+        each(states, function(events, state) {
+            each(events, function(nextState, event){
+                self.on(event, onChange(state, nextState, self));
+            });
+        })
+    }
+
+    StateMachine.prototype = new Event();
+    /**
+     * Resove postponed state.
+     * This can happen when current state is bloked
+     */
+    StateMachine.prototype.run = function() {
+        if (typeof this.postponed === 'function') {
+            var func = this.postponed;
+            this.postponed = null;
+            func();
+        }
+    }
+    StateMachine.prototype.createEvent = function() {
+        var stopPropagation = false;
+        var unlocks = [];
+        return {
+            hasLocks: function() {
+                return unlocks.length > 0;
+            },
+            lock: function(func) {
+                unlocks.push(func);
+            },
+            unlock: function() {
+                var result = true;
+                unlocks.forEach(function(func){
+                    if (result) {
+                        result = func();
+                    }
+                });
+                return result;
+            },
+            stopPropagation: function(flag) {
+                if (arguments.length) {
+                    stopPropagation = !!flag;
+                } else {
+                    return stopPropagation;
+                }
+            }
+        }
+    }
+
+    return StateMachine;
+})
+;
+define('game7',[
     'hammerjs',
     'shape/renderer/renderer',
     'shape/render',
@@ -1336,7 +1583,8 @@ define('game6',[
     'shape/color',
     'game/config',
     'shape/collision/manager',
-    'shape/collision/strategy/meshcube'
+    'shape/collision/strategy/triangle',
+    'state'
 ],
 function(
     Hammer,
@@ -1351,13 +1599,14 @@ function(
     Color,
     GameConfig,
     CollisionManager,
-    CollisionStrategyMeshCube
+    CollisionStrategyTriangle,
+    StateMachine
 ) {
     
 
     function SomeGame(canvas) {
         this.renderer = new Renderer(canvas);
-        this.collision = new CollisionManager(new CollisionStrategyMeshCube());
+        this.collision = new CollisionManager(new CollisionStrategyTriangle());
 
         var w = canvas.width;
         var h = canvas.height;
@@ -1370,7 +1619,7 @@ function(
                 new Vector3(0, 0, 500),
                 Vector3.zero(),
                 Vector3.up()
-            ),
+            ).multiply(Matrix4.rotationX(45)).multiply(Matrix4.rotationZ(45)).multiply(Matrix4.rotationY(45)),
             Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
@@ -1394,8 +1643,8 @@ function(
                 new Vector3(0, 0, 500),
                 Vector3.zero(),
                 Vector3.up()
-             ).multiply(Matrix4.rotationY(90)),
-             Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
+            ).multiply(Matrix4.rotationY(90)),
+            Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
         var viewportMain = new Viewport(0, w/2, w/2, h/2);
@@ -1406,108 +1655,154 @@ function(
                 new Vector3(0, 0, 500),
                 Vector3.zero(),
                 Vector3.up()
-             ),
-             Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
+            ),
+            Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
         this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
-        // this.cube.rotation.y = 45;
 
         this.meshes = []
         this.meshes.push(this.cube);
 
         var mesh = new CoordinateMesh(-w/2 * 1.2, w/2 * 1.2, 0);
-        // mesh.scale = mesh.scale.scale(50);
         this.meshes.push(mesh);
 
         this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, Color.fromName('green'));
         this.meshes.push(this.bigMesh);
+        this.collision.push(this.bigMesh)
 
         this.velocity = 1;
-        this.direction = new Quaternion(45, new Vector3(0, 1, 0)).multiply(new Vector3(0, 0, -1)).v;
-
-        var self = this;
-        this.collision.when(this.cube, this.bigMesh, function(e) {
-            e.preventRelease = true;
-            self.bigMesh.color = Color.fromName('blue');
-        }, function(e) {
-            e.preventRelease = true;
-            self.bigMesh.color = Color.fromName('green');
-        });
-
-
-        this.selectedMesh = this.cube;
+        this.direction = new Vector3(0, 0, -1);
+        this.rotation = new Vector3(0, 1, 0);
 
         Hammer(document, {
-            prevent_mouseevents: true,
-            // release: false,
+            release: false,
             drag_lock_to_axis: true
         })
         .on('drag', function(e) {
             e.gesture.preventDefault();
             switch(e.gesture.direction) {
-                case 'left':
-                    self.selectedMesh.rotation.y -= e.gesture.velocityX * 10;
-                    break;
-                case 'right':
-                    self.selectedMesh.rotation.y += e.gesture.velocityX * 10;
-                    break;
-                case 'up':
-                    self.selectedMesh.rotation.x += e.gesture.velocityY * 10;
-                    break;
-                case 'down':
-                    self.selectedMesh.rotation.x -= e.gesture.velocityY * 10;
-                    break;
+                case 'left': this.sm.trigger('press.left'); break;
+                case 'right': this.sm.trigger('press.right'); break;
+                case 'up': this.sm.trigger('press.up'); break;
+                case 'down': this.sm.trigger('press.down'); break;
             }
-        })
-        // .on('transform', function(e) {
-        //     self.selectedMesh.translation.x += e.gesture.deltaX;
-        //     self.selectedMesh.translation.y -= e.gesture.deltaY;
-        //     // console.log('transform', e)
-        // })
-        .on('rotate', function(e){
-            e.gesture.preventDefault();
-            self.selectedMesh.rotation.z -= e.gesture.rotation/10;
-        })
-        .on('pinchin', function(e) {
-            e.gesture.preventDefault();
-            self.selectedMesh.transformation.z += e.gesture.scale * 10
-        })
-        .on('pinchout', function(e) {
-            e.gesture.preventDefault();
-            self.selectedMesh.transformation.z -= e.gesture.scale * 10
-        })
+        }.bind(this));
+
+
+        this.sm = new StateMachine({
+            'forward' : {
+                'ray.hit': 'climbing',
+                'ray.miss': 'falling',
+                // 'press.left': 'left',
+                'press.right': 'right'
+            },
+            'falling': {
+                // 'ray.hit': 'climbing',
+                'ray.miss': 'falling',
+                'press.left': 'left',
+                'press.right': 'right',
+                'press.up': 'up',
+                'press.down': 'down'
+            },
+            'climbing': {
+                // 'ray.hit': 'climbing',
+                'ray.miss': 'falling',
+                'press.left': 'left',
+                'press.right': 'right'
+            },
+            'up': {
+                'ray.miss': 'falling',
+                'press.left': 'left',
+                'press.right': 'right'
+            },
+            'down': {
+                'ray.miss': 'falling',
+                'press.left': 'left',
+                'press.right': 'right'
+            },
+            'left': {
+                'ray.miss': 'falling',
+                'press.up': 'up',
+                'press.down': 'down'
+            },
+            'right': {
+                'ray.miss': 'falling',
+                'press.up': 'up',
+                'press.down': 'down'
+            }
+        });
+
+        this.sm.on('enter:right', function(e){
+            var cross = this.direction.cross(this.rotation);
+            this.direction = new Quaternion(-90, cross).multiply(this.direction).v;
+            this.rotation = new Quaternion(-90, cross).multiply(this.rotation).v;
+        }.bind(this))
+        this.sm.on('enter:left', function(e){
+            var cross = this.direction.cross(this.rotation);
+            this.direction = new Quaternion(90, cross).multiply(this.direction).v;
+            this.rotation = new Quaternion(90, cross).multiply(this.rotation).v;
+        }.bind(this));
+        this.sm.on('enter:up', function(e, from){
+            // console.log('up', from)
+            var sign = from === 'left' ? -1 : 1;
+            var cross = this.direction.cross(this.rotation);
+            this.direction = new Quaternion(sign * 90, cross).multiply(this.direction).v;
+            this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
+        }.bind(this));
+        this.sm.on('enter:down', function(e, from){
+            // console.log('down', from)
+            var sign = from === 'left' ? 1 : -1;
+            var cross = this.direction.cross(this.rotation);
+            this.direction = new Quaternion(sign * 90, cross).multiply(this.direction).v;
+            this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
+        }.bind(this));
+        this.sm.on('enter:falling', function(e){
+            this.direction = new Quaternion(90, this.rotation).multiply(this.direction).v
+        }.bind(this));
+        this.sm.on('enter:climbing', function(e){
+            this.direction = new Quaternion(-90, this.rotation).multiply(this.direction).v
+        }.bind(this));
     }
 
     SomeGame.prototype.captureKeys = function(e) {
         switch(e.keyCode) {
-            case 37: e.preventDefault(); this.cube.translation.x -= 10; break; // left
-            case 39: e.preventDefault(); this.cube.translation.x += 10; break; // right
-            case 38: e.preventDefault(); this.cube.translation = this.cube.translation.add(this.direction.scale(this.velocity * 10)); break; // up
-            case 40: e.preventDefault(); this.cube.translation = this.cube.translation.subtract(this.direction.scale(this.velocity * 10)); break; // down
-            case 87: e.preventDefault(); this.cube.translation.y += 10; break; // w
-            case 83: e.preventDefault(); this.cube.translation.y -= 10; break; // s
+            case 37: e.preventDefault(); this.sm.trigger('press.left'); break; // left
+            case 39: e.preventDefault(); this.sm.trigger('press.right'); break; // right
+            case 38: e.preventDefault(); this.sm.trigger('press.up'); break; // up
+            case 40: e.preventDefault(); this.sm.trigger('press.down'); break; // down
         }
     }
+    SomeGame.prototype.doCollision = function() {
+        this.cube.translation = this.cube.translation.add(this.direction.scale(this.velocity * 10))
+
+        var self = this;
+        var from = this.cube.translation;
+        var toGroundDirection = new Quaternion(45, this.rotation).multiply(this.direction).v;
+
+        this.collision.raycast(from, toGroundDirection, 15, function() {
+            self.sm.trigger('ray.hit');
+            self.bigMesh.color = Color.fromName('blue');
+        }, function() {
+            self.sm.trigger('ray.miss')
+            self.bigMesh.color = Color.fromName('green');
+        });
+
+        this.renderer.drawCline(
+            this.engine.project(from),
+            this.engine.project(from.add(toGroundDirection.scale(37)))
+        );
+    }
     SomeGame.prototype.run = function() {
-
-        // this.selectedMesh.translation.z = self.distance;
-        // this.engine.viewMatrix = Matrix4.lookAtRH(
-        //     new Vector3(0, 0, this.distance),
-        //     this.rotation,
-        //     Vector3.up()
-        // );
-
         this.renderer.clean();
         this.engine.render(this.meshes);
+        this.doCollision();
         this.topRight.render(this.meshes);
         this.bottomLeft.render(this.meshes);
         this.bottomRight.render(this.meshes);
-        this.collision.run();
         this.renderer.render();
-        // requestAnimationFrame(this.run.bind(this))
 
         setTimeout(this.run.bind(this), 100);
     }
@@ -1523,7 +1818,7 @@ require.config({
     ,optimize: "none"
 });
 
-require(['game6'], function(TetrisGame) {
+require(['game7'], function(TetrisGame) {
     
 
     var tetris, game;
