@@ -1570,7 +1570,7 @@ define('state',['event/event'], function(Event){
     return StateMachine;
 })
 ;
-define('game7',[
+define('game8',[
     'hammerjs',
     'shape/renderer/renderer',
     'shape/render',
@@ -1765,6 +1765,9 @@ function(
         this.sm.on('enter:climbing', function(e){
             this.direction = new Quaternion(-90, this.rotation).multiply(this.direction).v
         }.bind(this));
+        this.sm.on('change', function(e, from, to) {
+            this.velocity = 0;
+        }.bind(this))
     }
 
     SomeGame.prototype.captureKeys = function(e) {
@@ -1775,8 +1778,16 @@ function(
             case 40: e.preventDefault(); this.sm.trigger('press.down'); break; // down
         }
     }
+    SomeGame.prototype.approach = function(g, c, dt) {
+        var diff = g - c;
+        if (diff > dt) return c + dt;
+        if (diff < dt) return c - dt;
+        return g;
+    }
     SomeGame.prototype.doCollision = function() {
-        this.cube.translation = this.cube.translation.add(this.direction.scale(this.velocity * 10))
+        var goal = 5;
+        this.velocity = this.approach(goal, this.velocity, this.dt * 10);
+        this.cube.translation = this.cube.translation.add(this.direction.scale(this.velocity))
 
         var self = this;
         var from = this.cube.translation;
@@ -1794,8 +1805,24 @@ function(
             this.engine.project(from),
             this.engine.project(from.add(toGroundDirection.scale(37)))
         );
+
+        // Bind camera orientation to the cube
+        // var position = EAngle.fromVector(this.cube.rotation);
+        var position = this.direction.cross(this.rotation);
+        // var eye = this.cube.translation.subtract(position.scale(200));
+        // var at = this.cube.translation.add(position);
+        var eye = from.add(from.normalize().scale(200));
+        var at = from.add(toGroundDirection);
+        // var eye = from.add(toGroundDirection.scale(100));
+        // var at = from.subtract(toGroundDirection.scale(1));
+        this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, Vector3.up());
     }
     SomeGame.prototype.run = function() {
+        this.currentTime = Date.now();
+        this.dt = (this.currentTime - this.previousTime) / 100;
+        this.dt = this.dt > .16 ? .16 : this.dt;
+        this.previousTime = this.currentTime;
+
         this.renderer.clean();
         this.engine.render(this.meshes);
         this.doCollision();
@@ -1804,7 +1831,10 @@ function(
         this.bottomRight.render(this.meshes);
         this.renderer.render();
 
-        setTimeout(this.run.bind(this), 100);
+        // console.log(this.dt)
+
+        requestAnimationFrame(this.run.bind(this));
+        // setTimeout(this.run.bind(this), 100);
     }
 
     return SomeGame;
@@ -1818,7 +1848,7 @@ require.config({
     ,optimize: "none"
 });
 
-require(['game7'], function(TetrisGame) {
+require(['game8'], function(TetrisGame) {
     
 
     var tetris, game;
