@@ -45,7 +45,7 @@ function(
                 new Vector3(0, 0, 500),
                 Vector3.zero(),
                 Vector3.up()
-            ),
+            ).multiply(Matrix4.rotationX(45)).multiply(Matrix4.rotationZ(45)).multiply(Matrix4.rotationY(45)),
             Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
