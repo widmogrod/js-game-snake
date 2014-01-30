@@ -167,30 +167,22 @@ function(
         });
 
         this.sm.on('enter:right', function(e){
-            // this.direction = this.up.cross(this.cross);
-            // this.rotation = this.up.clone();
             var cross = this.direction.cross(this.rotation);
             this.direction = new Quaternion(-90, cross).multiply(this.direction).v;
             this.rotation = new Quaternion(-90, cross).multiply(this.rotation).v;
         }.bind(this))
         this.sm.on('enter:left', function(e){
-            // this.direction = this.cross.cross(this.up);
-            // this.rotation = this.up.clone();
             var cross = this.direction.cross(this.rotation);
             this.direction = new Quaternion(90, cross).multiply(this.direction).v;
             this.rotation = new Quaternion(90, cross).multiply(this.rotation).v;
         }.bind(this));
         this.sm.on('enter:up', function(e, from){
-            // this.direction = this.up.clone();
-            // this.rotation = this.up.cross(this.cross);
             var sign = from === 'left' ? -1 : 1;
             var cross = this.direction.cross(this.rotation);
             this.direction = new Quaternion(sign * 90, cross).multiply(this.direction).v;
             this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
         }.bind(this));
         this.sm.on('enter:down', function(e, from){
-            // this.direction = this.up.scale(-1);
-            // this.rotation = this.up.cross(this.cross);
             var sign = from === 'left' ? 1 : -1;
             var cross = this.direction.cross(this.rotation);
             this.direction = new Quaternion(sign * 90, cross).multiply(this.direction).v;
@@ -259,22 +251,10 @@ function(
             this.engine.project(from.add(this.rotation.scale(37)))
         );
 
-        this.step = this.approach(57, this.step, this.dt * 50);
+        this.step = this.approach(1, this.step, this.dt/2);
 
-        var b = this.bigMesh.translation;
-        // this.fromSide = new Quaternion(-75, this.rotation).slerp(new Quaternion(0, this.fromSide), this.step++).v;
-        // var v = new Quaternion(0, this.fromSide.x, this.fromSide.y, this.fromSide.z).slerp(new Quaternion(0, this.cross.x, this.cross.y, this.cross.z), -this.step).v;
-        // var v = new Quaternion(-30, this.fromSide).slerp(new Quaternion(90, this.cross),  this.step).v;
-        // var v = new Quaternion(-90,this.fromSide).slerp(new Quaternion(90, this.cross),  this.step).v;
         var v = new Quaternion(90,this.fromSide).slerp(new Quaternion(90, this.cross),  this.step).v;
-        // var v = new Quaternion(-90, b.add(this.fromSide.scale(500))).slerp(new Quaternion(90, b.add(this.cross.scale(500))),  this.step).v;
-        // var v = new Quaternion(45, this.cross).slerp(new Quaternion(25, this.fromSide), -this.step).v;
-        // var eye = this.bigMesh.translation.add(this.cross.scale(500));
-        // console.log('eye', eye.toString(), this.fromSide.toString())
-        // var eye = this.bigMesh.translation.add(this.fromSide.scale(500));
         var eye = this.bigMesh.translation.add(v.scale(700));
-        // var eye = v;
-        // var eye = this.fromSide.scale(500);
         var at = Vector3.zero();
         this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, this.up);
     }

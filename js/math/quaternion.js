@@ -5,7 +5,8 @@ define([
 ) {
     'use strict';
 
-    var TO_RADIAN = Math.PI / 180;
+    var TO_RADIAN = Math.PI / 180,
+        TO_DEGREE = 180 / Math.PI;
 
     var cos = Math.cos,
         sin = Math.sin,
@@ -59,11 +60,11 @@ define([
         return q.multiply(p).multiply(q.inverted());
     }
     Quaternion.prototype.angle = function() {
-        return 2 * acos(this.w);
+        return 2 * acos(this.w) * TO_DEGREE >> 0;
     }
     Quaternion.prototype.axis = function() {
         // return this.v.scale(1/this.magnitude());
-        var w = this.angle();
+        var w = this.angle() * TO_RADIAN;
         var a = sin(w/2);
         return this.v.scale(1/a);
     }
@@ -71,7 +72,6 @@ define([
         var n = this.axis();
         var w = this.angle();
         var wt = w * t;
-        // return new Quaternion(wt, n.x, n.y, n.z);
         return new Quaternion(wt, n);
     }
     Quaternion.prototype.slerp = function(r, t) {
