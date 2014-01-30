@@ -9,6 +9,7 @@ define([
 
     var cos = Math.cos,
         sin = Math.sin,
+        acos = Math.acos,
         sqrt = Math.sqrt;
 
     /**
@@ -57,5 +58,24 @@ define([
         var p = new Quaternion(0, v.x, v.y, v.z), q = this;
         return q.multiply(p).multiply(q.inverted());
     }
+    Quaternion.prototype.angle = function() {
+        return 2 * acos(this.w);
+    }
+    Quaternion.prototype.axis = function() {
+        return this.v.scale(1/this.magnitude());
+    }
+    Quaternion.prototype.pow = function(t) {
+        var n = this.axis();
+        var a = this.angle();
+        var at = a * t;
+        // return new Quaternion(at, n.x, n.y, n.z);
+        return new Quaternion(at, n);
+    }
+    Quaternion.prototype.slerp = function(r, t) {
+        var q = this;
+        return r.multiply(q.inverted()).pow(t).multiply(q);
+    }
+
+
     return Quaternion;
 })

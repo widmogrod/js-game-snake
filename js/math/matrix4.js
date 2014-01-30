@@ -135,6 +135,8 @@ define([
         var xaxis = up.cross(zaxis).normalize();
         var yaxis = zaxis.cross(xaxis);
 
+        // console.log('zaxis', zaxis.toString())
+
         var Ti = new Matrix4([
             1, 0, 0, -eye.x,
             0, 1, 0, -eye.y,

@@ -1,6 +1,9 @@
 define(['math/matrix'], function(Matrix) {
     'use strict';
 
+    var abs = Math.abs,
+        sqrt = Math.sqrt;
+
     function Vector3(x, y, z) {
         this.x = x;
         this.y = y;
@@ -55,7 +58,7 @@ define(['math/matrix'], function(Matrix) {
         );
     }
     Vector3.prototype.length = function() {
-        return Math.sqrt(this.lengthSqrt());
+        return sqrt(this.lengthSqrt());
     }
     Vector3.prototype.lengthSqrt = function() {
         return (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
@@ -101,6 +104,20 @@ define(['math/matrix'], function(Matrix) {
             this.y * vector.z - this.z * vector.y,
             this.z * vector.x - this.x * vector.z,
             this.x * vector.y - this.y * vector.x
+        );
+    }
+    Vector3.prototype.abs = function() {
+        return new Vector3(
+            abs(this.x),
+            abs(this.y),
+            abs(this.z)
+        );
+    }
+    Vector3.prototype.round = function() {
+        return new Vector3(
+            this.x >> 0,
+            this.y >> 0,
+            this.z >> 0
         );
     }
 

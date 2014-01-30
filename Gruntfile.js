@@ -51,11 +51,17 @@ module.exports = function(grunt) {
             }
         },
         shell: {
-            listFolders: {
+            install: {
                 options: {
                     stdout: true
                 },
-                command: 'ls'
+                command: 'bower install && npm install'
+            },
+            update: {
+                options: {
+                    stdout: true
+                },
+                command: 'bower update && npm update'
             },
             ghPages: {
                 options: {
@@ -123,4 +129,6 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['jade:dev', 'concurrent:dev']);
     grunt.registerTask('build', ['clean', 'copy', 'requirejs', 'jade:build']);
     grunt.registerTask('deploy', ['build', 'shell:ghPages']);
+    grunt.registerTask('install', ['shell:install']);
+    grunt.registerTask('update', ['shell:update']);
 };
