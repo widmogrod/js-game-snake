@@ -100,6 +100,9 @@ define('math/matrix',[],function(){
 define('math/vector3',['math/matrix'], function(Matrix) {
     
 
+    var abs = Math.abs,
+        sqrt = Math.sqrt;
+
     function Vector3(x, y, z) {
         this.x = x;
         this.y = y;
@@ -154,7 +157,7 @@ define('math/vector3',['math/matrix'], function(Matrix) {
         );
     }
     Vector3.prototype.length = function() {
-        return Math.sqrt(this.lengthSqrt());
+        return sqrt(this.lengthSqrt());
     }
     Vector3.prototype.lengthSqrt = function() {
         return (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
@@ -200,6 +203,20 @@ define('math/vector3',['math/matrix'], function(Matrix) {
             this.y * vector.z - this.z * vector.y,
             this.z * vector.x - this.x * vector.z,
             this.x * vector.y - this.y * vector.x
+        );
+    }
+    Vector3.prototype.abs = function() {
+        return new Vector3(
+            abs(this.x),
+            abs(this.y),
+            abs(this.z)
+        );
+    }
+    Vector3.prototype.round = function() {
+        return new Vector3(
+            this.x >> 0,
+            this.y >> 0,
+            this.z >> 0
         );
     }
 
@@ -754,6 +771,8 @@ define('math/matrix4',[
         var xaxis = up.cross(zaxis).normalize();
         var yaxis = zaxis.cross(xaxis);
 
+        // console.log('zaxis', zaxis.toString())
+
         var Ti = new Matrix4([
             1, 0, 0, -eye.x,
             0, 1, 0, -eye.y,
@@ -940,6 +959,7 @@ define('math/quaternion',[
 
     var cos = Math.cos,
         sin = Math.sin,
+        acos = Math.acos,
         sqrt = Math.sqrt;
 
     /**
@@ -988,6 +1008,25 @@ define('math/quaternion',[
         var p = new Quaternion(0, v.x, v.y, v.z), q = this;
         return q.multiply(p).multiply(q.inverted());
     }
+    Quaternion.prototype.angle = function() {
+        return 2 * acos(this.w);
+    }
+    Quaternion.prototype.axis = function() {
+        return this.v.scale(1/this.magnitude());
+    }
+    Quaternion.prototype.pow = function(t) {
+        var n = this.axis();
+        var a = this.angle();
+        var at = a * t;
+        // return new Quaternion(at, n.x, n.y, n.z);
+        return new Quaternion(at, n);
+    }
+    Quaternion.prototype.slerp = function(r, t) {
+        var q = this;
+        return r.multiply(q.inverted()).pow(t).multiply(q);
+    }
+
+
     return Quaternion;
 })
 ;
@@ -1674,8 +1713,11 @@ function(
         this.collision.push(this.bigMesh)
 
         this.velocity = 1;
+        this.up = Vector3.up();
+        this.cross = Vector3.forward();
         this.direction = new Vector3(0, 0, -1);
         this.rotation = new Vector3(0, 1, 0);
+        this.toAt = new Quaternion(-75, this.rotation).multiply(this.direction).v;
 
         Hammer(document, {
             release: false,
@@ -1725,11 +1767,15 @@ function(
             },
             'left': {
                 'ray.miss': 'falling',
+                'press.left': 'left',
+                'press.right': 'right',
                 'press.up': 'up',
                 'press.down': 'down'
             },
             'right': {
                 'ray.miss': 'falling',
+                'press.left': 'left',
+                'press.right': 'right',
                 'press.up': 'up',
                 'press.down': 'down'
             }
@@ -1746,27 +1792,31 @@ function(
             this.rotation = new Quaternion(90, cross).multiply(this.rotation).v;
         }.bind(this));
         this.sm.on('enter:up', function(e, from){
-            // console.log('up', from)
             var sign = from === 'left' ? -1 : 1;
             var cross = this.direction.cross(this.rotation);
             this.direction = new Quaternion(sign * 90, cross).multiply(this.direction).v;
             this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
         }.bind(this));
         this.sm.on('enter:down', function(e, from){
-            // console.log('down', from)
             var sign = from === 'left' ? 1 : -1;
             var cross = this.direction.cross(this.rotation);
             this.direction = new Quaternion(sign * 90, cross).multiply(this.direction).v;
             this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
         }.bind(this));
         this.sm.on('enter:falling', function(e){
-            this.direction = new Quaternion(90, this.rotation).multiply(this.direction).v
+            var dir = new Quaternion(90, this.rotation).multiply(this.direction).v;
+            var cross = dir.cross(this.rotation);
+            var dot = cross.dot(this.up) >> 0;
+            this.cross = cross;
+            this.up = (dot != 0) ? dir.scale(dot).normalize() : this.up;
+            this.direction = dir;
         }.bind(this));
         this.sm.on('enter:climbing', function(e){
             this.direction = new Quaternion(-90, this.rotation).multiply(this.direction).v
         }.bind(this));
         this.sm.on('change', function(e, from, to) {
             this.velocity = 0;
+            this.step = 180;
         }.bind(this))
     }
 
@@ -1780,6 +1830,7 @@ function(
     }
     SomeGame.prototype.approach = function(g, c, dt) {
         var diff = g - c;
+        if (diff < dt && -diff < dt) return g;
         if (diff > dt) return c + dt;
         if (diff < dt) return c - dt;
         return g;
@@ -1803,19 +1854,13 @@ function(
 
         this.renderer.drawCline(
             this.engine.project(from),
-            this.engine.project(from.add(toGroundDirection.scale(37)))
+            this.engine.project(from.add(this.direction.cross(this.rotation).scale(37)))
         );
 
-        // Bind camera orientation to the cube
-        // var position = EAngle.fromVector(this.cube.rotation);
-        var position = this.direction.cross(this.rotation);
-        // var eye = this.cube.translation.subtract(position.scale(200));
-        // var at = this.cube.translation.add(position);
-        var eye = from.add(from.normalize().scale(200));
-        var at = from.add(toGroundDirection);
-        // var eye = from.add(toGroundDirection.scale(100));
-        // var at = from.subtract(toGroundDirection.scale(1));
-        this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, Vector3.up());
+        var b = this.bigMesh.translation;
+        var eye = b.add(this.cross.scale(400));
+        var at = Vector3.zero();
+        this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, this.up);
     }
     SomeGame.prototype.run = function() {
         this.currentTime = Date.now();
