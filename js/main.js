@@ -955,7 +955,8 @@ define('math/quaternion',[
 ) {
     
 
-    var TO_RADIAN = Math.PI / 180;
+    var TO_RADIAN = Math.PI / 180,
+        TO_DEGREE = 180 / Math.PI;
 
     var cos = Math.cos,
         sin = Math.sin,
@@ -1009,17 +1010,19 @@ define('math/quaternion',[
         return q.multiply(p).multiply(q.inverted());
     }
     Quaternion.prototype.angle = function() {
-        return 2 * acos(this.w);
+        return 2 * acos(this.w) * TO_DEGREE >> 0;
     }
     Quaternion.prototype.axis = function() {
-        return this.v.scale(1/this.magnitude());
+        // return this.v.scale(1/this.magnitude());
+        var w = this.angle() * TO_RADIAN;
+        var a = sin(w/2);
+        return this.v.scale(1/a);
     }
     Quaternion.prototype.pow = function(t) {
         var n = this.axis();
-        var a = this.angle();
-        var at = a * t;
-        // return new Quaternion(at, n.x, n.y, n.z);
-        return new Quaternion(at, n);
+        var w = this.angle();
+        var wt = w * t;
+        return new Quaternion(wt, n);
     }
     Quaternion.prototype.slerp = function(r, t) {
         var q = this;
@@ -1609,7 +1612,7 @@ define('state',['event/event'], function(Event){
     return StateMachine;
 })
 ;
-define('game8',[
+define('game9',[
     'hammerjs',
     'shape/renderer/renderer',
     'shape/render',
@@ -1717,7 +1720,7 @@ function(
         this.cross = Vector3.forward();
         this.direction = new Vector3(0, 0, -1);
         this.rotation = new Vector3(0, 1, 0);
-        this.toAt = new Quaternion(-75, this.rotation).multiply(this.direction).v;
+        this.fromSide =  Vector3.zero();
 
         Hammer(document, {
             release: false,
@@ -1767,15 +1770,11 @@ function(
             },
             'left': {
                 'ray.miss': 'falling',
-                'press.left': 'left',
-                'press.right': 'right',
                 'press.up': 'up',
                 'press.down': 'down'
             },
             'right': {
                 'ray.miss': 'falling',
-                'press.left': 'left',
-                'press.right': 'right',
                 'press.up': 'up',
                 'press.down': 'down'
             }
@@ -1807,19 +1806,20 @@ function(
             var dir = new Quaternion(90, this.rotation).multiply(this.direction).v;
             var cross = dir.cross(this.rotation);
             var dot = cross.dot(this.up) >> 0;
+            this.fromSide = this.cross.clone();
             this.cross = cross;
             this.up = (dot != 0) ? dir.scale(dot).normalize() : this.up;
             this.direction = dir;
+            this.step = 0;
         }.bind(this));
         this.sm.on('enter:climbing', function(e){
             this.direction = new Quaternion(-90, this.rotation).multiply(this.direction).v
         }.bind(this));
         this.sm.on('change', function(e, from, to) {
             this.velocity = 0;
-            this.step = 180;
+            // this.step = 0;
         }.bind(this))
     }
-
     SomeGame.prototype.captureKeys = function(e) {
         switch(e.keyCode) {
             case 37: e.preventDefault(); this.sm.trigger('press.left'); break; // left
@@ -1852,13 +1852,23 @@ function(
             self.bigMesh.color = Color.fromName('green');
         });
 
+        // this.renderer.drawCline(
+        //     this.engine.project(from),
+        //     this.engine.project(from.add(toGroundDirection.scale(37)))
+        // );
+        // this.renderer.drawCline(
+        //     this.engine.project(from),
+        //     this.engine.project(from.add(this.direction.cross(this.rotation).scale(37)))
+        // );
         this.renderer.drawCline(
             this.engine.project(from),
-            this.engine.project(from.add(this.direction.cross(this.rotation).scale(37)))
+            this.engine.project(from.add(this.rotation.scale(37)))
         );
 
-        var b = this.bigMesh.translation;
-        var eye = b.add(this.cross.scale(400));
+        this.step = this.approach(1, this.step, this.dt/2);
+
+        var v = new Quaternion(90,this.fromSide).slerp(new Quaternion(90, this.cross),  this.step).v;
+        var eye = this.bigMesh.translation.add(v.scale(700));
         var at = Vector3.zero();
         this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, this.up);
     }
@@ -1876,10 +1886,7 @@ function(
         this.bottomRight.render(this.meshes);
         this.renderer.render();
 
-        // console.log(this.dt)
-
         requestAnimationFrame(this.run.bind(this));
-        // setTimeout(this.run.bind(this), 100);
     }
 
     return SomeGame;
@@ -1893,7 +1900,7 @@ require.config({
     ,optimize: "none"
 });
 
-require(['game8'], function(TetrisGame) {
+require(['game9'], function(TetrisGame) {
     
 
     var tetris, game;
