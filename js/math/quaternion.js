@@ -62,14 +62,17 @@ define([
         return 2 * acos(this.w);
     }
     Quaternion.prototype.axis = function() {
-        return this.v.scale(1/this.magnitude());
+        // return this.v.scale(1/this.magnitude());
+        var w = this.angle();
+        var a = sin(w/2);
+        return this.v.scale(1/a);
     }
     Quaternion.prototype.pow = function(t) {
         var n = this.axis();
-        var a = this.angle();
-        var at = a * t;
-        // return new Quaternion(at, n.x, n.y, n.z);
-        return new Quaternion(at, n);
+        var w = this.angle();
+        var wt = w * t;
+        // return new Quaternion(wt, n.x, n.y, n.z);
+        return new Quaternion(wt, n);
     }
     Quaternion.prototype.slerp = function(r, t) {
         var q = this;
