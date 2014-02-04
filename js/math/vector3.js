@@ -2,15 +2,18 @@ define(['math/matrix'], function(Matrix) {
     'use strict';
 
     var abs = Math.abs,
-        sqrt = Math.sqrt;
+        sqrt = Math.sqrt,
+        acos = Math.acos;
+
+    var TO_DEGREE = 180/Math.PI;
+
+    var keys = ['x', 'y', 'z'];
 
     function Vector3(x, y, z) {
+        Matrix.call(this, 3, [x, y, z]);
         this.x = x;
         this.y = y;
         this.z = z;
-        this.rows = 3;
-        this.cols = 1;
-        this.data = [this.x, this.y, this.z]
     }
 
     Vector3.left = function() {
@@ -47,7 +50,10 @@ define(['math/matrix'], function(Matrix) {
         return new Vector3(this.x, this.y, this.z);
     }
     Vector3.prototype.get = function(index) {
-        return [this.x, this.y, this.z][index];
+        return this[keys[index]];
+    }
+    Vector3.prototype.set = function(index, value) {
+        this[keys[index]] = value;
     }
     Vector3.prototype.normalize = function() {
         var length = this.length();
@@ -94,10 +100,10 @@ define(['math/matrix'], function(Matrix) {
 
         var angle = this.dot(vector) / divisor;
 
-        if (angle < -1) { angle = -1; }
-        if (angle > 1) { angle = 1; }
+        if (angle < -1) angle = -1;
+        if (angle > 1) angle = 1;
 
-        return Math.acos(angle);
+        return acos(angle) * TO_DEGREE;
     }
     Vector3.prototype.cross = function(vector) {
         return new Vector3(

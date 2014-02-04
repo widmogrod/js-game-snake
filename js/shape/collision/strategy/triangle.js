@@ -20,7 +20,9 @@ define([
 
         for (var i = 0, length = mesh.faces.length; i < length; i++) {
             face = mesh.faces[i];
-            event = {};
+            event = {
+                result: false
+            };
             if (this.triangle(
                 mesh.verticesInWord[face.a],
                 mesh.verticesInWord[face.b],
@@ -30,12 +32,13 @@ define([
                 event
             )) {
                 if (!closest || closest.t > event.t) {
+                    event.result = true;
                     closest = event;
                 }
             }
         }
 
-        return closest;
+        return {result: closest && closest.result,  t: closest && closest.t};
     }
     CollisionStrategyTriangle.prototype.isCollision = function(ray, mesh) {}
     CollisionStrategyTriangle.prototype.triangle = function(V1, V2, V3, O, D, event) {

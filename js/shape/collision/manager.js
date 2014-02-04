@@ -21,19 +21,49 @@ define(function() {
             preventRelease: false
         }
     }
-    CollisionManager.prototype.raycast = function(origin, direction, distance, then, otherwise) {
+    CollisionManager.prototype.raycast2 = function(origin, direction, distance, then, otherwise) {
         var result, found = false;
         for (var i = 0, length = this.queue.length; i < length; i++) {
             if (result = this.strategy.raycast(origin, direction, this.queue[i])) {
+                if (!result.result) continue;
                 found = true;
-                if (result.t < distance)
-                    then();
-                return true;
+                if (result.t < distance) {
+                    then(result);
+                    return true;
+                }
             }
         }
 
         !found && otherwise && otherwise();
         return false;
+    }
+    CollisionManager.prototype.raycast = function(origin, direction, distance, then, otherwise) {
+        var result, found = {found:false, result: null};
+        for (var i = 0, length = this.queue.length; i < length; i++) {
+            result = this.strategy.raycast(origin, direction, this.queue[i])
+            if (result.result) {
+                found.found = true;
+
+                // console.log(result.t);
+                if (result.t >= distance) continue;
+
+                if (found.result === null) {
+                    found.result = result;
+                }
+                else if(found.result.t > result.t) {
+                    found.result = result;
+                }
+            }
+        }
+
+        if (found.found) {
+            // Then is executed only when distance is valid
+            // found.result && then(found.result);
+            then(found.result, origin, direction)
+        } else if (otherwise) {
+            otherwise();
+        }
+        return found.found;
     }
     CollisionManager.prototype.run = function() {
         var one, two, callback, event;
