@@ -16,7 +16,7 @@ define(
     'game/action/rotate/left',
     'game/action/rotate/up',
     'game/action/rotate/down',
-    'shape/collision/manager',
+    'collision/manager',
     'shape/utils/assets',
     'shape/utils/imagedata',
     'shape/utils/sprites',

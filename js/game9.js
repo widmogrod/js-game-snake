@@ -10,8 +10,8 @@ define([
     'shape/mesh/coordinate',
     'shape/color',
     'game/config',
-    'shape/collision/manager',
-    'shape/collision/strategy/triangle',
+    'collision/manager',
+    'collision/strategy/triangle',
     'state'
 ],
 function(

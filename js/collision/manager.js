@@ -1,5 +1,5 @@
 define([
-    'shape/collision/ray'
+    'collision/ray'
 ],
 function(
     Ray

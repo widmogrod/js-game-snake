@@ -10,8 +10,8 @@ define([
     'shape/mesh/coordinate',
     'shape/color',
     'game/config',
-    'shape/collision/manager',
-    'shape/collision/strategy/meshcube'
+    'collision/manager',
+    'collision/strategy/meshcube'
 ],
 function(
     Hammer,

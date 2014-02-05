@@ -10,12 +10,12 @@ define([
     'shape/mesh/coordinate',
     'shape/color',
     'game/config',
-    'shape/collision/manager',
-    'shape/collision/strategy/triangle',
-    'shape/collision/strategy/meshcube',
-    'shape/collision/strategy/meshcube2',
-    'shape/collision/strategy/aabb',
-    'shape/collision/strategy/aabb2',
+    'collision/manager',
+    'collision/strategy/triangle',
+    'collision/strategy/meshcube',
+    'collision/strategy/meshcube2',
+    'collision/strategy/aabb',
+    'collision/strategy/aabb2',
     'state'
 ],
 function(
