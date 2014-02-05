@@ -15,6 +15,7 @@ define([
     'shape/collision/strategy/meshcube',
     'shape/collision/strategy/meshcube2',
     'shape/collision/strategy/aabb',
+    'shape/collision/strategy/aabb2',
     'state'
 ],
 function(
@@ -34,6 +35,7 @@ function(
     CollisionStrategyMeshCube,
     CollisionStrategyMeshCube2,
     CollisionStrategyAABB,
+    CollisionStrategyAABB2,
     StateMachine
 ) {
     'use strict';
@@ -258,7 +260,8 @@ function(
     }
     SomeGame.prototype.doTest = function() {
         var object = this.bigMesh;
-        var test = new CollisionStrategyAABB();
+        // var test = new CollisionStrategyAABB();
+        var test = new CollisionStrategyAABB2();
         // var test = new CollisionStrategyTriangle();
         // var test = new CollisionStrategyMeshCube();
         // var test = new CollisionStrategyMeshCube2();
@@ -271,7 +274,14 @@ function(
                 this.engine.project(origin.add(direction.scale(e.t)))
                 // this.engine.project(e.min)
             );
-        }.bind(this)
+        }.bind(this);
+
+        var lineFromTo = function(from, to) {
+            this.renderer.drawCline(
+                this.engine.project(from),
+                this.engine.project(to)
+            );
+        }.bind(this);
 
         var miss = function(e) {
             console.log('miss', e);
@@ -281,13 +291,23 @@ function(
             {o: new Vector3(0, 0, -400), d: new Vector3(0,0,1)},
             {o: new Vector3(0, 0, 400), d: new Vector3(0,0,-1)},
             {o: new Vector3(0, 400, 0), d: new Vector3(0,-1,0)},
-            {o: new Vector3(-200, 0,-200), d: new Vector3(0.707,0,0.707)},
-            {o: new Vector3(-200, 0,-200),  d: new Vector3(0.707,0,0.707)},
-            {o: new Vector3(-200, 0,-200),  d: new Vector3(0.707,0,0.707)}
+            {o: new Vector3(0, 0,0), d: new Vector3(-0.707,0,0.707)},
+            {o: new Vector3(0, 0,0), d: new Vector3(0.707,0,-0.707)},
+            {o: new Vector3(0, 0,0), d: new Vector3(-0.707,0,-0.707)}
         ];
 
+        // data.forEach(function(i) {
+        //     manager.raycast(i.o, i.d, 1000, line, miss);
+        // }.bind(this));
+
         data.forEach(function(i) {
-            manager.raycast(i.o, i.d, 1000, line, miss);
+            var ray = manager.raycast2(i.o, i.d);
+            if (ray.intersections.length) {
+                lineFromTo(ray.origin, ray.intersections[0]);
+                // lineFromTo(ray.origin, ray.intersections[1]);
+            }
+            console.log(ray);
+
         }.bind(this));
     }
     SomeGame.prototype.run = function() {
@@ -302,7 +322,7 @@ function(
         this.doTest();
         this.renderer.render();
 
-        requestAnimationFrame(this.run.bind(this));
+        // requestAnimationFrame(this.run.bind(this));
     }
 
     return SomeGame;

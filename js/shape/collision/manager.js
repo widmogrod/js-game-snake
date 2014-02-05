@@ -1,4 +1,9 @@
-define(function() {
+define([
+    'shape/collision/ray'
+],
+function(
+    Ray
+) {
     'use strict';
 
     function CollisionManager(strategy) {
@@ -21,21 +26,13 @@ define(function() {
             preventRelease: false
         }
     }
-    CollisionManager.prototype.raycast2 = function(origin, direction, distance, then, otherwise) {
-        var result, found = false;
-        for (var i = 0, length = this.queue.length; i < length; i++) {
-            if (result = this.strategy.raycast(origin, direction, this.queue[i])) {
-                if (!result.result) continue;
-                found = true;
-                if (result.t < distance) {
-                    then(result);
-                    return true;
-                }
-            }
-        }
-
-        !found && otherwise && otherwise();
-        return false;
+    CollisionManager.prototype.raycast2 = function (origin, direction) {
+        var ray = new Ray(origin, direction);
+        this.queue.forEach(this.strategy.raycast2.bind(
+            this.strategy,
+            ray
+        ))
+        return ray;
     }
     CollisionManager.prototype.raycast = function(origin, direction, distance, then, otherwise) {
         var result, found = {found:false, result: null};
