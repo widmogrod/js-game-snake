@@ -12,10 +12,7 @@ define([
     'game/config',
     'collision/manager',
     'collision/strategy/triangle',
-    'collision/strategy/meshcube',
-    'collision/strategy/meshcube2',
     'collision/strategy/aabb',
-    'collision/strategy/aabb2',
     'state'
 ],
 function(
@@ -32,10 +29,7 @@ function(
     GameConfig,
     CollisionManager,
     CollisionStrategyTriangle,
-    CollisionStrategyMeshCube,
-    CollisionStrategyMeshCube2,
     CollisionStrategyAABB,
-    CollisionStrategyAABB2,
     StateMachine
 ) {
     'use strict';
@@ -44,8 +38,6 @@ function(
         this.renderer = new Renderer(canvas);
         // this.collision = new CollisionManager(new CollisionStrategyAABB());
         this.collision = new CollisionManager(new CollisionStrategyTriangle());
-        // this.collision = new CollisionManager(new CollisionStrategyMeshCube());
-        // this.collision = new CollisionManager(new CollisionStrategyMeshCube2());
 
         var w = canvas.width;
         var h = canvas.height;
@@ -226,13 +218,22 @@ function(
         //     // self.bigMesh.color = Color.fromName('green');
         // });
 
-        this.collision.raycast(from, toGroundDirection, 15, function() {
+        var ray = this.collision.raycast(from, toGroundDirection);
+        if (ray.intersections.length && ray.intersections[0].distance < 15) {
             self.sm.trigger('ray.hit');
             self.bigMesh.color = Color.fromName('blue');
-        }, function() {
+        } else {
             self.sm.trigger('ray.miss')
             self.bigMesh.color = Color.fromName('green');
-        });
+        }
+
+        // , 15, function() {
+        //     self.sm.trigger('ray.hit');
+        //     self.bigMesh.color = Color.fromName('blue');
+        // }, function() {
+        //     self.sm.trigger('ray.miss')
+        //     self.bigMesh.color = Color.fromName('green');
+        // });
 
         // this.renderer.drawCline(
         //     this.engine.project(from),
@@ -260,21 +261,9 @@ function(
     }
     SomeGame.prototype.doTest = function() {
         var object = this.bigMesh;
-        // var test = new CollisionStrategyAABB();
-        var test = new CollisionStrategyAABB2();
-        // var test = new CollisionStrategyTriangle();
-        // var test = new CollisionStrategyMeshCube();
-        // var test = new CollisionStrategyMeshCube2();
+        var test = new CollisionStrategyAABB();
         var manager = new CollisionManager(test);
             manager.push(object);
-
-        var line = function(e, origin, direction) {
-            this.renderer.drawCline(
-                this.engine.project(origin),
-                this.engine.project(origin.add(direction.scale(e.t)))
-                // this.engine.project(e.min)
-            );
-        }.bind(this);
 
         var lineFromTo = function(from, to) {
             this.renderer.drawCline(
@@ -282,10 +271,6 @@ function(
                 this.engine.project(to)
             );
         }.bind(this);
-
-        var miss = function(e) {
-            console.log('miss', e);
-        }
 
         var data =[
             {o: new Vector3(0, 0, -400), d: new Vector3(0,0,1)},
@@ -296,18 +281,11 @@ function(
             {o: new Vector3(0, 0,0), d: new Vector3(-0.707,0,-0.707)}
         ];
 
-        // data.forEach(function(i) {
-        //     manager.raycast(i.o, i.d, 1000, line, miss);
-        // }.bind(this));
-
         data.forEach(function(i) {
-            var ray = manager.raycast2(i.o, i.d);
+            var ray = manager.raycast(i.o, i.d);
             if (ray.intersections.length) {
-                lineFromTo(ray.origin, ray.intersections[0]);
-                // lineFromTo(ray.origin, ray.intersections[1]);
+                lineFromTo(ray.origin, ray.intersections[0].point);
             }
-            console.log(ray);
-
         }.bind(this));
     }
     SomeGame.prototype.run = function() {

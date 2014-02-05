@@ -1,6 +1,6 @@
 define([
-    'shape/collision/strategy/interface',
-    'shape/collision/mesh2aabb',
+    'collision/strategy/interface',
+    'collision/mesh2aabb',
 ], function(
     CollisionStrategyInterface,
     Mesh2AABB
@@ -13,7 +13,7 @@ define([
     function CollisionStrategyAABB() {}
 
     CollisionStrategyAABB.prototype = Object.create(CollisionStrategyInterface.prototype);
-    CollisionStrategyAABB.prototype.raycast2 = function(ray, object) {
+    CollisionStrategyAABB.prototype.raycast = function(ray, object) {
         var t1, t2, tmp, amin, amax, d, o,
             a = 0,
             tnear = -Infinity,

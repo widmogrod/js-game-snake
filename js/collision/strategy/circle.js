@@ -1,5 +1,5 @@
 define([
-    'shape/collision/interface'
+    'collision/interface'
 ], function(
     CollisionStrategyInterface
 ){

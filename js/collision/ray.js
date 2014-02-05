@@ -20,7 +20,10 @@ define(function(){
         // Simplification, thanks to this we should have less intersection with close range
         distance = distance >> 0;
         if (-1 === this.distanceIndex.indexOf(distance)) {
-            this.intersections.push(this.origin.add(this.direction.scale(distance)));
+            this.intersections.push({
+                distance: distance,
+                point: this.origin.add(this.direction.scale(distance))
+            });
             this.distanceIndex.push(distance);
             this.distanceIndex.sort(compareNumbers);
         }

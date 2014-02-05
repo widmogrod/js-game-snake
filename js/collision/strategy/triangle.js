@@ -1,5 +1,5 @@
 define([
-    'shape/collision/strategy/interface'
+    'collision/strategy/interface'
 ], function(
     CollisionStrategyInterface
 ){
@@ -15,32 +15,28 @@ define([
     function CollisionStrategyTriangle() {}
 
     CollisionStrategyTriangle.prototype = Object.create(CollisionStrategyInterface.prototype);
-    CollisionStrategyTriangle.prototype.raycast = function(origin, direction, mesh) {
-        var face, event, closest;
+    CollisionStrategyTriangle.prototype.raycast = function(ray, mesh) {
+        var face, event;
 
         for (var i = 0, length = mesh.faces.length; i < length; i++) {
             face = mesh.faces[i];
-            event = {
-                result: false
-            };
+            event = {};
             if (this.triangle(
                 mesh.verticesInWord[face.a],
                 mesh.verticesInWord[face.b],
                 mesh.verticesInWord[face.c],
-                origin,
-                direction,
+                ray.origin,
+                ray.direction,
                 event
             )) {
-                if (!closest || closest.t > event.t) {
-                    event.result = true;
-                    closest = event;
-                }
+                ray.distance(event.t);
             }
         }
 
-        return {result: closest && closest.result,  t: closest && closest.t};
     }
-    CollisionStrategyTriangle.prototype.isCollision = function(ray, mesh) {}
+    CollisionStrategyTriangle.prototype.isCollision = function(ray, mesh) {
+        throw Error('not implemented')
+    }
     CollisionStrategyTriangle.prototype.triangle = function(V1, V2, V3, O, D, event) {
         var e1, e2;  //Edge1, Edge2
         var P, Q, T;
