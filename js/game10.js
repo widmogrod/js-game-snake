@@ -36,8 +36,8 @@ function(
 
     function SomeGame(canvas) {
         this.renderer = new Renderer(canvas);
-        // this.collision = new CollisionManager(new CollisionStrategyAABB());
-        this.collision = new CollisionManager(new CollisionStrategyTriangle());
+        this.collision = new CollisionManager(new CollisionStrategyAABB());
+        // this.collision = new CollisionManager(new CollisionStrategyTriangle());
 
         var w = canvas.width;
         var h = canvas.height;
@@ -47,7 +47,7 @@ function(
             viewportMain,
             this.renderer,
             Matrix4.lookAtRH(
-                new Vector3(0, 0, 700),
+                new Vector3(0, 0, 1000),
                 Vector3.zero(),
                 Vector3.up()
             ).multiply(Matrix4.rotationX(-45)).multiply(Matrix4.rotationZ(-45)).multiply(Matrix4.rotationY(-45)),
@@ -56,7 +56,7 @@ function(
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
-        this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
+        this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + 5*GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
         this.meshes = []
         this.meshes.push(this.cube);
 
@@ -87,22 +87,16 @@ function(
 
 
         this.sm = new StateMachine({
-            // 'forward' : {
-            // 'ray.hit': 'climbing',
-            // 'ray.miss': 'falling',
-            // 'press.left': 'left',
-            // 'press.right': 'right'
-            // },
             'falling': {
-                // 'ray.hit': 'climbing',
+                'ray.hit': 'climbing',
                 'ray.miss': 'falling',
                 'press.left': 'left',
                 'press.right': 'right',
                 'press.up': 'up',
-                'press.down': 'down'
+                'press.down': 'down',
             },
             'climbing': {
-                'ray.hit': 'climbing',
+                // 'ray.hit': 'climbing',
                 'ray.miss': 'falling',
                 'press.left': 'left',
                 'press.right': 'right'
@@ -156,6 +150,7 @@ function(
             this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
         }.bind(this));
         this.sm.on('enter:falling', function(e){
+            // console.log('falling')
             var dir = new Quaternion(90, this.rotation).multiply(this.direction).v;
             var cross = dir.cross(this.rotation);
             var dot = cross.dot(this.up) >> 0;
@@ -175,12 +170,14 @@ function(
             // this.up = (dot != 0) ? dir.scale(dot).normalize() : this.up;
             // this.direction = dir;
             // this.step = 0;
+            // console.log(this.direction);
             this.direction = new Quaternion(-90, this.rotation).multiply(this.direction).v
         }.bind(this));
         this.sm.on('change', function(e, from, to) {
             this.velocity = 0;
             // this.step = 0;
         }.bind(this))
+        this.sm.state = 'falling';
     }
     SomeGame.prototype.captureKeys = function(e) {
         switch(e.keyCode) {
@@ -199,78 +196,52 @@ function(
     }
     SomeGame.prototype.doCollision = function() {
         var goal = 5;
-        this.velocity = this.approach(goal, this.velocity, this.dt * 10);
+        this.velocity = this.approach(goal, this.velocity, this.dt * 20);
+        // this.velocity = 5;
         this.cube.translation = this.cube.translation.add(this.direction.scale(this.velocity))
 
         var self = this;
         var from = this.cube.translation;
         var toFrontDirection = this.direction;
-        // var toFrontDirection = this.cube.translation.add(this.direction);
-        var toGroundDirection = new Quaternion(45, this.rotation).multiply(this.direction).v;
+        var toGroundDirection = new Quaternion(90, this.rotation).multiply(this.direction).v;
 
-        // this.collision.raycast(from, toFrontDirection, 15, function(e) {
-        //     console.log('hit distance', e);
-        //     self.sm.trigger('ray.hit');
-        //     self.bigMesh.color = Color.fromName('red');
-        // }, function() {
-        //     self.bigMesh.color = Color.fromName('orange');
-        //     // self.sm.trigger('ray.miss')
-        //     // self.bigMesh.color = Color.fromName('green');
-        // });
+        var rayFront = this.collision.raycast(from, toFrontDirection);
+        var rayGround = this.collision.raycast(from, toGroundDirection);
 
-        var ray = this.collision.raycast(from, toGroundDirection);
-        if (ray.intersections.length && ray.intersections[0].distance < 15) {
-            self.sm.trigger('ray.hit');
-            self.bigMesh.color = Color.fromName('blue');
-        } else {
-            self.sm.trigger('ray.miss')
-            self.bigMesh.color = Color.fromName('green');
+        var hitCloseFront = rayFront.intersections.length && rayFront.intersections[0].distance <= 20;
+        var hitCloseGround = rayGround.intersections.length && rayGround.intersections[0].distance <= 20;
+        var hitFarFront = rayFront.intersections.length;
+        var hitFarGround = rayGround.intersections.length;
+
+        if (hitCloseFront) {
+            this.sm.trigger('ray.hit');
+        } else if (hitCloseGround) {
+        } else if (hitFarFront) {
+        } else if (!hitFarGround) {
+            this.cube.translation = this.cube.translation.add(toGroundDirection.scale(20));
+            this.cube.translation = this.cube.translation.add(toFrontDirection.scale(20));
+            this.sm.trigger('ray.miss');
         }
 
-        // , 15, function() {
-        //     self.sm.trigger('ray.hit');
-        //     self.bigMesh.color = Color.fromName('blue');
-        // }, function() {
-        //     self.sm.trigger('ray.miss')
-        //     self.bigMesh.color = Color.fromName('green');
-        // });
-
-        // this.renderer.drawCline(
-        //     this.engine.project(from),
-        //     this.engine.project(from.add(toGroundDirection.scale(15)))
-        // );
-        this.renderer.drawCline(
-            this.engine.project(from),
-            this.engine.project(from.add(toFrontDirection.scale(55)))
-        );
-        // this.renderer.drawCline(
-        //     this.engine.project(from),
-        //     this.engine.project(from.add(this.direction.cross(this.rotation).scale(37)))
-        // );
-        // this.renderer.drawCline(
-        //     this.engine.project(from),
-        //     this.engine.project(from.add(this.rotation.scale(37)))
-        // );
+        this.lineTo(from, from.add(toGroundDirection.scale(50)))
 
         this.step = this.approach(1, this.step, this.dt/2);
-
         var v = new Quaternion(90,this.fromSide).slerp(new Quaternion(90, this.cross),  this.step).v;
-        var eye = this.bigMesh.translation.add(v.scale(1500));
+        var eye = this.bigMesh.translation.add(v.scale(1000));
         var at = Vector3.zero();
         this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, this.up);
+    }
+    SomeGame.prototype.lineTo = function(from, to) {
+        this.renderer.drawCline(
+            this.engine.project(from),
+            this.engine.project(to)
+        );
     }
     SomeGame.prototype.doTest = function() {
         var object = this.bigMesh;
         var test = new CollisionStrategyAABB();
         var manager = new CollisionManager(test);
-            manager.push(object);
-
-        var lineFromTo = function(from, to) {
-            this.renderer.drawCline(
-                this.engine.project(from),
-                this.engine.project(to)
-            );
-        }.bind(this);
+        manager.push(object);
 
         var data =[
             {o: new Vector3(0, 0, -400), d: new Vector3(0,0,1)},
@@ -284,7 +255,7 @@ function(
         data.forEach(function(i) {
             var ray = manager.raycast(i.o, i.d);
             if (ray.intersections.length) {
-                lineFromTo(ray.origin, ray.intersections[0].point);
+                this.lineTo(ray.origin, ray.intersections[0].point);
             }
         }.bind(this));
     }
@@ -297,10 +268,11 @@ function(
         this.renderer.clean();
         this.engine.render(this.meshes);
         this.doCollision();
-        this.doTest();
+        // this.doTest();
         this.renderer.render();
 
-        // requestAnimationFrame(this.run.bind(this));
+        requestAnimationFrame(this.run.bind(this));
+        // setTimeout(this.run.bind(this), 60/1000)
     }
 
     return SomeGame;
