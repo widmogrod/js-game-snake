@@ -7,7 +7,8 @@
 
 
 !function(a,b){function c(){d.READY||(d.event.determineEventTypes(),d.utils.each(d.gestures,function(a){d.detection.register(a)}),d.event.onTouch(d.DOCUMENT,d.EVENT_MOVE,d.detection.detect),d.event.onTouch(d.DOCUMENT,d.EVENT_END,d.detection.detect),d.READY=!0)}var d=function(a,b){return new d.Instance(a,b||{})};d.defaults={stop_browser_behavior:{userSelect:"none",touchAction:"none",touchCallout:"none",contentZooming:"none",userDrag:"none",tapHighlightColor:"rgba(0,0,0,0)"}},d.HAS_POINTEREVENTS=a.navigator.pointerEnabled||a.navigator.msPointerEnabled,d.HAS_TOUCHEVENTS="ontouchstart"in a,d.MOBILE_REGEX=/mobile|tablet|ip(ad|hone|od)|android|silk/i,d.NO_MOUSEEVENTS=d.HAS_TOUCHEVENTS&&a.navigator.userAgent.match(d.MOBILE_REGEX),d.EVENT_TYPES={},d.DIRECTION_DOWN="down",d.DIRECTION_LEFT="left",d.DIRECTION_UP="up",d.DIRECTION_RIGHT="right",d.POINTER_MOUSE="mouse",d.POINTER_TOUCH="touch",d.POINTER_PEN="pen",d.EVENT_START="start",d.EVENT_MOVE="move",d.EVENT_END="end",d.DOCUMENT=a.document,d.plugins=d.plugins||{},d.gestures=d.gestures||{},d.READY=!1,d.utils={extend:function(a,c,d){for(var e in c)a[e]!==b&&d||(a[e]=c[e]);return a},each:function(a,c,d){var e,f;if("forEach"in a)a.forEach(c,d);else if(a.length!==b){for(e=0,f=a.length;f>e;e++)if(c.call(d,a[e],e,a)===!1)return}else for(e in a)if(a.hasOwnProperty(e)&&c.call(d,a[e],e,a)===!1)return},hasParent:function(a,b){for(;a;){if(a==b)return!0;a=a.parentNode}return!1},getCenter:function(a){var b=[],c=[];return d.utils.each(a,function(a){b.push("undefined"!=typeof a.clientX?a.clientX:a.pageX),c.push("undefined"!=typeof a.clientY?a.clientY:a.pageY)}),{pageX:(Math.min.apply(Math,b)+Math.max.apply(Math,b))/2,pageY:(Math.min.apply(Math,c)+Math.max.apply(Math,c))/2}},getVelocity:function(a,b,c){return{x:Math.abs(b/a)||0,y:Math.abs(c/a)||0}},getAngle:function(a,b){var c=b.pageY-a.pageY,d=b.pageX-a.pageX;return 180*Math.atan2(c,d)/Math.PI},getDirection:function(a,b){var c=Math.abs(a.pageX-b.pageX),e=Math.abs(a.pageY-b.pageY);return c>=e?a.pageX-b.pageX>0?d.DIRECTION_LEFT:d.DIRECTION_RIGHT:a.pageY-b.pageY>0?d.DIRECTION_UP:d.DIRECTION_DOWN},getDistance:function(a,b){var c=b.pageX-a.pageX,d=b.pageY-a.pageY;return Math.sqrt(c*c+d*d)},getScale:function(a,b){return a.length>=2&&b.length>=2?this.getDistance(b[0],b[1])/this.getDistance(a[0],a[1]):1},getRotation:function(a,b){return a.length>=2&&b.length>=2?this.getAngle(b[1],b[0])-this.getAngle(a[1],a[0]):0},isVertical:function(a){return a==d.DIRECTION_UP||a==d.DIRECTION_DOWN},stopDefaultBrowserBehavior:function(a,b){b&&a&&a.style&&(d.utils.each(["webkit","khtml","moz","Moz","ms","o",""],function(c){d.utils.each(b,function(b){c&&(b=c+b.substring(0,1).toUpperCase()+b.substring(1)),b in a.style&&(a.style[b]=b)})}),"none"==b.userSelect&&(a.onselectstart=function(){return!1}),"none"==b.userDrag&&(a.ondragstart=function(){return!1}))}},d.Instance=function(a,b){var e=this;return c(),this.element=a,this.enabled=!0,this.options=d.utils.extend(d.utils.extend({},d.defaults),b||{}),this.options.stop_browser_behavior&&d.utils.stopDefaultBrowserBehavior(this.element,this.options.stop_browser_behavior),d.event.onTouch(a,d.EVENT_START,function(a){e.enabled&&d.detection.startDetect(e,a)}),this},d.Instance.prototype={on:function(a,b){var c=a.split(" ");return d.utils.each(c,function(a){this.element.addEventListener(a,b,!1)},this),this},off:function(a,b){var c=a.split(" ");return d.utils.each(c,function(a){this.element.removeEventListener(a,b,!1)},this),this},trigger:function(a,b){b||(b={});var c=d.DOCUMENT.createEvent("Event");c.initEvent(a,!0,!0),c.gesture=b;var e=this.element;return d.utils.hasParent(b.target,e)&&(e=b.target),e.dispatchEvent(c),this},enable:function(a){return this.enabled=a,this}};var e=null,f=!1,g=!1;d.event={bindDom:function(a,b,c){var e=b.split(" ");d.utils.each(e,function(b){a.addEventListener(b,c,!1)})},onTouch:function(a,b,c){var h=this;this.bindDom(a,d.EVENT_TYPES[b],function(i){var j=i.type.toLowerCase();if(!j.match(/mouse/)||!g){j.match(/touch/)||j.match(/pointerdown/)||j.match(/mouse/)&&1===i.which?f=!0:j.match(/mouse/)&&!i.which&&(f=!1),j.match(/touch|pointer/)&&(g=!0);var k=0;f&&(d.HAS_POINTEREVENTS&&b!=d.EVENT_END?k=d.PointerEvent.updatePointer(b,i):j.match(/touch/)?k=i.touches.length:g||(k=j.match(/up/)?0:1),k>0&&b==d.EVENT_END?b=d.EVENT_MOVE:k||(b=d.EVENT_END),(k||null===e)&&(e=i),c.call(d.detection,h.collectEventData(a,b,h.getTouchList(e,b),i)),d.HAS_POINTEREVENTS&&b==d.EVENT_END&&(k=d.PointerEvent.updatePointer(b,i))),k||(e=null,f=!1,g=!1,d.PointerEvent.reset())}})},determineEventTypes:function(){var a;a=d.HAS_POINTEREVENTS?d.PointerEvent.getEvents():d.NO_MOUSEEVENTS?["touchstart","touchmove","touchend touchcancel"]:["touchstart mousedown","touchmove mousemove","touchend touchcancel mouseup"],d.EVENT_TYPES[d.EVENT_START]=a[0],d.EVENT_TYPES[d.EVENT_MOVE]=a[1],d.EVENT_TYPES[d.EVENT_END]=a[2]},getTouchList:function(a){return d.HAS_POINTEREVENTS?d.PointerEvent.getTouchList():a.touches?a.touches:(a.identifier=1,[a])},collectEventData:function(a,b,c,e){var f=d.POINTER_TOUCH;return(e.type.match(/mouse/)||d.PointerEvent.matchType(d.POINTER_MOUSE,e))&&(f=d.POINTER_MOUSE),{center:d.utils.getCenter(c),timeStamp:(new Date).getTime(),target:e.target,touches:c,eventType:b,pointerType:f,srcEvent:e,preventDefault:function(){this.srcEvent.preventManipulation&&this.srcEvent.preventManipulation(),this.srcEvent.preventDefault&&this.srcEvent.preventDefault()},stopPropagation:function(){this.srcEvent.stopPropagation()},stopDetect:function(){return d.detection.stopDetect()}}}},d.PointerEvent={pointers:{},getTouchList:function(){var a=this,b=[];return d.utils.each(a.pointers,function(a){b.push(a)}),b},updatePointer:function(a,b){return a==d.EVENT_END?this.pointers={}:(b.identifier=b.pointerId,this.pointers[b.pointerId]=b),Object.keys(this.pointers).length},matchType:function(a,b){if(!b.pointerType)return!1;var c=b.pointerType,e={};return e[d.POINTER_MOUSE]=c===b.MSPOINTER_TYPE_MOUSE||c===d.POINTER_MOUSE,e[d.POINTER_TOUCH]=c===b.MSPOINTER_TYPE_TOUCH||c===d.POINTER_TOUCH,e[d.POINTER_PEN]=c===b.MSPOINTER_TYPE_PEN||c===d.POINTER_PEN,e[a]},getEvents:function(){return["pointerdown MSPointerDown","pointermove MSPointerMove","pointerup pointercancel MSPointerUp MSPointerCancel"]},reset:function(){this.pointers={}}},d.detection={gestures:[],current:null,previous:null,stopped:!1,startDetect:function(a,b){this.current||(this.stopped=!1,this.current={inst:a,startEvent:d.utils.extend({},b),lastEvent:!1,name:""},this.detect(b))},detect:function(a){if(this.current&&!this.stopped){a=this.extendEventData(a);var b=this.current.inst.options;return d.utils.each(this.gestures,function(c){return this.stopped||b[c.name]===!1||c.handler.call(c,a,this.current.inst)!==!1?void 0:(this.stopDetect(),!1)},this),this.current&&(this.current.lastEvent=a),a.eventType==d.EVENT_END&&!a.touches.length-1&&this.stopDetect(),a}},stopDetect:function(){this.previous=d.utils.extend({},this.current),this.current=null,this.stopped=!0},extendEventData:function(a){var b=this.current.startEvent;!b||a.touches.length==b.touches.length&&a.touches!==b.touches||(b.touches=[],d.utils.each(a.touches,function(a){b.touches.push(d.utils.extend({},a))}));var c,e,f=a.timeStamp-b.timeStamp,g=a.center.pageX-b.center.pageX,h=a.center.pageY-b.center.pageY,i=d.utils.getVelocity(f,g,h);return"end"===a.eventType?(c=this.current.lastEvent&&this.current.lastEvent.interimAngle,e=this.current.lastEvent&&this.current.lastEvent.interimDirection):(c=this.current.lastEvent&&d.utils.getAngle(this.current.lastEvent.center,a.center),e=this.current.lastEvent&&d.utils.getDirection(this.current.lastEvent.center,a.center)),d.utils.extend(a,{deltaTime:f,deltaX:g,deltaY:h,velocityX:i.x,velocityY:i.y,distance:d.utils.getDistance(b.center,a.center),angle:d.utils.getAngle(b.center,a.center),interimAngle:c,direction:d.utils.getDirection(b.center,a.center),interimDirection:e,scale:d.utils.getScale(b.touches,a.touches),rotation:d.utils.getRotation(b.touches,a.touches),startEvent:b}),a},register:function(a){var c=a.defaults||{};return c[a.name]===b&&(c[a.name]=!0),d.utils.extend(d.defaults,c,!0),a.index=a.index||1e3,this.gestures.push(a),this.gestures.sort(function(a,b){return a.index<b.index?-1:a.index>b.index?1:0}),this.gestures}},d.gestures.Drag={name:"drag",index:50,defaults:{drag_min_distance:10,correct_for_drag_min_distance:!0,drag_max_touches:1,drag_block_horizontal:!1,drag_block_vertical:!1,drag_lock_to_axis:!1,drag_lock_min_distance:25},triggered:!1,handler:function(a,b){if(d.detection.current.name!=this.name&&this.triggered)return b.trigger(this.name+"end",a),this.triggered=!1,void 0;if(!(b.options.drag_max_touches>0&&a.touches.length>b.options.drag_max_touches))switch(a.eventType){case d.EVENT_START:this.triggered=!1;break;case d.EVENT_MOVE:if(a.distance<b.options.drag_min_distance&&d.detection.current.name!=this.name)return;if(d.detection.current.name!=this.name&&(d.detection.current.name=this.name,b.options.correct_for_drag_min_distance&&a.distance>0)){var c=Math.abs(b.options.drag_min_distance/a.distance);d.detection.current.startEvent.center.pageX+=a.deltaX*c,d.detection.current.startEvent.center.pageY+=a.deltaY*c,a=d.detection.extendEventData(a)}(d.detection.current.lastEvent.drag_locked_to_axis||b.options.drag_lock_to_axis&&b.options.drag_lock_min_distance<=a.distance)&&(a.drag_locked_to_axis=!0);var e=d.detection.current.lastEvent.direction;a.drag_locked_to_axis&&e!==a.direction&&(a.direction=d.utils.isVertical(e)?a.deltaY<0?d.DIRECTION_UP:d.DIRECTION_DOWN:a.deltaX<0?d.DIRECTION_LEFT:d.DIRECTION_RIGHT),this.triggered||(b.trigger(this.name+"start",a),this.triggered=!0),b.trigger(this.name,a),b.trigger(this.name+a.direction,a),(b.options.drag_block_vertical&&d.utils.isVertical(a.direction)||b.options.drag_block_horizontal&&!d.utils.isVertical(a.direction))&&a.preventDefault();break;case d.EVENT_END:this.triggered&&b.trigger(this.name+"end",a),this.triggered=!1}}},d.gestures.Hold={name:"hold",index:10,defaults:{hold_timeout:500,hold_threshold:1},timer:null,handler:function(a,b){switch(a.eventType){case d.EVENT_START:clearTimeout(this.timer),d.detection.current.name=this.name,this.timer=setTimeout(function(){"hold"==d.detection.current.name&&b.trigger("hold",a)},b.options.hold_timeout);break;case d.EVENT_MOVE:a.distance>b.options.hold_threshold&&clearTimeout(this.timer);break;case d.EVENT_END:clearTimeout(this.timer)}}},d.gestures.Release={name:"release",index:1/0,handler:function(a,b){a.eventType==d.EVENT_END&&b.trigger(this.name,a)}},d.gestures.Swipe={name:"swipe",index:40,defaults:{swipe_min_touches:1,swipe_max_touches:1,swipe_velocity:.7},handler:function(a,b){if(a.eventType==d.EVENT_END){if(b.options.swipe_max_touches>0&&a.touches.length<b.options.swipe_min_touches&&a.touches.length>b.options.swipe_max_touches)return;(a.velocityX>b.options.swipe_velocity||a.velocityY>b.options.swipe_velocity)&&(b.trigger(this.name,a),b.trigger(this.name+a.direction,a))}}},d.gestures.Tap={name:"tap",index:100,defaults:{tap_max_touchtime:250,tap_max_distance:10,tap_always:!0,doubletap_distance:20,doubletap_interval:300},handler:function(a,b){if(a.eventType==d.EVENT_END&&"touchcancel"!=a.srcEvent.type){var c=d.detection.previous,e=!1;if(a.deltaTime>b.options.tap_max_touchtime||a.distance>b.options.tap_max_distance)return;c&&"tap"==c.name&&a.timeStamp-c.lastEvent.timeStamp<b.options.doubletap_interval&&a.distance<b.options.doubletap_distance&&(b.trigger("doubletap",a),e=!0),(!e||b.options.tap_always)&&(d.detection.current.name="tap",b.trigger(d.detection.current.name,a))}}},d.gestures.Touch={name:"touch",index:-1/0,defaults:{prevent_default:!1,prevent_mouseevents:!1},handler:function(a,b){return b.options.prevent_mouseevents&&a.pointerType==d.POINTER_MOUSE?(a.stopDetect(),void 0):(b.options.prevent_default&&a.preventDefault(),a.eventType==d.EVENT_START&&b.trigger(this.name,a),void 0)}},d.gestures.Transform={name:"transform",index:45,defaults:{transform_min_scale:.01,transform_min_rotation:1,transform_always_block:!1},triggered:!1,handler:function(a,b){if(d.detection.current.name!=this.name&&this.triggered)return b.trigger(this.name+"end",a),this.triggered=!1,void 0;if(!(a.touches.length<2))switch(b.options.transform_always_block&&a.preventDefault(),a.eventType){case d.EVENT_START:this.triggered=!1;break;case d.EVENT_MOVE:var c=Math.abs(1-a.scale),e=Math.abs(a.rotation);if(c<b.options.transform_min_scale&&e<b.options.transform_min_rotation)return;d.detection.current.name=this.name,this.triggered||(b.trigger(this.name+"start",a),this.triggered=!0),b.trigger(this.name,a),e>b.options.transform_min_rotation&&b.trigger("rotate",a),c>b.options.transform_min_scale&&(b.trigger("pinch",a),b.trigger("pinch"+(a.scale<1?"in":"out"),a));break;case d.EVENT_END:this.triggered&&b.trigger(this.name+"end",a),this.triggered=!1}}},"function"==typeof define&&"object"==typeof define.amd&&define.amd?define('hammerjs',[],function(){return d}):"object"==typeof module&&"object"==typeof module.exports?module.exports=d:a.Hammer=d}(this);
-//# sourceMappingURL=hammer.min.map;
+//# sourceMappingURL=hammer.min.map
+;
 define('math/matrix',[],function(){
     
 
@@ -101,15 +102,18 @@ define('math/vector3',['math/matrix'], function(Matrix) {
     
 
     var abs = Math.abs,
-        sqrt = Math.sqrt;
+        sqrt = Math.sqrt,
+        acos = Math.acos;
+
+    var TO_DEGREE = 180/Math.PI;
+
+    var keys = ['x', 'y', 'z'];
 
     function Vector3(x, y, z) {
+        Matrix.call(this, 3, [x, y, z]);
         this.x = x;
         this.y = y;
         this.z = z;
-        this.rows = 3;
-        this.cols = 1;
-        this.data = [this.x, this.y, this.z]
     }
 
     Vector3.left = function() {
@@ -146,7 +150,10 @@ define('math/vector3',['math/matrix'], function(Matrix) {
         return new Vector3(this.x, this.y, this.z);
     }
     Vector3.prototype.get = function(index) {
-        return [this.x, this.y, this.z][index];
+        return this[keys[index]];
+    }
+    Vector3.prototype.set = function(index, value) {
+        this[keys[index]] = value;
     }
     Vector3.prototype.normalize = function() {
         var length = this.length();
@@ -193,10 +200,10 @@ define('math/vector3',['math/matrix'], function(Matrix) {
 
         var angle = this.dot(vector) / divisor;
 
-        if (angle < -1) { angle = -1; }
-        if (angle > 1) { angle = 1; }
+        if (angle < -1) angle = -1;
+        if (angle > 1) angle = 1;
 
-        return Math.acos(angle);
+        return acos(angle) * TO_DEGREE;
     }
     Vector3.prototype.cross = function(vector) {
         return new Vector3(
@@ -1244,7 +1251,48 @@ define('game/config',[],function(){
     return GameConfig;
 })
 ;
-define('shape/collision/manager',[],function() {
+define('collision/ray',[],function(){
+    
+
+    function compareNumbers(a, b) {
+        return a - b;
+    }
+
+    /**
+     * Ray provides all importat informations to calculate intersection(s)
+     */
+    function Ray(origin, direction) {
+        this.origin = origin;
+        this.direction = direction;
+        this.intersections = [];
+        this.distanceIndex = [];
+    }
+
+    Ray.constructor = Ray;
+    Ray.prototype.distance = function(distance) {
+        // Simplification, thanks to this we should have less intersection with close range
+        distance = distance >> 0;
+        if (-1 === this.distanceIndex.indexOf(distance)) {
+            this.distanceIndex.push(distance);
+            this.distanceIndex.sort(compareNumbers);
+            this.intersections.splice(
+                this.distanceIndex.indexOf(distance), 0, {
+                    distance: distance,
+                    point: this.origin.add(this.direction.scale(distance))
+                }
+            );
+        }
+    }
+
+    return Ray;
+});
+
+define('collision/manager',[
+    'collision/ray'
+],
+function(
+    Ray
+) {
     
 
     function CollisionManager(strategy) {
@@ -1259,7 +1307,6 @@ define('shape/collision/manager',[],function() {
         this.actions.push({one: one, two: two, then: then, otherwise: otherwise});
         return this;
     }
-
     CollisionManager.prototype.createEvent = function(one, two) {
         return {
             object: one,
@@ -1267,19 +1314,13 @@ define('shape/collision/manager',[],function() {
             preventRelease: false
         }
     }
-    CollisionManager.prototype.raycast = function(origin, direction, distance, then, otherwise) {
-        var result, found = false;
-        for (var i = 0, length = this.queue.length; i < length; i++) {
-            if (result = this.strategy.raycast(origin, direction, this.queue[i])) {
-                found = true;
-                if (result.t < distance)
-                    then();
-                return true;
-            }
-        }
-
-        !found && otherwise && otherwise();
-        return false;
+    CollisionManager.prototype.raycast = function (origin, direction) {
+        var ray = new Ray(origin, direction);
+        this.queue.forEach(this.strategy.raycast.bind(
+            this.strategy,
+            ray
+        ))
+        return ray;
     }
     CollisionManager.prototype.run = function() {
         var one, two, callback, event;
@@ -1304,7 +1345,7 @@ define('shape/collision/manager',[],function() {
     return CollisionManager;
 })
 ;
-define('shape/collision/strategy/interface',[],function(){
+define('collision/strategy/interface',[],function(){
     
 
     function CollisionStrategyInterface() {}
@@ -1315,8 +1356,8 @@ define('shape/collision/strategy/interface',[],function(){
     return CollisionStrategyInterface;
 })
 ;
-define('shape/collision/strategy/triangle',[
-    'shape/collision/strategy/interface'
+define('collision/strategy/triangle',[
+    'collision/strategy/interface'
 ], function(
     CollisionStrategyInterface
 ){
@@ -1332,8 +1373,8 @@ define('shape/collision/strategy/triangle',[
     function CollisionStrategyTriangle() {}
 
     CollisionStrategyTriangle.prototype = Object.create(CollisionStrategyInterface.prototype);
-    CollisionStrategyTriangle.prototype.raycast = function(origin, direction, mesh) {
-        var face, event, closest;
+    CollisionStrategyTriangle.prototype.raycast = function(ray, mesh) {
+        var face, event;
 
         for (var i = 0, length = mesh.faces.length; i < length; i++) {
             face = mesh.faces[i];
@@ -1342,19 +1383,18 @@ define('shape/collision/strategy/triangle',[
                 mesh.verticesInWord[face.a],
                 mesh.verticesInWord[face.b],
                 mesh.verticesInWord[face.c],
-                origin,
-                direction,
+                ray.origin,
+                ray.direction,
                 event
             )) {
-                if (!closest || closest.t > event.t) {
-                    closest = event;
-                }
+                ray.distance(event.t);
             }
         }
 
-        return closest;
     }
-    CollisionStrategyTriangle.prototype.isCollision = function(ray, mesh) {}
+    CollisionStrategyTriangle.prototype.isCollision = function(ray, mesh) {
+        throw Error('not implemented')
+    }
     CollisionStrategyTriangle.prototype.triangle = function(V1, V2, V3, O, D, event) {
         var e1, e2;  //Edge1, Edge2
         var P, Q, T;
@@ -1416,6 +1456,110 @@ define('shape/collision/strategy/triangle',[
     }
 
     return CollisionStrategyTriangle;
+})
+;
+define('collision/mesh2aabb',[],function() {
+
+    function Mesh2AABB (mesh) {
+        var vertices = mesh.verticesInWord;
+        var vertex = vertices[0];
+
+        this.min = vertex.clone();
+        this.max = vertex.clone();
+
+        for (var i = 1, length = vertices.length; i < length; i++) {
+            vertex = vertices[i];
+            if (this.min.x > vertex.x) this.min.x = vertex.x;
+            else if (this.max.x < vertex.x) this.max.x = vertex.x;
+
+            if (this.min.y > vertex.y) this.min.y = vertex.y;
+            else if (this.max.y < vertex.y) this.max.y = vertex.y;
+
+            if (this.min.z > vertex.z) this.min.z = vertex.z;
+            else if (this.max.z < vertex.z) this.max.z = vertex.z;
+        }
+    }
+
+    return Mesh2AABB;
+});
+
+define('collision/strategy/aabb',[
+    'collision/strategy/interface',
+    'collision/mesh2aabb',
+], function(
+    CollisionStrategyInterface,
+    Mesh2AABB
+){
+    
+
+    /**
+     * AABB
+     */
+    function CollisionStrategyAABB() {}
+
+    CollisionStrategyAABB.prototype = Object.create(CollisionStrategyInterface.prototype);
+    CollisionStrategyAABB.prototype.raycast = function(ray, object) {
+        var t1, t2, tmp, amin, amax, d, o,
+            a = 0,
+            tnear = -Infinity,
+            tfar = Infinity,
+            AABB = new Mesh2AABB(object);
+
+
+        for (; a < 3; a++) {
+            amin = AABB.min.get(a);
+            amax = AABB.max.get(a);
+            d = ray.direction.get(a);
+            o = ray.origin.get(a);
+
+            if (d === 0) {
+                if (o < amin || o > amax) {
+                    return false;
+                }
+                continue;
+            }
+
+            t1 = (amin - o) / d;
+            t2 = (amax - o) / d;
+
+            if (t1 > t2) {
+                tmp = t1;
+                t1 = t2;
+                t2 = tmp;
+            }
+
+            if (t1 > tnear) {
+                tnear = t1;
+            }
+            if (t2 < tfar) {
+                tfar = t2;
+            }
+            if (tnear > tfar) {
+                return false;
+            }
+            if (tfar < 0) {
+                return false;
+            }
+        }
+
+        ray.distance(tnear);
+        ray.distance(tfar);
+
+        return true;
+    }
+    CollisionStrategyAABB.prototype.isCollision = function(one, two) {
+        var a = new Mesh2AABB(one);
+        var b = new Mesh2AABB(two);
+
+        for(var i = 0; i < 3; i++) {
+            if (a.min.get(i) > b.max.get(i)) return false;
+            if (a.max.get(i) < b.min.get(i)) return false;
+        }
+
+        return true;
+    }
+
+    return CollisionStrategyAABB;
 })
 ;
 define('event/result',[],function(){
@@ -1612,7 +1756,7 @@ define('state',['event/event'], function(Event){
     return StateMachine;
 })
 ;
-define('game9',[
+define('game10',[
     'hammerjs',
     'shape/renderer/renderer',
     'shape/render',
@@ -1624,8 +1768,9 @@ define('game9',[
     'shape/mesh/coordinate',
     'shape/color',
     'game/config',
-    'shape/collision/manager',
-    'shape/collision/strategy/triangle',
+    'collision/manager',
+    'collision/strategy/triangle',
+    'collision/strategy/aabb',
     'state'
 ],
 function(
@@ -1642,74 +1787,36 @@ function(
     GameConfig,
     CollisionManager,
     CollisionStrategyTriangle,
+    CollisionStrategyAABB,
     StateMachine
 ) {
     
 
     function SomeGame(canvas) {
         this.renderer = new Renderer(canvas);
-        this.collision = new CollisionManager(new CollisionStrategyTriangle());
+        this.collision = new CollisionManager(new CollisionStrategyAABB());
+        // this.collision = new CollisionManager(new CollisionStrategyTriangle());
 
         var w = canvas.width;
         var h = canvas.height;
 
-        var viewportMain = new Viewport(0, 0, w/2, h/2);
+        var viewportMain = new Viewport(0, 0, w, h);
         this.engine = new ShapeRender(
             viewportMain,
             this.renderer,
             Matrix4.lookAtRH(
-                new Vector3(0, 0, 500),
+                new Vector3(0, 0, 1000),
                 Vector3.zero(),
                 Vector3.up()
-            ).multiply(Matrix4.rotationX(45)).multiply(Matrix4.rotationZ(45)).multiply(Matrix4.rotationY(45)),
-            Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
-        );
-
-        var viewportMain = new Viewport(w/2, 0, w/2, h/2);
-        this.topRight = new ShapeRender(
-            viewportMain,
-            this.renderer,
-            Matrix4.lookAtRH(
-                new Vector3(0, 0, 500),
-                Vector3.zero(),
-                Vector3.up()
-            ).multiply(Matrix4.rotationX(90)),
-            Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
-        );
-
-        var viewportMain = new Viewport(w/2, w/2, w/2, h/2);
-        this.bottomRight = new ShapeRender(
-            viewportMain,
-            this.renderer,
-            Matrix4.lookAtRH(
-                new Vector3(0, 0, 500),
-                Vector3.zero(),
-                Vector3.up()
-            ).multiply(Matrix4.rotationY(90)),
-            Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
-        );
-
-        var viewportMain = new Viewport(0, w/2, w/2, h/2);
-        this.bottomLeft = new ShapeRender(
-            viewportMain,
-            this.renderer,
-            Matrix4.lookAtRH(
-                new Vector3(0, 0, 500),
-                Vector3.zero(),
-                Vector3.up()
-            ),
+            ).multiply(Matrix4.rotationX(-45)).multiply(Matrix4.rotationZ(-45)).multiply(Matrix4.rotationY(-45)),
             Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
-        this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
-
+        this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + 5*GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
         this.meshes = []
         this.meshes.push(this.cube);
-
-        var mesh = new CoordinateMesh(-w/2 * 1.2, w/2 * 1.2, 0);
-        this.meshes.push(mesh);
 
         this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, Color.fromName('green'));
         this.meshes.push(this.bigMesh);
@@ -1738,19 +1845,13 @@ function(
 
 
         this.sm = new StateMachine({
-            'forward' : {
-                'ray.hit': 'climbing',
-                'ray.miss': 'falling',
-                // 'press.left': 'left',
-                'press.right': 'right'
-            },
             'falling': {
-                // 'ray.hit': 'climbing',
+                'ray.hit': 'climbing',
                 'ray.miss': 'falling',
                 'press.left': 'left',
                 'press.right': 'right',
                 'press.up': 'up',
-                'press.down': 'down'
+                'press.down': 'down',
             },
             'climbing': {
                 // 'ray.hit': 'climbing',
@@ -1759,21 +1860,25 @@ function(
                 'press.right': 'right'
             },
             'up': {
+                'ray.hit': 'climbing',
                 'ray.miss': 'falling',
                 'press.left': 'left',
                 'press.right': 'right'
             },
             'down': {
+                'ray.hit': 'climbing',
                 'ray.miss': 'falling',
                 'press.left': 'left',
                 'press.right': 'right'
             },
             'left': {
+                'ray.hit': 'climbing',
                 'ray.miss': 'falling',
                 'press.up': 'up',
                 'press.down': 'down'
             },
             'right': {
+                'ray.hit': 'climbing',
                 'ray.miss': 'falling',
                 'press.up': 'up',
                 'press.down': 'down'
@@ -1803,6 +1908,7 @@ function(
             this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
         }.bind(this));
         this.sm.on('enter:falling', function(e){
+            // console.log('falling')
             var dir = new Quaternion(90, this.rotation).multiply(this.direction).v;
             var cross = dir.cross(this.rotation);
             var dot = cross.dot(this.up) >> 0;
@@ -1813,12 +1919,23 @@ function(
             this.step = 0;
         }.bind(this));
         this.sm.on('enter:climbing', function(e){
+            // console.log('climb')
+            // var dir = new Quaternion(-90, this.rotation).multiply(this.direction).v;
+            // var cross = dir.cross(this.rotation);
+            // var dot = cross.dot(this.up) >> 0;
+            // this.fromSide = this.cross.clone();
+            // this.cross = cross;
+            // this.up = (dot != 0) ? dir.scale(dot).normalize() : this.up;
+            // this.direction = dir;
+            // this.step = 0;
+            // console.log(this.direction);
             this.direction = new Quaternion(-90, this.rotation).multiply(this.direction).v
         }.bind(this));
         this.sm.on('change', function(e, from, to) {
             this.velocity = 0;
             // this.step = 0;
         }.bind(this))
+        this.sm.state = 'falling';
     }
     SomeGame.prototype.captureKeys = function(e) {
         switch(e.keyCode) {
@@ -1837,40 +1954,68 @@ function(
     }
     SomeGame.prototype.doCollision = function() {
         var goal = 5;
-        this.velocity = this.approach(goal, this.velocity, this.dt * 10);
+        this.velocity = this.approach(goal, this.velocity, this.dt * 20);
+        // this.velocity = 5;
         this.cube.translation = this.cube.translation.add(this.direction.scale(this.velocity))
 
         var self = this;
         var from = this.cube.translation;
-        var toGroundDirection = new Quaternion(45, this.rotation).multiply(this.direction).v;
+        var toFrontDirection = this.direction;
+        var toGroundDirection = new Quaternion(90, this.rotation).multiply(this.direction).v;
 
-        this.collision.raycast(from, toGroundDirection, 15, function() {
-            self.sm.trigger('ray.hit');
-            self.bigMesh.color = Color.fromName('blue');
-        }, function() {
-            self.sm.trigger('ray.miss')
-            self.bigMesh.color = Color.fromName('green');
-        });
+        var rayFront = this.collision.raycast(from, toFrontDirection);
+        var rayGround = this.collision.raycast(from, toGroundDirection);
 
-        // this.renderer.drawCline(
-        //     this.engine.project(from),
-        //     this.engine.project(from.add(toGroundDirection.scale(37)))
-        // );
-        // this.renderer.drawCline(
-        //     this.engine.project(from),
-        //     this.engine.project(from.add(this.direction.cross(this.rotation).scale(37)))
-        // );
-        this.renderer.drawCline(
-            this.engine.project(from),
-            this.engine.project(from.add(this.rotation.scale(37)))
-        );
+        var hitCloseFront = rayFront.intersections.length && rayFront.intersections[0].distance <= 20;
+        var hitCloseGround = rayGround.intersections.length && rayGround.intersections[0].distance <= 20;
+        var hitFarFront = rayFront.intersections.length;
+        var hitFarGround = rayGround.intersections.length;
+
+        if (hitCloseFront) {
+            this.sm.trigger('ray.hit');
+        } else if (hitCloseGround) {
+        } else if (hitFarFront) {
+        } else if (!hitFarGround) {
+            this.cube.translation = this.cube.translation.add(toGroundDirection.scale(20));
+            this.cube.translation = this.cube.translation.add(toFrontDirection.scale(20));
+            this.sm.trigger('ray.miss');
+        }
+
+        this.lineTo(from, from.add(toGroundDirection.scale(50)))
 
         this.step = this.approach(1, this.step, this.dt/2);
-
         var v = new Quaternion(90,this.fromSide).slerp(new Quaternion(90, this.cross),  this.step).v;
-        var eye = this.bigMesh.translation.add(v.scale(700));
+        var eye = this.bigMesh.translation.add(v.scale(1000));
         var at = Vector3.zero();
         this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, this.up);
+    }
+    SomeGame.prototype.lineTo = function(from, to) {
+        this.renderer.drawCline(
+            this.engine.project(from),
+            this.engine.project(to)
+        );
+    }
+    SomeGame.prototype.doTest = function() {
+        var object = this.bigMesh;
+        var test = new CollisionStrategyAABB();
+        var manager = new CollisionManager(test);
+        manager.push(object);
+
+        var data =[
+            {o: new Vector3(0, 0, -400), d: new Vector3(0,0,1)},
+            {o: new Vector3(0, 0, 400), d: new Vector3(0,0,-1)},
+            {o: new Vector3(0, 400, 0), d: new Vector3(0,-1,0)},
+            {o: new Vector3(0, 0,0), d: new Vector3(-0.707,0,0.707)},
+            {o: new Vector3(0, 0,0), d: new Vector3(0.707,0,-0.707)},
+            {o: new Vector3(0, 0,0), d: new Vector3(-0.707,0,-0.707)}
+        ];
+
+        data.forEach(function(i) {
+            var ray = manager.raycast(i.o, i.d);
+            if (ray.intersections.length) {
+                this.lineTo(ray.origin, ray.intersections[0].point);
+            }
+        }.bind(this));
     }
     SomeGame.prototype.run = function() {
         this.currentTime = Date.now();
@@ -1881,17 +2026,16 @@ function(
         this.renderer.clean();
         this.engine.render(this.meshes);
         this.doCollision();
-        this.topRight.render(this.meshes);
-        this.bottomLeft.render(this.meshes);
-        this.bottomRight.render(this.meshes);
+        // this.doTest();
         this.renderer.render();
 
         requestAnimationFrame(this.run.bind(this));
+        // setTimeout(this.run.bind(this), 60/1000)
     }
 
     return SomeGame;
-})
-;
+});
+
 require.config({
     baseUrl: "js",
     paths: {
@@ -1900,7 +2044,7 @@ require.config({
     ,optimize: "none"
 });
 
-require(['game9'], function(TetrisGame) {
+require(['game10'], function(TetrisGame) {
     
 
     var tetris, game;
