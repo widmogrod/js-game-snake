@@ -67,7 +67,7 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
 
                 case 'closePath':
                     // colors.shift();
-                break;
+                    break;
                 case 'moveTo':
                     // this.context.moveTo(args[0].x, args[0].y);
                     this.position = args[0];
@@ -79,7 +79,7 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
                     // this.context.stroke();
 
                     // this.drawCline(this.position, args[0]);
-                this.drawBline(this.position, args[0]);
+                    this.drawBline(this.position, args[0]);
                 // this.drawLine(this.position, args[0]);
                 this.position = args[0];
                 fill.push(args[0]);
@@ -96,79 +96,83 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
     }
     Renderer.prototype.fillTriangle = function(p1, p2, p3) {
         var top, middle, bottom, a;
-
         var min = Math.min(p1.y, p2.y, p3.y);
         var max = Math.max(p1.y, p2.y, p3.y);
 
         for (var i = 0; i < 3; i++) {
             a = arguments[i];
             switch(true) {
-                case min === a.y && !top: top = a;
-                case max === a.y && !bottom: bottom = a;
-                default: middle = a;
+                case min === a.y && !bottom: bottom = a; break;
+                case max === a.y && !top: top = a; break;
+                default: middle = a; break;
             }
         }
 
-        // console.log(top, middle, bottom)
+        var vectorA = top.subtract(bottom);
+        var vectorB = middle.subtract(bottom);
+        var vectorC = top.subtract(middle);
 
-        var x, y, x0, x1, y0, y1, z = 0;
-        var z0, z1, lz, rz;
+        var slopeA = this.slope(vectorA);
+        var slopeB = this.slope(vectorB);
+        var slopeC = this.slope(vectorC);
 
-        var lx, rx;
-        var fromX, toX;
-        var lineX, lineY;
+        var b1 = bottom.y - (slopeA * bottom.x);
+        var b2 = middle.y - (slopeB * middle.x);
+        var b3 = top.y - (slopeC * top.x);
 
-        x0 = top.x;
-        y0 = top.y;
-        z0 = top.z;
-        // console.log(top.y, middle.y);
-        for (var y = top.y; y < middle.y; y++) {
-            x1 = middle.x;
-            y1 = middle.y;
-            z1 = middle.z;
-
-            // lx = x0;
-            // if (x0 !== x1) {
-            lx = this.interpolate(y0, y1, x0, x1, y);
-            lz = this.interpolate(y0, y1, z0, z1, y);
-            // }
-            // console.log(lz);
-
-            // rx = 116;
-            // console.log(y0 != y1 && x0 != x1);
-            x1 = bottom.x;
-            y1 = bottom.y;
-            z1 = bottom.z;
-            rx = x1;
-            rz = lz;
-            // console.log(x0, x1, y0, y1);
-            if (x0 !== x1) {
-                rx = this.interpolate(y0, y1, x0, x1, y);
-                rz = this.interpolate(y0, y1, z0, z1, y);
-            }
-            // console.log(lx, rx)
-            // console.log(lz, rz);
-
-            fromX = Math.min(lx, rx);
-            toX = Math.max(lx, rx);
-
-            if (fromX === toX) continue;
-
-            var blz = lz;
-            if (fromX !== lx) {
-                lz = rz;
-                rz = blz;
-            }
-            // lz = fromX === lx ? lz : rx;
-
-            // console.log(fromX, toX)
-
-            for (lineX = fromX; lineX < toX; lineX++) {
-                z = this.interpolate(fromX, toX, lz, rz, lineX);
-                // console.log(z)
-                this.drawPoint(new Vector3(lineX, y, z), this.color);
-            }
+        if (this.canScanLine(vectorA, vectorB)) {
+            this.scanLines(
+                bottom, middle,
+                b1, b2,
+                slopeA, slopeB
+            );
         }
+        // if (this.canScanLine(vectorB, vectorC)) {
+        //     this.scanLines(
+        //         middle, top,
+        //         b2, b3,
+        //         slopeB, slopeC
+        //     );
+        // }
+        if (this.canScanLine(vectorA, vectorC)) {
+            this.scanLines(
+                middle, top,
+                b1, b3,
+                slopeA, slopeC
+            );
+        }
+    };
+    Renderer.prototype.scanLines = function(bottom, top, b1, b2, slopeA, slopeB) {
+        for (var y = bottom.y; y < top.y; y++) {
+            var x1 = (y - b1)/slopeA >> 0;
+            var x2 = (y - b2)/slopeB >> 0;
+
+            var delta = x1 - x2;
+            if (delta < 2 && delta > -2) {
+                continue;
+            }
+
+            this.drawYLine(y, x1, x2);
+        }
+    }
+    Renderer.prototype.drawYLine = function(y, x1, x2) {
+        var min = x1,
+        max = x2;
+
+        if (min > max) {
+            min = x2;
+            max = x1;
+        }
+
+        for (var x = min; x < max; x++) {
+            this.drawPixel(x, y, 1, this.color);
+        }
+    }
+    Renderer.prototype.canScanLine = function(v1, v2) {
+        return v1.x != 0 && v2.x != 0 && v1.y != 0 && v2.y != 0;
+    }
+    Renderer.prototype.slope = function(vector) {
+        return vector.y / vector.x;
     }
     Renderer.prototype.drawCline = function(point0, point1) {
         var x, y, x0, x1, y0, y1, z = 0;

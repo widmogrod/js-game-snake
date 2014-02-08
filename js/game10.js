@@ -269,10 +269,21 @@ function(
         this.engine.render(this.meshes);
         this.doCollision();
         // this.doTest();
+        // var p1= new Vector3(10, 100, 0);
+        // var p2= new Vector3(0, 0, 0);
+        // // var p3= new Vector3(-100, 40, 0);
+        // var p3= new Vector3(200, 40, 0);
+        //
+        // p1 = this.engine.project(p1);
+        // p2 = this.engine.project(p2);
+        // p3 = this.engine.project(p3);
+        //
+        // this.renderer.fillTriangle(p1, p2, p3);
+        // this.engine.drawTriangle(p1, p2, p3);
         this.renderer.render();
 
-        requestAnimationFrame(this.run.bind(this));
-        // setTimeout(this.run.bind(this), 60/1000)
+        // requestAnimationFrame(this.run.bind(this));
+        setTimeout(this.run.bind(this), 60/1000)
     }
 
     return SomeGame;

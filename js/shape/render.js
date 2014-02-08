@@ -16,6 +16,7 @@ define([
         this.renderer = renderer;
         this.viewMatrix = viewMatrix;
         this.projectionMatrix = projectionMatrix;
+        // this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
     }
     ShapeRender.prototype.render = function(meshes) {
         var wordMatrix, mesh, face;
@@ -53,6 +54,7 @@ define([
                 if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
                 this.renderer.fillStyle(mesh.color)
                 this.drawTriangle(pointA, pointB, pointC);
+                this.renderer.fillTriangle(pointA, pointB, pointC);
                 // this.renderer.fillStyle(Color.fromName('blue'));
                 // this.drawLine(pointA, pointN);
             }
