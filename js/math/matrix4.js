@@ -20,6 +20,15 @@ define([
 
     Matrix4.prototype = Object.create(Matrix.prototype);
     Matrix4.prototype.constructor = Matrix4;
+    Matrix4.prototype.transpose = function() {
+        var result = new Matrix4(Array(this.count));
+        for (var row = 0; row < this.rows; row++) {
+            for (var col = 0; col < this.cols; col++) {
+                result.setAt(col, row, this.getAt(row, col));
+            }
+        }
+        return result;
+    }
     Matrix4.prototype.multiply = function(matrixOrVector) {
         var isVector3 = matrixOrVector instanceof Vector3;
         if (isVector3) {
@@ -67,6 +76,13 @@ define([
     }
     Matrix4.prototype.setTranslationVector = function(vector) {
         this.setTranslation(vector.x, vector.y, vector.z);
+    }
+    Matrix4.prototype.getTranslationVector = function() {
+        return new Vector3(
+           -this.getAt(0, 3),
+           -this.getAt(1, 3),
+           -this.getAt(2, 3)
+        );
     }
 
     Matrix4.identity = function() {

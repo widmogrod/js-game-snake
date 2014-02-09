@@ -16,7 +16,9 @@ define([
         this.renderer = renderer;
         this.viewMatrix = viewMatrix;
         this.projectionMatrix = projectionMatrix;
-        // this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        // temporary callculation
+        this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        this.lightPosition = new Vector3(0, 700, 0);
     }
     ShapeRender.prototype.render = function(meshes) {
         var wordMatrix, mesh, face;
@@ -30,33 +32,54 @@ define([
             );
 
             // Store vertices information in word matrix. Usefull for collision detection
-            mesh.vertices.forEach(function(vertex, index) {
-                mesh.verticesInWord[index] = wordMatrix.multiply(vertex);
+            mesh.vertices.forEach(function(object) {
+                object.word = wordMatrix.multiply(object.coordinates);
+                // this is so specific for CUBE...
+                // object.normal = object.word.subtract(mesh.translation).normalize();
+            });
+            // Calculate face normal
+            mesh.faces.forEach(function(object) {
+                var vertexA = mesh.vertices[object.face.a].word;
+                var vertexB = mesh.vertices[object.face.b].word;
+                var vertexC = mesh.vertices[object.face.c].word;
+
+                object.normal = vertexA.subtract(vertexB).cross(vertexA.subtract(vertexC)).normalize();
             })
 
             this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
 
+            // var cameraPosition  = new Vector3(0, 0, 1);
+
             for (var f = 0, fl = mesh.faces.length; f < fl; f++) {
                 face = mesh.faces[f];
 
-                var vertexA = mesh.verticesInWord[face.a];
-                var vertexB = mesh.verticesInWord[face.b];
-                var vertexC = mesh.verticesInWord[face.c];
+                // Do not render faces that are at the back
+                // if (face.normal.dot(cameraPosition) < 0) continue;
 
-                // var normal = vertexA.subtract(vertexB).cross(vertexA.subtract(vertexC)).normalize().scale(2);
-                // var pointN = this.project(vertexA.add(normal));
+                var vertexA = mesh.vertices[face.face.a].word;
+                var vertexB = mesh.vertices[face.face.b].word;
+                var vertexC = mesh.vertices[face.face.c].word;
+
+                var n = mesh.vertices[face.face.a].normal;
+                // n = this.project(n).normalize();
+                // n = wordMatrix.multiply(n).normalize();
+                // var pointN = this.project(vertexA.add(n.scale(50)))
+                var pointF = this.project(vertexA.add(face.normal.scale(50)));
 
                 var pointA = this.project(vertexA);
                 var pointB = this.project(vertexB);
                 var pointC = this.project(vertexC);
-                // console.log(pointA.toString())
 
                 if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
+
                 this.renderer.fillStyle(mesh.color)
-                this.drawTriangle(pointA, pointB, pointC);
-                this.renderer.fillTriangle(pointA, pointB, pointC);
+                // this.drawTriangle(pointA, pointB, pointC);
+                this.renderer.color = mesh.color;
+                this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
                 // this.renderer.fillStyle(Color.fromName('blue'));
                 // this.drawLine(pointA, pointN);
+                this.renderer.fillStyle(Color.fromName('orange'));
+                this.drawLine(pointA, pointF);
             }
         }
     }
@@ -81,11 +104,13 @@ define([
         if (w > 0) {
             result.x = vector4.x / w;
             result.y = vector4.y / w;
-            result.z = vector4.z / w;
+            result.z = vector4.z;
+            // result.z = vector4.z / w;
         } else if (w < 0) {
             result.x = -vector4.x / w;
             result.y = -vector4.y / w;
-            result.z = -vector4.z / w;
+            result.z = -vector4.z;
+            // result.z = -vector4.z / w;
         }
 
         return result;

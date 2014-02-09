@@ -6,7 +6,6 @@ define(['math/matrix4', 'math/vector3'], function(Matrix4, Vector3){
         this.translation = new Vector3(x, y, z);
         this.scale = new Vector3(1, 1, 1);
         this.vertices = [];
-        this.verticesInWord = [];
         this.faces = [];
     }
 

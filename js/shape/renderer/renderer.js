@@ -10,6 +10,7 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         this.nullPoint = Vector3.zero();
         this.position = this.nullPoint;
         this.color = Color.fromName('black');
+        this.lightPosition = new Vector3(0, 0, 1);
     }
 
     Renderer.constructor = Renderer;
@@ -94,10 +95,14 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
 
         this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
     }
-    Renderer.prototype.fillTriangle = function(p1, p2, p3) {
+    Renderer.prototype.fillTriangle = function(p1, p2, p3, fn) {
         var top, middle, bottom, a;
         var min = Math.min(p1.y, p2.y, p3.y);
         var max = Math.max(p1.y, p2.y, p3.y);
+
+        // TODO: Experiment, make it better
+        var angle = this.lightPosition.dot(fn);
+        this.angle = Math.max(0, angle);
 
         for (var i = 0; i < 3; i++) {
             a = arguments[i];
@@ -108,71 +113,114 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
             }
         }
 
-        var vectorA = top.subtract(bottom);
-        var vectorB = middle.subtract(bottom);
-        var vectorC = top.subtract(middle);
+        var vectorTB = top.subtract(bottom);
+        var vectorMB = middle.subtract(bottom);
+        var vectorTM = top.subtract(middle);
 
-        var slopeA = this.slope(vectorA);
-        var slopeB = this.slope(vectorB);
-        var slopeC = this.slope(vectorC);
+        var slopeTBy = this.slopeYX(vectorTB);
+        var slopeMBy = this.slopeYX(vectorMB);
+        var slopeTMy = this.slopeYX(vectorTM);
 
-        var b1 = bottom.y - (slopeA * bottom.x);
-        var b2 = middle.y - (slopeB * middle.x);
-        var b3 = top.y - (slopeC * top.x);
+        var slopeTBz = this.slopeYZ(vectorTB);
+        var slopeMBz = this.slopeYZ(vectorMB);
+        var slopeTMz = this.slopeYZ(vectorTM);
 
-        if (this.canScanLine(vectorA, vectorB)) {
-            this.scanLines(
-                bottom, middle,
-                b1, b2,
-                slopeA, slopeB
-            );
-        }
-        // if (this.canScanLine(vectorB, vectorC)) {
-        //     this.scanLines(
-        //         middle, top,
-        //         b2, b3,
-        //         slopeB, slopeC
-        //     );
-        // }
-        if (this.canScanLine(vectorA, vectorC)) {
-            this.scanLines(
-                middle, top,
-                b1, b3,
-                slopeA, slopeC
-            );
-        }
+        var by1 = this.offset(bottom.y, bottom.x, slopeTBy);
+        var by2 = this.offset(middle.y, middle.x, slopeMBy);
+        var by3 = this.offset(top.y, top.x, slopeTMy);
+
+        var bz1 = this.offset(bottom.z, bottom.y, slopeTBz);
+        var bz2 = this.offset(middle.z, middle.y, slopeMBz);
+        var bz3 = this.offset(top.z, top.y, slopeTMz);
+
+        console.log('from', bottom.z)
+        console.log('to', middle.z)
+        console.log('slope', slopeMBz);
+        console.log('offset', bz1, bz2);
+
+
+        this.scanLines(
+            bottom, middle,
+            by1, by2,
+            slopeTBy, slopeMBy,
+            bz1, bz2,
+            slopeTBz, slopeMBz
+        );
+        // this.scanLines(
+        //     middle, top,
+        //     by1, by3,
+        //     slopeTBy, slopeTMy,
+        //     bz1, bz3,
+        //     slopeTBz, slopeTMz
+        // );
     };
-    Renderer.prototype.scanLines = function(bottom, top, b1, b2, slopeA, slopeB) {
+    Renderer.prototype.scanLines = function(bottom, top, by1, by2, slope1y, slope2y, bz1, bz2, slope1z, slope2z) {
         for (var y = bottom.y; y < top.y; y++) {
-            var x1 = (y - b1)/slopeA >> 0;
-            var x2 = (y - b2)/slopeB >> 0;
+            var x1 = this.calcX(y, by1, slope1y);
+            var x2 = this.calcX(y, by2, slope2y);
+            var z1 = this.calcX(y, bz1, slope1z);
+            var z2 = this.calcX(y, bz2, slope2z);
 
             var delta = x1 - x2;
             if (delta < 2 && delta > -2) {
                 continue;
             }
 
-            this.drawYLine(y, x1, x2);
+            this.drawYLine(y, x1, x2, z1, z2);
         }
     }
-    Renderer.prototype.drawYLine = function(y, x1, x2) {
+    Renderer.prototype.calcX = function(y, b, slope) {
+        if (slope === Infinity || slope === -Infinity) {
+            return b;
+        }
+        return (y - b) / slope >> 0;
+    }
+    Renderer.prototype.offset = function(y, x, slope) {
+        if (slope === Infinity || slope === -Infinity) {
+            return x;
+        }
+        return y - (x * slope);
+    }
+    Renderer.prototype.drawYLine = function(y, x1, x2, z1, z2) {
         var min = x1,
-        max = x2;
+            max = x2;
+
+        var z = z1;
+        var dz = z1 - z2;
 
         if (min > max) {
             min = x2;
             max = x1;
+            // dz = z2 - z1;
+            // z = z2;
         }
 
+        dz /= (max - min);
+
+        var color = this.color.clone();
+        // color.r = this.angle * 255;
+        // color.g = this.angle * 255;
+        // color.b = this.angle * 255;
+        color.r *= this.angle;
+        color.g *= this.angle;
+        color.b *= this.angle;
+
         for (var x = min; x < max; x++) {
-            this.drawPixel(x, y, 1, this.color);
+            z += dz;
+            // console.log(x, y, z);
+            this.drawPixel(x, y, z, color);
         }
     }
     Renderer.prototype.canScanLine = function(v1, v2) {
-        return v1.x != 0 && v2.x != 0 && v1.y != 0 && v2.y != 0;
+        return true;
+        return v1.x != 0 && v2.x != 0;
+        // return v1.x != 0 && v2.x != 0 && v1.y != 0 && v2.y != 0;
     }
-    Renderer.prototype.slope = function(vector) {
+    Renderer.prototype.slopeYX = function(vector) {
         return vector.y / vector.x;
+    }
+    Renderer.prototype.slopeYZ = function(vector) {
+        return vector.y / vector.z;
     }
     Renderer.prototype.drawCline = function(point0, point1) {
         var x, y, x0, x1, y0, y1, z = 0;
@@ -267,7 +315,8 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         var index = (y * this.width) + x;
         var index4 = index * 4;
 
-        if (this.zbuffer[index] < z) return;
+        // Here we need to rememeber that z is negative
+        if (this.zbuffer[index] > z) return;
         this.zbuffer[index] = z;
 
         this.imageData.data[index4]     = color.r;

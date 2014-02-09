@@ -50,15 +50,15 @@ function(
                 new Vector3(0, 0, 1000),
                 Vector3.zero(),
                 Vector3.up()
-            ).multiply(Matrix4.rotationX(-45)).multiply(Matrix4.rotationZ(-45)).multiply(Matrix4.rotationY(-45)),
+            ),//.multiply(Matrix4.rotationX(-45)).multiply(Matrix4.rotationZ(-45)).multiply(Matrix4.rotationY(-45)),
             Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
         );
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
-        this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + 5*GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
+        this.cube = new CubeMesh(-400, 200, GameConfig.BOARD_EDGE + 1/3 * GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE * 5, Color.fromName('red'));
         this.meshes = []
-        this.meshes.push(this.cube);
+        // this.meshes.push(this.cube);
 
         this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, Color.fromName('green'));
         this.meshes.push(this.bigMesh);
@@ -266,24 +266,43 @@ function(
         this.previousTime = this.currentTime;
 
         this.renderer.clean();
-        this.engine.render(this.meshes);
-        this.doCollision();
+        // this.engine.render(this.meshes);
+        // this.doCollision();
         // this.doTest();
-        // var p1= new Vector3(10, 100, 0);
-        // var p2= new Vector3(0, 0, 0);
-        // // var p3= new Vector3(-100, 40, 0);
-        // var p3= new Vector3(200, 40, 0);
-        //
-        // p1 = this.engine.project(p1);
-        // p2 = this.engine.project(p2);
-        // p3 = this.engine.project(p3);
-        //
-        // this.renderer.fillTriangle(p1, p2, p3);
-        // this.engine.drawTriangle(p1, p2, p3);
+        var p1= new Vector3(0, 100, 0);
+        var p2= new Vector3(100, 0, 0);
+        var p3= new Vector3(100, 200, 0);
+        var fn = p2.subtract(p1).cross(p3.subtract(p1)).normalize();
+        p1 = this.engine.project(p1);
+        p2 = this.engine.project(p2);
+        p3 = this.engine.project(p3);
+
+        this.renderer.color = Color.fromName('green')
+        this.renderer.fillTriangle(p1, p2, p3, fn);
+
+        var p1= new Vector3(0, 100, 10);
+        var p2= new Vector3(100, 0, 10);
+        var p3= new Vector3(100, 200, 10);
+        var fn = p2.subtract(p1).cross(p3.subtract(p1)).normalize();
+        p1 = this.engine.project(p1);
+        p2 = this.engine.project(p2);
+        p3 = this.engine.project(p3);
+
+        this.renderer.color = Color.fromName('blue')
+        this.renderer.fillTriangle(p1, p2, p3, fn);
+
         this.renderer.render();
 
+        this.bigMesh.rotation.x += 1;
+        this.bigMesh.rotation.y += 1;
+        this.bigMesh.rotation.z += 1;
+
+        this.cube.rotation.x += 1;
+        this.cube.rotation.y += 1;
+        this.cube.rotation.z += 1;
+
         // requestAnimationFrame(this.run.bind(this));
-        setTimeout(this.run.bind(this), 60/1000)
+        // setTimeout(this.run.bind(this), 1000/10)
     }
 
     return SomeGame;

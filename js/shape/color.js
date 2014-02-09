@@ -7,6 +7,14 @@ define(function(){
         this.b = 0;
         this.a = 255;
     }
+    Color.prototype.clone = function() {
+        var clone = new Color();
+        clone.r = this.r;
+        clone.g = this.g;
+        clone.b = this.b;
+        clone.a = this.a;
+        return clone;
+    }
 
     Color.fromName = function(name) {
         var result = new Color();
