@@ -285,7 +285,7 @@ define('shape/renderer/renderer',['math/vector3', 'shape/color'], function(Vecto
         this.nullPoint = Vector3.zero();
         this.position = this.nullPoint;
         this.color = Color.fromName('black');
-        this.lightPosition = new Vector3(0, 700, 0);
+        this.lightPosition = new Vector3(0, 0, 1);
     }
 
     Renderer.constructor = Renderer;
@@ -462,8 +462,8 @@ define('shape/renderer/renderer',['math/vector3', 'shape/color'], function(Vecto
             p1 = temp;
         }
 
-        var angle = this.lightPosition.angle(fn);
-        this.angle = Math.max(0, angle * Math.PI / 180);
+        var dot = this.lightPosition.dot(fn);
+        this.angle = Math.max(0, dot);
 
         // Vectors
         var edge1 = p3.subtract(p1); // top - bottom
@@ -1069,8 +1069,8 @@ define('shape/render',[
                 // this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
                 // this.renderer.fillStyle(Color.fromName('blue'));
                 // this.drawLine(pointA, pointN);
-                this.renderer.fillStyle(Color.fromName('orange'));
-                this.drawLine(pointA, pointF);
+                // this.renderer.fillStyle(Color.fromName('orange'));
+                // this.drawLine(pointA, pointF);
             }
         }
     }
@@ -1721,14 +1721,14 @@ define('collision/strategy/triangle',[
 define('collision/mesh2aabb',[],function() {
 
     function Mesh2AABB (mesh) {
-        var vertices = mesh.verticesInWord;
+        var vertices = mesh.vertices;
         var vertex = vertices[0];
 
-        this.min = vertex.clone();
-        this.max = vertex.clone();
+        this.min = vertex.word.clone();
+        this.max = vertex.word.clone();
 
         for (var i = 1, length = vertices.length; i < length; i++) {
-            vertex = vertices[i];
+            vertex = vertices[i].word;
             if (this.min.x > vertex.x) this.min.x = vertex.x;
             else if (this.max.x < vertex.x) this.max.x = vertex.x;
 
@@ -2065,7 +2065,7 @@ function(
             viewportMain,
             this.renderer,
             Matrix4.lookAtRH(
-                new Vector3(0, 0, 1000),
+                new Vector3(0, 0, 700),
                 Vector3.zero(),
                 Vector3.up()
             ),//.multiply(Matrix4.rotationX(-45)).multiply(Matrix4.rotationZ(-45)).multiply(Matrix4.rotationY(-45)),
@@ -2074,9 +2074,9 @@ function(
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
-        this.cube = new CubeMesh(-400, 200, GameConfig.BOARD_EDGE + 1/3 * GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE * 5, Color.fromName('red'));
+        this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + 1/3 * GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
         this.meshes = []
-        // this.meshes.push(this.cube);
+        this.meshes.push(this.cube);
 
         this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, Color.fromName('green'));
         this.meshes.push(this.bigMesh);
@@ -2243,7 +2243,7 @@ function(
 
         this.lineTo(from, from.add(toGroundDirection.scale(50)))
 
-        this.step = this.approach(1, this.step, this.dt/2);
+        this.step = this.approach(1, this.step, this.dt/20);
         var v = new Quaternion(90,this.fromSide).slerp(new Quaternion(90, this.cross),  this.step).v;
         var eye = this.bigMesh.translation.add(v.scale(1000));
         var at = Vector3.zero();
@@ -2280,7 +2280,7 @@ function(
     SomeGame.prototype.run = function() {
         this.currentTime = Date.now();
         this.dt = (this.currentTime - this.previousTime) / 100;
-        this.dt = this.dt > .16 ? .16 : this.dt;
+        // this.dt = this.dt > .16 ? .16 : this.dt;
         this.previousTime = this.currentTime;
 
         this.renderer.clean();
@@ -2316,12 +2316,12 @@ function(
         this.bigMesh.rotation.y += 1;
         this.bigMesh.rotation.z += 1;
 
-        this.cube.rotation.x += 1;
-        this.cube.rotation.y += 1;
-        this.cube.rotation.z += 1;
+        this.cube.rotation.x += 5;
+        this.cube.rotation.y += -5;
+        this.cube.rotation.z += -2;
 
         // requestAnimationFrame(this.run.bind(this));
-        setTimeout(this.run.bind(this), 1000/10)
+        setTimeout(this.run.bind(this), 1000/30)
     }
 
     return SomeGame;
