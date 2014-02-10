@@ -18,7 +18,6 @@ define([
         this.projectionMatrix = projectionMatrix;
         // temporary callculation
         this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
-        this.lightPosition = new Vector3(0, 700, 0);
     }
     ShapeRender.prototype.render = function(meshes) {
         var wordMatrix, mesh, face;
@@ -70,12 +69,14 @@ define([
                 var pointB = this.project(vertexB);
                 var pointC = this.project(vertexC);
 
-                if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
+                // if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
+                if (pointA.z > 0 || pointB.z > 0 || pointC.z > 0) continue;
 
                 this.renderer.fillStyle(mesh.color)
                 // this.drawTriangle(pointA, pointB, pointC);
                 this.renderer.color = mesh.color;
-                this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
+                this.renderer.fillTriangle2(pointA, pointB, pointC, face.normal);
+                // this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
                 // this.renderer.fillStyle(Color.fromName('blue'));
                 // this.drawLine(pointA, pointN);
                 this.renderer.fillStyle(Color.fromName('orange'));

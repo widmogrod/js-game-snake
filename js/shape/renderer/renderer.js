@@ -1,6 +1,10 @@
 define(['math/vector3', 'shape/color'], function(Vector3, Color){
     'use strict';
 
+    function isInfinity(value) {
+        return value === Infinity || value === -Infinity; // || isNaN(value);
+    }
+
     function Renderer(canvas) {
         this.context = canvas.getContext('2d');
         this.width = canvas.width;
@@ -10,7 +14,7 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         this.nullPoint = Vector3.zero();
         this.position = this.nullPoint;
         this.color = Color.fromName('black');
-        this.lightPosition = new Vector3(0, 0, 1);
+        this.lightPosition = new Vector3(0, 700, 0);
     }
 
     Renderer.constructor = Renderer;
@@ -79,8 +83,8 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
                     // this.context.lineTo(args[0].x, args[0].y);
                     // this.context.stroke();
 
-                    // this.drawCline(this.position, args[0]);
-                    this.drawBline(this.position, args[0]);
+                    this.drawCline(this.position, args[0]);
+                    // this.drawBline(this.position, args[0]);
                 // this.drawLine(this.position, args[0]);
                 this.position = args[0];
                 fill.push(args[0]);
@@ -125,7 +129,13 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         var slopeMBz = this.slopeYZ(vectorMB);
         var slopeTMz = this.slopeYZ(vectorTM);
 
-        var by1 = this.offset(bottom.y, bottom.x, slopeTBy);
+
+        var by1 = this.offset(bottom.y, bottom.x, slopeTBy); // b = y - (x * slope)
+        console.log('[BBB] b1', bottom.y, bottom.x, slopeTBy, by1);
+        var x1 = this.calcX(bottom.y, by1, slopeTBy); // x = (y - b) / slope
+        console.log('[BBB] x1', x1);
+
+
         var by2 = this.offset(middle.y, middle.x, slopeMBy);
         var by3 = this.offset(top.y, top.x, slopeTMy);
 
@@ -133,11 +143,17 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         var bz2 = this.offset(middle.z, middle.y, slopeMBz);
         var bz3 = this.offset(top.z, top.y, slopeTMz);
 
+
+        console.log('top', top.toString())
+        console.log('middle', middle.toString())
+        console.log('botom', bottom.toString())
+
         console.log('from', bottom.z)
         console.log('to', middle.z)
-        console.log('slope', slopeMBz);
-        console.log('offset', bz1, bz2);
-
+        console.log('slope', slopeTBy, slopeMBy, slopeTMy)
+        // console.log('TMz', slopeTMz, vectorTM.toString())
+        // console.log('slope', slopeTBz, slopeMBz, slopeTMz);
+        console.log('offset', bz1, bz2, bz3);
 
         this.scanLines(
             bottom, middle,
@@ -154,7 +170,99 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         //     slopeTBz, slopeTMz
         // );
     };
+    Renderer.prototype.fillTriangle2 = function(p1, p2, p3, fn) {
+        var temp;
+        // p1 - bottom
+        // p2 - middle
+        // p3 - top
+        if(p1.y > p2.y) {
+            temp = p2;
+            p2 = p1;
+            p1 = temp;
+        }
+        if(p2.y > p3.y) {
+            temp = p2;
+            p2 = p3;
+            p3 = temp;
+        }
+        if(p1.y > p2.y) {
+            temp = p2;
+            p2 = p1;
+            p1 = temp;
+        }
+
+        var angle = this.lightPosition.angle(fn);
+        this.angle = Math.max(0, angle * Math.PI / 180);
+
+        // Vectors
+        var edge1 = p3.subtract(p1); // top - bottom
+        var edge2 = p2.subtract(p1); // middle - bottom
+        var edge3 = p3.subtract(p2); // top - middle
+
+        var slope1x = edge1.x === 0 ? 0 : edge1.y/edge1.x;
+        var slope2x = edge2.x === 0 ? 0 : edge2.y/edge2.x;
+        var slope3x = edge3.x === 0 ? 0 : edge3.y/edge3.x;
+        var slope1z = edge1.z === 0 ? 0 : edge1.y/edge1.z;
+        var slope2z = edge2.z === 0 ? 0 : edge2.y/edge2.z;
+        var slope3z = edge3.z === 0 ? 0 : edge3.y/edge3.z;
+
+        var dy = p2.y - p1.y >> 0;
+        for (var y = p1.y >> 0; y < p2.y >> 0; y++) {
+            this.processLine(y, dy, p1, p2, p3, slope1x, slope2x, slope1z, slope2z);
+        }
+        for (var y = p2.y >> 0; y < p3.y >> 0; y++) {
+            this.processLine(y, dy, p3, p2, p1, slope1x, slope3x, slope1z, slope3z);
+        }
+    }
+    Renderer.prototype.processLine = function(y, dy, p1, p2, p3, slope1x, slope2x, slope1z, slope2z) {
+        var x1 = this.interpolate2(y, p1.y, p1.x, slope1x) >> 0;
+        var x2 = this.interpolate2(y, p2.y, p2.x, slope2x) >> 0;
+        var z1 = this.interpolate2(y, p1.y, p1.z, slope1z);
+        var z2 = this.interpolate2(y, p2.y, p2.z, slope2z);
+
+        // swap
+        if (x1 > x2) {
+            var temp = x1;
+            x1 = x2;
+            x2 = temp;
+
+            temp = z1;
+            z1 = z2;
+            z2 = z1;
+        }
+
+        var dz = (z2 - z1)/ (x2 - x1);
+        var color = this.color.clone();
+        color.r *= this.angle;
+        color.g *= this.angle;
+        color.b *= this.angle;
+
+        for (var x = x1, z = z1; x < x2; x++, z += dz) {
+            // this.drawPixel(x, y + dy, z, color);
+            this.drawPixel(x, y, z, color);
+        }
+    }
+    Renderer.prototype.interpolate2 = function(y, y1, x1, slope) {
+        var b = slope === 0 ? x1 : (y1 - slope * x1);
+        return slope === 0 ? (b) : ((y - b)/slope);
+    }
+    Renderer.prototype.interpolate3 = function(y, y1, x1, slope) {
+        // var b = slope === 0 ? x1 : (y1 - slope * x1);
+        var b = x1;
+        return slope === 0 ? (b) : (y/slope + b);
+    }
+    Renderer.prototype.slopeYX = function(vector) {
+        return vector.y / vector.x;
+    }
+    Renderer.prototype.slopeYZ = function(vector) {
+        return vector.y / vector.z;
+    }
     Renderer.prototype.scanLines = function(bottom, top, by1, by2, slope1y, slope2y, bz1, bz2, slope1z, slope2z) {
+        if (bottom.y - top.y === 0) {
+            console.log('[!!!] y=const');
+            return;
+        };
+
         for (var y = bottom.y; y < top.y; y++) {
             var x1 = this.calcX(y, by1, slope1y);
             var x2 = this.calcX(y, by2, slope2y);
@@ -165,19 +273,29 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
             if (delta < 2 && delta > -2) {
                 continue;
             }
+            // console.log('y', y, z1, z2);
 
             this.drawYLine(y, x1, x2, z1, z2);
         }
     }
     Renderer.prototype.calcX = function(y, b, slope) {
-        if (slope === Infinity || slope === -Infinity) {
+        if (isInfinity(slope)) {
+            // return y;
             return b;
+        }
+        if (isNaN(slope)) {
+            b = 0;
         }
         return (y - b) / slope >> 0;
     }
     Renderer.prototype.offset = function(y, x, slope) {
-        if (slope === Infinity || slope === -Infinity) {
+        if (isInfinity(slope)) {
+            // return 0;
             return x;
+        }
+        if (isNaN(slope)) {
+            slope = 1;
+            slope = 0;
         }
         return y - (x * slope);
     }
@@ -191,11 +309,12 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         if (min > max) {
             min = x2;
             max = x1;
-            // dz = z2 - z1;
-            // z = z2;
+            dz = z2 - z1;
+            z = z2;
         }
 
         dz /= (max - min);
+        // dz = dz >> 0;
 
         var color = this.color.clone();
         // color.r = this.angle * 255;
@@ -207,21 +326,17 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
 
         for (var x = min; x < max; x++) {
             z += dz;
-            // console.log(x, y, z);
+            if (y === 485)
+                console.log(x, y, z);
             this.drawPixel(x, y, z, color);
         }
     }
-    Renderer.prototype.canScanLine = function(v1, v2) {
-        return true;
-        return v1.x != 0 && v2.x != 0;
-        // return v1.x != 0 && v2.x != 0 && v1.y != 0 && v2.y != 0;
-    }
-    Renderer.prototype.slopeYX = function(vector) {
-        return vector.y / vector.x;
-    }
-    Renderer.prototype.slopeYZ = function(vector) {
-        return vector.y / vector.z;
-    }
+    // Renderer.prototype.canScanLine = function(v1, v2) {
+    //     return true;
+    //     return v1.x != 0 && v2.x != 0;
+    //     // return v1.x != 0 && v2.x != 0 && v1.y != 0 && v2.y != 0;
+    // }
+
     Renderer.prototype.drawCline = function(point0, point1) {
         var x, y, x0, x1, y0, y1, z = 0;
 
@@ -265,42 +380,6 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
             }
         }
     }
-    Renderer.prototype.drawLine = function (point0, point1) {
-        var dist = point1.subtract(point0).length2();
-
-        // If the distance between the 2 points is less than 2 pixels
-        // We're exiting
-        if(dist < 2) {
-            return;
-        }
-
-        // Find the middle point between first & second point
-        var middlePoint = point0.add((point1.subtract(point0)).scale(0.5));
-        // We draw this point on screen
-        this.drawPoint(middlePoint);
-        // Recursive algorithm launched between first & middle point
-        // and between middle & second point
-        this.drawLine(point0, middlePoint);
-        this.drawLine(middlePoint, point1);
-    };
-    Renderer.prototype.drawBline = function (point0, point1) {
-        var x0 = point0.x >> 0;
-        var y0 = point0.y >> 0;
-        var x1 = point1.x >> 0;
-        var y1 = point1.y >> 0;
-        var dx = Math.abs(x1 - x0);
-        var dy = Math.abs(y1 - y0);
-        var sx = (x0 < x1) ? 1 : -1;
-        var sy = (y0 < y1) ? 1 : -1;
-        var err = dx - dy;
-        while(true) {
-            this.drawPoint(new Vector3(x0, y0, 0));
-            if((x0 == x1) && (y0 == y1)) break;
-            var e2 = 2 * err;
-            if(e2 > -dy) { err -= dy; x0 += sx; }
-            if(e2 < dx) { err += dx; y0 += sy; }
-        }
-    };
     Renderer.prototype.interpolate = function(x0, x1, y0, y1, x) {
         return (y0 + ((y1 - y0) * (x - x0) / (x1- x0))) >> 0;
     }

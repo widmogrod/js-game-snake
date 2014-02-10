@@ -64,50 +64,50 @@ define([
             faces: [],
         })
 
-        // this.faces.push({
-        //     face: new Face(1, 0, 5),
-        //     normal: null
-        // });
-        // this.faces.push({
-        //     face: new Face(0, 4, 5),
-        //     normal: null
-        // });
-        // this.faces.push({
-        //     face: new Face(1, 2, 3),
-        //     normal: null
-        // });
-        // this.faces.push({
-        //     face: new Face(3, 0, 1),
-        //     normal: null
-        // });
+        this.faces.push({
+            face: new Face(1, 0, 5),
+            normal: null
+        });
+        this.faces.push({
+            face: new Face(0, 4, 5),
+            normal: null
+        });
+        this.faces.push({
+            face: new Face(1, 2, 3),
+            normal: null
+        });
+        this.faces.push({
+            face: new Face(3, 0, 1),
+            normal: null
+        });
         this.faces.push({
             face: new Face(3, 2, 6),
             normal: null
         });
-        // this.faces.push({
-        //     face: new Face(3, 6, 7),
-        //     normal: null
-        // });
-        // this.faces.push({
-        //     face: new Face(2, 1, 6),
-        //     normal: null
-        // });
-        // this.faces.push({
-        //     face: new Face(5, 6, 1),
-        //     normal: null
-        // });
-        // this.faces.push({
-        //     face: new Face(0, 3, 7),
-        //     normal: null
-        // });
-        // this.faces.push({
-        //     face: new Face(4, 0, 7),
-        //     normal: null
-        // });
-        // this.faces.push({
-        //     face: new Face(6, 5, 4),
-        //     normal: null
-        // });
+        this.faces.push({
+            face: new Face(3, 6, 7),
+            normal: null
+        });
+        this.faces.push({
+            face: new Face(2, 1, 6),
+            normal: null
+        });
+        this.faces.push({
+            face: new Face(5, 6, 1),
+            normal: null
+        });
+        this.faces.push({
+            face: new Face(0, 3, 7),
+            normal: null
+        });
+        this.faces.push({
+            face: new Face(4, 0, 7),
+            normal: null
+        });
+        this.faces.push({
+            face: new Face(6, 5, 4),
+            normal: null
+        });
         this.faces.push({
             face: new Face(7, 6, 4),
             normal: null

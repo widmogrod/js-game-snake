@@ -266,31 +266,32 @@ function(
         this.previousTime = this.currentTime;
 
         this.renderer.clean();
-        // this.engine.render(this.meshes);
+        this.engine.render(this.meshes);
         // this.doCollision();
         // this.doTest();
-        var p1= new Vector3(0, 100, 0);
-        var p2= new Vector3(100, 0, 0);
-        var p3= new Vector3(100, 200, 0);
-        var fn = p2.subtract(p1).cross(p3.subtract(p1)).normalize();
-        p1 = this.engine.project(p1);
-        p2 = this.engine.project(p2);
-        p3 = this.engine.project(p3);
-
-        this.renderer.color = Color.fromName('green')
-        this.renderer.fillTriangle(p1, p2, p3, fn);
-
-        var p1= new Vector3(0, 100, 10);
-        var p2= new Vector3(100, 0, 10);
-        var p3= new Vector3(100, 200, 10);
-        var fn = p2.subtract(p1).cross(p3.subtract(p1)).normalize();
-        p1 = this.engine.project(p1);
-        p2 = this.engine.project(p2);
-        p3 = this.engine.project(p3);
-
-        this.renderer.color = Color.fromName('blue')
-        this.renderer.fillTriangle(p1, p2, p3, fn);
-
+        // var p1= new Vector3(-30, 14, 0);
+        // var p2= new Vector3(89, 16, 0);
+        // var p3= new Vector3(64, 196, 0);
+        // var fn = p2.subtract(p1).cross(p3.subtract(p1)).normalize();
+        // p1 = this.engine.project(p1);
+        // p2 = this.engine.project(p2);
+        // p3 = this.engine.project(p3);
+        //
+        // this.renderer.color = Color.fromName('green')
+        // this.renderer.fillTriangle2(p1, p2, p3, fn);
+        //
+        // var p1= new Vector3(30, 10, 0);
+        // var p2= new Vector3(-100, 0, 0);
+        // var p3= new Vector3(-90, 200, 0);
+        // var fn = p2.subtract(p1).cross(p3.subtract(p1)).normalize();
+        // p1 = this.engine.project(p1);
+        // p2 = this.engine.project(p2);
+        // p3 = this.engine.project(p3);
+        //
+        // this.renderer.color = Color.fromName('blue')
+        // this.renderer.fillTriangle2(p1, p2, p3, fn);
+        // this.renderer.fillTriangle(p1, p2, p3, fn);
+        //
         this.renderer.render();
 
         this.bigMesh.rotation.x += 1;
@@ -302,7 +303,7 @@ function(
         this.cube.rotation.z += 1;
 
         // requestAnimationFrame(this.run.bind(this));
-        // setTimeout(this.run.bind(this), 1000/10)
+        setTimeout(this.run.bind(this), 1000/10)
     }
 
     return SomeGame;
