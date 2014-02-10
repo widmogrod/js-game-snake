@@ -1,14 +1,14 @@
 define(function() {
 
     function Mesh2AABB (mesh) {
-        var vertices = mesh.verticesInWord;
+        var vertices = mesh.vertices;
         var vertex = vertices[0];
 
-        this.min = vertex.clone();
-        this.max = vertex.clone();
+        this.min = vertex.word.clone();
+        this.max = vertex.word.clone();
 
         for (var i = 1, length = vertices.length; i < length; i++) {
-            vertex = vertices[i];
+            vertex = vertices[i].word;
             if (this.min.x > vertex.x) this.min.x = vertex.x;
             else if (this.max.x < vertex.x) this.max.x = vertex.x;
 

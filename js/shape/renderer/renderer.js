@@ -14,7 +14,7 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         this.nullPoint = Vector3.zero();
         this.position = this.nullPoint;
         this.color = Color.fromName('black');
-        this.lightPosition = new Vector3(0, 700, 0);
+        this.lightPosition = new Vector3(0, 0, 1);
     }
 
     Renderer.constructor = Renderer;
@@ -191,8 +191,8 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
             p1 = temp;
         }
 
-        var angle = this.lightPosition.angle(fn);
-        this.angle = Math.max(0, angle * Math.PI / 180);
+        var dot = this.lightPosition.dot(fn);
+        this.angle = Math.max(0, dot);
 
         // Vectors
         var edge1 = p3.subtract(p1); // top - bottom

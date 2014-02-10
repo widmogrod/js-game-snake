@@ -79,8 +79,8 @@ define([
                 // this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
                 // this.renderer.fillStyle(Color.fromName('blue'));
                 // this.drawLine(pointA, pointN);
-                this.renderer.fillStyle(Color.fromName('orange'));
-                this.drawLine(pointA, pointF);
+                // this.renderer.fillStyle(Color.fromName('orange'));
+                // this.drawLine(pointA, pointF);
             }
         }
     }
