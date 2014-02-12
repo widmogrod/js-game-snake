@@ -293,7 +293,7 @@ define('shape/renderer/renderer',['math/vector3', 'shape/color'], function(Vecto
         this.context.clearRect(0, 0, this.width, this.height);
         this.imageData = this.context.getImageData(0, 0, this.width, this.height);
         this.buffer = []
-        this.zbuffer = []
+        this.zbuffer = Array(this.width * this.height)
         this.position = this.nullPoint;
         this.color = Color.fromName('black');
     }
@@ -450,13 +450,27 @@ define('shape/renderer/renderer',['math/vector3', 'shape/color'], function(Vecto
             temp = p2;
             p2 = p1;
             p1 = temp;
+        } else if (p1.y == p2.y && p1.z < p2.z) {
+            temp = p2;
+            p2 = p1;
+            p1 = temp;
         }
+
         if(p2.y > p3.y) {
             temp = p2;
             p2 = p3;
             p3 = temp;
+        } else if (p2.y === p3.y && p2.z < p3.z) {
+            temp = p2;
+            p2 = p3;
+            p3 = temp;
         }
+
         if(p1.y > p2.y) {
+            temp = p2;
+            p2 = p1;
+            p1 = temp;
+        } else if (p1.y == p2.y && p1.z < p2.y) {
             temp = p2;
             p2 = p1;
             p1 = temp;
@@ -476,6 +490,10 @@ define('shape/renderer/renderer',['math/vector3', 'shape/color'], function(Vecto
         var slope1z = edge1.z === 0 ? 0 : edge1.y/edge1.z;
         var slope2z = edge2.z === 0 ? 0 : edge2.y/edge2.z;
         var slope3z = edge3.z === 0 ? 0 : edge3.y/edge3.z;
+        // console.log('p1', p1.toString())
+        // console.log('p2', p2.toString())
+        // console.log('p3', p3.toString())
+        // console.log(slope1x, slope3x)
 
         var dy = p2.y - p1.y >> 0;
         for (var y = p1.y >> 0; y < p2.y >> 0; y++) {
@@ -502,7 +520,27 @@ define('shape/renderer/renderer',['math/vector3', 'shape/color'], function(Vecto
             z2 = z1;
         }
 
-        var dz = (z2 - z1)/ (x2 - x1);
+        var dx = x2 - x1;
+        if (dx < 1) return;
+
+        var dz = (z2 - z1);
+
+        // var bost = 0;
+        // if (p1.z >> 0 == p2.z >> 0 && p1.z >> 0 == p3.z >> 0) {
+        //     bost = 2;
+        // } else if (p1.z >> 0 == p2.z >> 0 || p1.z >> 0 == p3.z >> 0) {
+        //     bost = 1;
+        // } else {
+        //
+        // }
+
+        if (dz == 0) {
+            dz = 0;
+        } else {
+            dz /= dx;
+            // dz += bost
+        }
+
         var color = this.color.clone();
         color.r *= this.angle;
         color.g *= this.angle;
@@ -1001,6 +1039,10 @@ define('shape/render',[
 ) {
     
 
+    function compareNumbers(a, b) {
+        return a.z - b.z;
+    }
+
     function ShapeRender(viewport, renderer, viewMatrix, projectionMatrix) {
         this.viewport = viewport;
         this.renderer = renderer;
@@ -1008,16 +1050,18 @@ define('shape/render',[
         this.projectionMatrix = projectionMatrix;
         // temporary callculation
         this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        // this.cammeraPossition = new Vector3(0, 0, 700)
     }
     ShapeRender.prototype.render = function(meshes) {
         var wordMatrix, mesh, face;
 
+        var depth = [];
         for (var i = 0, length = meshes.length; i < length; i++) {
             mesh = meshes[i];
             wordMatrix = Matrix4.translation(mesh.translation).multiply(
                 Matrix4.rotation(mesh.rotation).multiply(
                     Matrix4.scale(mesh.scale)
-                )
+            )
             );
 
             // Store vertices information in word matrix. Usefull for collision detection
@@ -1026,8 +1070,9 @@ define('shape/render',[
                 // this is so specific for CUBE...
                 // object.normal = object.word.subtract(mesh.translation).normalize();
             });
+
             // Calculate face normal
-            mesh.faces.forEach(function(object) {
+            mesh.faces.forEach(function(object, index) {
                 var vertexA = mesh.vertices[object.face.a].word;
                 var vertexB = mesh.vertices[object.face.b].word;
                 var vertexC = mesh.vertices[object.face.c].word;
@@ -1037,13 +1082,13 @@ define('shape/render',[
 
             this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
 
-            // var cameraPosition  = new Vector3(0, 0, 1);
+            var cameraPosition  = new Vector3(0, 0, 1);
 
             for (var f = 0, fl = mesh.faces.length; f < fl; f++) {
                 face = mesh.faces[f];
 
                 // Do not render faces that are at the back
-                // if (face.normal.dot(cameraPosition) < 0) continue;
+                if (face.normal.dot(cameraPosition) < 0) continue;
 
                 var vertexA = mesh.vertices[face.face.a].word;
                 var vertexB = mesh.vertices[face.face.b].word;
@@ -1062,10 +1107,19 @@ define('shape/render',[
                 // if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
                 if (pointA.z > 0 || pointB.z > 0 || pointC.z > 0) continue;
 
-                this.renderer.fillStyle(mesh.color)
+                depth.push({
+                    z: Math.min(vertexA.z, vertexB.z, vertexC.z),
+                    a: pointA,
+                    b: pointB,
+                    c: pointC,
+                    color: mesh.color,
+                    normal: face.normal
+                });
+
+                // this.renderer.fillStyle(mesh.color)
                 // this.drawTriangle(pointA, pointB, pointC);
-                this.renderer.color = mesh.color;
-                this.renderer.fillTriangle2(pointA, pointB, pointC, face.normal);
+                // this.renderer.color = mesh.color;
+                // this.renderer.fillTriangle2(pointA, pointB, pointC, face.normal);
                 // this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
                 // this.renderer.fillStyle(Color.fromName('blue'));
                 // this.drawLine(pointA, pointN);
@@ -1073,11 +1127,17 @@ define('shape/render',[
                 // this.drawLine(pointA, pointF);
             }
         }
+
+        depth.sort(compareNumbers);
+        depth.forEach(function(o) {
+            this.renderer.color = o.color;
+            this.renderer.fillTriangle2(o.a, o.b, o.c, o.normal);
+        }.bind(this));
     }
     ShapeRender.prototype.project = function(vertex) {
         // Homogeneous coordinates
         var vector4 = new Vector4(vertex.x, vertex.y, vertex.z, 1);
-            vector4 = this.transformationMatrix.multiply(vector4);
+        vector4 = this.transformationMatrix.multiply(vector4);
         var vector3 = this.transformCoordinates(vector4);
 
         vector3.x = this.viewport.x + this.viewport.width/2 + vector3.x >> 0;
@@ -1332,14 +1392,17 @@ define('shape/mesh/cube',[
             face: new Face(3, 0, 1),
             normal: null
         });
+
         this.faces.push({
             face: new Face(3, 2, 6),
             normal: null
         });
+        // a
         this.faces.push({
             face: new Face(3, 6, 7),
             normal: null
         });
+
         this.faces.push({
             face: new Face(2, 1, 6),
             normal: null
@@ -1348,6 +1411,7 @@ define('shape/mesh/cube',[
             face: new Face(5, 6, 1),
             normal: null
         });
+        // b
         this.faces.push({
             face: new Face(0, 3, 7),
             normal: null
@@ -2284,6 +2348,11 @@ function(
         this.previousTime = this.currentTime;
 
         this.renderer.clean();
+
+        // this.bigMesh.rotation.x += 35;
+        // this.bigMesh.rotation.y += 45;
+        // this.bigMesh.rotation.z += 45;
+
         this.engine.render(this.meshes);
         // this.doCollision();
         // this.doTest();
@@ -2321,7 +2390,7 @@ function(
         this.cube.rotation.z += -2;
 
         // requestAnimationFrame(this.run.bind(this));
-        setTimeout(this.run.bind(this), 1000/30)
+        // setTimeout(this.run.bind(this), 1000/30)
     }
 
     return SomeGame;
