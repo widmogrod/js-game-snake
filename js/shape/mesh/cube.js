@@ -80,14 +80,17 @@ define([
             face: new Face(3, 0, 1),
             normal: null
         });
+
         this.faces.push({
             face: new Face(3, 2, 6),
             normal: null
         });
+        // a
         this.faces.push({
             face: new Face(3, 6, 7),
             normal: null
         });
+
         this.faces.push({
             face: new Face(2, 1, 6),
             normal: null
@@ -96,6 +99,7 @@ define([
             face: new Face(5, 6, 1),
             normal: null
         });
+        // b
         this.faces.push({
             face: new Face(0, 3, 7),
             normal: null

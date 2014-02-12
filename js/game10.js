@@ -266,6 +266,11 @@ function(
         this.previousTime = this.currentTime;
 
         this.renderer.clean();
+
+        // this.bigMesh.rotation.x += 35;
+        // this.bigMesh.rotation.y += 45;
+        // this.bigMesh.rotation.z += 45;
+
         this.engine.render(this.meshes);
         // this.doCollision();
         // this.doTest();
@@ -303,7 +308,7 @@ function(
         this.cube.rotation.z += -2;
 
         // requestAnimationFrame(this.run.bind(this));
-        setTimeout(this.run.bind(this), 1000/30)
+        // setTimeout(this.run.bind(this), 1000/30)
     }
 
     return SomeGame;

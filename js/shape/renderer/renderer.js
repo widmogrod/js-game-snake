@@ -22,7 +22,7 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         this.context.clearRect(0, 0, this.width, this.height);
         this.imageData = this.context.getImageData(0, 0, this.width, this.height);
         this.buffer = []
-        this.zbuffer = []
+        this.zbuffer = Array(this.width * this.height)
         this.position = this.nullPoint;
         this.color = Color.fromName('black');
     }
@@ -179,13 +179,27 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
             temp = p2;
             p2 = p1;
             p1 = temp;
+        } else if (p1.y == p2.y && p1.z < p2.z) {
+            temp = p2;
+            p2 = p1;
+            p1 = temp;
         }
+
         if(p2.y > p3.y) {
             temp = p2;
             p2 = p3;
             p3 = temp;
+        } else if (p2.y === p3.y && p2.z < p3.z) {
+            temp = p2;
+            p2 = p3;
+            p3 = temp;
         }
+
         if(p1.y > p2.y) {
+            temp = p2;
+            p2 = p1;
+            p1 = temp;
+        } else if (p1.y == p2.y && p1.z < p2.y) {
             temp = p2;
             p2 = p1;
             p1 = temp;
@@ -205,6 +219,10 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         var slope1z = edge1.z === 0 ? 0 : edge1.y/edge1.z;
         var slope2z = edge2.z === 0 ? 0 : edge2.y/edge2.z;
         var slope3z = edge3.z === 0 ? 0 : edge3.y/edge3.z;
+        // console.log('p1', p1.toString())
+        // console.log('p2', p2.toString())
+        // console.log('p3', p3.toString())
+        // console.log(slope1x, slope3x)
 
         var dy = p2.y - p1.y >> 0;
         for (var y = p1.y >> 0; y < p2.y >> 0; y++) {
@@ -231,7 +249,27 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
             z2 = z1;
         }
 
-        var dz = (z2 - z1)/ (x2 - x1);
+        var dx = x2 - x1;
+        if (dx < 1) return;
+
+        var dz = (z2 - z1);
+
+        // var bost = 0;
+        // if (p1.z >> 0 == p2.z >> 0 && p1.z >> 0 == p3.z >> 0) {
+        //     bost = 2;
+        // } else if (p1.z >> 0 == p2.z >> 0 || p1.z >> 0 == p3.z >> 0) {
+        //     bost = 1;
+        // } else {
+        //
+        // }
+
+        if (dz == 0) {
+            dz = 0;
+        } else {
+            dz /= dx;
+            // dz += bost
+        }
+
         var color = this.color.clone();
         color.r *= this.angle;
         color.g *= this.angle;

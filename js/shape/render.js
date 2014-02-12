@@ -11,6 +11,10 @@ define([
 ) {
     'use strict';
 
+    function compareNumbers(a, b) {
+        return a.z - b.z;
+    }
+
     function ShapeRender(viewport, renderer, viewMatrix, projectionMatrix) {
         this.viewport = viewport;
         this.renderer = renderer;
@@ -18,16 +22,18 @@ define([
         this.projectionMatrix = projectionMatrix;
         // temporary callculation
         this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        // this.cammeraPossition = new Vector3(0, 0, 700)
     }
     ShapeRender.prototype.render = function(meshes) {
         var wordMatrix, mesh, face;
 
+        var depth = [];
         for (var i = 0, length = meshes.length; i < length; i++) {
             mesh = meshes[i];
             wordMatrix = Matrix4.translation(mesh.translation).multiply(
                 Matrix4.rotation(mesh.rotation).multiply(
                     Matrix4.scale(mesh.scale)
-                )
+            )
             );
 
             // Store vertices information in word matrix. Usefull for collision detection
@@ -36,8 +42,9 @@ define([
                 // this is so specific for CUBE...
                 // object.normal = object.word.subtract(mesh.translation).normalize();
             });
+
             // Calculate face normal
-            mesh.faces.forEach(function(object) {
+            mesh.faces.forEach(function(object, index) {
                 var vertexA = mesh.vertices[object.face.a].word;
                 var vertexB = mesh.vertices[object.face.b].word;
                 var vertexC = mesh.vertices[object.face.c].word;
@@ -47,13 +54,13 @@ define([
 
             this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
 
-            // var cameraPosition  = new Vector3(0, 0, 1);
+            var cameraPosition  = new Vector3(0, 0, 1);
 
             for (var f = 0, fl = mesh.faces.length; f < fl; f++) {
                 face = mesh.faces[f];
 
                 // Do not render faces that are at the back
-                // if (face.normal.dot(cameraPosition) < 0) continue;
+                if (face.normal.dot(cameraPosition) < 0) continue;
 
                 var vertexA = mesh.vertices[face.face.a].word;
                 var vertexB = mesh.vertices[face.face.b].word;
@@ -72,10 +79,19 @@ define([
                 // if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
                 if (pointA.z > 0 || pointB.z > 0 || pointC.z > 0) continue;
 
-                this.renderer.fillStyle(mesh.color)
+                depth.push({
+                    z: Math.min(vertexA.z, vertexB.z, vertexC.z),
+                    a: pointA,
+                    b: pointB,
+                    c: pointC,
+                    color: mesh.color,
+                    normal: face.normal
+                });
+
+                // this.renderer.fillStyle(mesh.color)
                 // this.drawTriangle(pointA, pointB, pointC);
-                this.renderer.color = mesh.color;
-                this.renderer.fillTriangle2(pointA, pointB, pointC, face.normal);
+                // this.renderer.color = mesh.color;
+                // this.renderer.fillTriangle2(pointA, pointB, pointC, face.normal);
                 // this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
                 // this.renderer.fillStyle(Color.fromName('blue'));
                 // this.drawLine(pointA, pointN);
@@ -83,11 +99,17 @@ define([
                 // this.drawLine(pointA, pointF);
             }
         }
+
+        depth.sort(compareNumbers);
+        depth.forEach(function(o) {
+            this.renderer.color = o.color;
+            this.renderer.fillTriangle2(o.a, o.b, o.c, o.normal);
+        }.bind(this));
     }
     ShapeRender.prototype.project = function(vertex) {
         // Homogeneous coordinates
         var vector4 = new Vector4(vertex.x, vertex.y, vertex.z, 1);
-            vector4 = this.transformationMatrix.multiply(vector4);
+        vector4 = this.transformationMatrix.multiply(vector4);
         var vector3 = this.transformCoordinates(vector4);
 
         vector3.x = this.viewport.x + this.viewport.width/2 + vector3.x >> 0;
