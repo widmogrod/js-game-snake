@@ -308,7 +308,7 @@ function(
         this.cube.rotation.z += -2;
 
         // requestAnimationFrame(this.run.bind(this));
-        // setTimeout(this.run.bind(this), 1000/30)
+        setTimeout(this.run.bind(this), 1000/30)
     }
 
     return SomeGame;
