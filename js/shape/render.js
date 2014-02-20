@@ -20,12 +20,14 @@ define([
         this.renderer = renderer;
         this.viewMatrix = viewMatrix;
         this.projectionMatrix = projectionMatrix;
+        this.viewportMatrix = Matrix4.viewportMatrix(viewport.width, viewport.height);
         // temporary callculation
-        this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        // this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        this.transformationMatrix = this.viewportMatrix.multiply(this.projectionMatrix).multiply(this.viewMatrix)
         // this.cammeraPossition = new Vector3(0, 0, 700)
     }
-    ShapeRender.prototype.render = function(meshes) {
-        var wordMatrix, mesh, face;
+    ShapeRender.prototype.update = function(meshes) {
+        var wordMatrix, mesh;
 
         var depth = [];
         for (var i = 0, length = meshes.length; i < length; i++) {
@@ -33,7 +35,7 @@ define([
             wordMatrix = Matrix4.translation(mesh.translation).multiply(
                 Matrix4.rotation(mesh.rotation).multiply(
                     Matrix4.scale(mesh.scale)
-            )
+                )
             );
 
             // Store vertices information in word matrix. Usefull for collision detection
@@ -51,35 +53,33 @@ define([
 
                 object.normal = vertexA.subtract(vertexB).cross(vertexA.subtract(vertexC)).normalize();
             })
+        }
+    }
+    ShapeRender.prototype.render = function(meshes) {
+        var mesh, face, facesDepth = [];
 
-            this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        // this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        this.transformationMatrix = this.viewportMatrix.multiply(this.projectionMatrix).multiply(this.viewMatrix)
 
-            var cameraPosition  = new Vector3(0, 0, 1);
+        for (var i = 0, length = meshes.length; i < length; i++) {
+            mesh = meshes[i];
 
             for (var f = 0, fl = mesh.faces.length; f < fl; f++) {
                 face = mesh.faces[f];
-
-                // Do not render faces that are at the back
-                if (face.normal.dot(cameraPosition) < 0) continue;
 
                 var vertexA = mesh.vertices[face.face.a].word;
                 var vertexB = mesh.vertices[face.face.b].word;
                 var vertexC = mesh.vertices[face.face.c].word;
 
-                var n = mesh.vertices[face.face.a].normal;
-                // n = this.project(n).normalize();
-                // n = wordMatrix.multiply(n).normalize();
-                // var pointN = this.project(vertexA.add(n.scale(50)))
-                var pointF = this.project(vertexA.add(face.normal.scale(50)));
-
                 var pointA = this.project(vertexA);
                 var pointB = this.project(vertexB);
                 var pointC = this.project(vertexC);
 
-                // if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
-                if (pointA.z > 0 || pointB.z > 0 || pointC.z > 0) continue;
+                if (pointA.z > 1 || pointA.z < -1) continue;
+                if (pointB.z > 1 || pointB.z < -1) continue;
+                if (pointC.z > 1 || pointC.z < -1) continue;
 
-                depth.push({
+                facesDepth.push({
                     z: Math.min(vertexA.z, vertexB.z, vertexC.z),
                     a: pointA,
                     b: pointB,
@@ -87,24 +87,21 @@ define([
                     color: mesh.color,
                     normal: face.normal
                 });
-
-                // this.renderer.fillStyle(mesh.color)
-                // this.drawTriangle(pointA, pointB, pointC);
-                // this.renderer.color = mesh.color;
-                // this.renderer.fillTriangle2(pointA, pointB, pointC, face.normal);
-                // this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
-                // this.renderer.fillStyle(Color.fromName('blue'));
-                // this.drawLine(pointA, pointN);
-                // this.renderer.fillStyle(Color.fromName('orange'));
-                // this.drawLine(pointA, pointF);
             }
         }
 
-        depth.sort(compareNumbers);
-        depth.forEach(function(o) {
+        facesDepth.sort(compareNumbers);
+        facesDepth.forEach(function(o) {
             this.renderer.color = o.color;
-            this.renderer.fillTriangle2(o.a, o.b, o.c, o.normal);
+            this.drawTriangle(o.a, o.b, o.c);
+            // this.renderer.fillTriangle2(o.a, o.b, o.c, o.normal);
         }.bind(this));
+    }
+    ShapeRender.prototype.clean = function() {
+        this.renderer.clean();
+    }
+    ShapeRender.prototype.flush = function() {
+        this.renderer.render();
     }
     ShapeRender.prototype.project = function(vertex) {
         // Homogeneous coordinates
@@ -115,6 +112,8 @@ define([
         vector3.x = this.viewport.x + this.viewport.width/2 + vector3.x >> 0;
         vector3.y = this.viewport.y + this.viewport.height/2 - vector3.y >> 0;
 
+        // console.log(vector3.toString());
+
         return vector3;
     }
     ShapeRender.prototype.unproject = function(vector) {
@@ -122,19 +121,12 @@ define([
     }
 
     ShapeRender.prototype.transformCoordinates = function(vector4) {
-        var result = Vector3.zero(), w = vector4.w;
+        var result = Vector3.zero(),
+            w = vector4.w;
 
-        if (w > 0) {
-            result.x = vector4.x / w;
-            result.y = vector4.y / w;
-            result.z = vector4.z;
-            // result.z = vector4.z / w;
-        } else if (w < 0) {
-            result.x = -vector4.x / w;
-            result.y = -vector4.y / w;
-            result.z = -vector4.z;
-            // result.z = -vector4.z / w;
-        }
+        result.x = vector4.x / w;
+        result.y = vector4.y / w;
+        result.z = vector4.z / w;
 
         return result;
     }

@@ -185,20 +185,31 @@ define([
             0, 0, 0, 1
         ]);
     }
-    Matrix4.perspectiveProjection = function(width, height, angle, d) {
+    Matrix4.perspectiveProjection = function(width, height, angle, near, far) {
         angle *= TO_RADIAN / 2;
-        d = d || -1;
 
-        var ratio = width/height;
-
-        var ew = Math.tan(angle) * Math.abs(d) * 2;
-        var eh = ew / ratio;
+        var r = width/height;
+        var e = Math.tan(angle);
+        var a = (near + far)/(near - far);
+        var b = 2*near*far/(near - far);
 
         return new Matrix4([
-            width/ew, 0, 0, 0,
-            0, height/eh, 0, 0,
+            1/e, 0, 0, 0,
+            0, r/e, 0, 0,
+            0, 0, a, b,
+            0, 0, -1, 0
+        ]);
+    }
+
+    Matrix4.viewportMatrix = function(width, height) {
+         var w = width,
+             h = height;
+
+         return new Matrix4([
+            w, 0, 0, 0,
+            0, h, 0, 0,
             0, 0, 1, 0,
-            0, 0, 1/d, 0
+            0, 0, 0, 1
         ]);
     }
 
