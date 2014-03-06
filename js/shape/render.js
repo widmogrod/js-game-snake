@@ -22,7 +22,6 @@ define([
         this.projectionMatrix = projectionMatrix;
         this.viewportMatrix = Matrix4.viewportMatrix(viewport.width, viewport.height);
         // temporary callculation
-        // this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
         this.transformationMatrix = this.viewportMatrix.multiply(this.projectionMatrix).multiply(this.viewMatrix)
         // this.cammeraPossition = new Vector3(0, 0, 700)
     }
@@ -58,7 +57,6 @@ define([
     ShapeRender.prototype.render = function(meshes) {
         var mesh, face, facesDepth = [];
 
-        // this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
         this.transformationMatrix = this.viewportMatrix.multiply(this.projectionMatrix).multiply(this.viewMatrix)
 
         for (var i = 0, length = meshes.length; i < length; i++) {
@@ -93,8 +91,8 @@ define([
         facesDepth.sort(compareNumbers);
         facesDepth.forEach(function(o) {
             this.renderer.color = o.color;
-            this.drawTriangle(o.a, o.b, o.c);
-            // this.renderer.fillTriangle2(o.a, o.b, o.c, o.normal);
+            this.renderer.fillTriangle(o.a, o.b, o.c, o.normal);
+            // this.renderer.drawTriangle(o.a, o.b, o.c, o.color);
         }.bind(this));
     }
     ShapeRender.prototype.clean = function() {
@@ -111,8 +109,6 @@ define([
 
         vector3.x = this.viewport.x + this.viewport.width/2 + vector3.x >> 0;
         vector3.y = this.viewport.y + this.viewport.height/2 - vector3.y >> 0;
-
-        // console.log(vector3.toString());
 
         return vector3;
     }
