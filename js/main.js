@@ -1,14 +1,161 @@
 
-/*! Hammer.JS - v1.0.6 - 2014-01-02
- * http://eightmedia.github.com/hammer.js
- *
- * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
- * Licensed under the MIT license */
+define('shape/viewport',[],function() {
+    
 
+    function Viewport(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
 
-!function(a,b){function c(){d.READY||(d.event.determineEventTypes(),d.utils.each(d.gestures,function(a){d.detection.register(a)}),d.event.onTouch(d.DOCUMENT,d.EVENT_MOVE,d.detection.detect),d.event.onTouch(d.DOCUMENT,d.EVENT_END,d.detection.detect),d.READY=!0)}var d=function(a,b){return new d.Instance(a,b||{})};d.defaults={stop_browser_behavior:{userSelect:"none",touchAction:"none",touchCallout:"none",contentZooming:"none",userDrag:"none",tapHighlightColor:"rgba(0,0,0,0)"}},d.HAS_POINTEREVENTS=a.navigator.pointerEnabled||a.navigator.msPointerEnabled,d.HAS_TOUCHEVENTS="ontouchstart"in a,d.MOBILE_REGEX=/mobile|tablet|ip(ad|hone|od)|android|silk/i,d.NO_MOUSEEVENTS=d.HAS_TOUCHEVENTS&&a.navigator.userAgent.match(d.MOBILE_REGEX),d.EVENT_TYPES={},d.DIRECTION_DOWN="down",d.DIRECTION_LEFT="left",d.DIRECTION_UP="up",d.DIRECTION_RIGHT="right",d.POINTER_MOUSE="mouse",d.POINTER_TOUCH="touch",d.POINTER_PEN="pen",d.EVENT_START="start",d.EVENT_MOVE="move",d.EVENT_END="end",d.DOCUMENT=a.document,d.plugins=d.plugins||{},d.gestures=d.gestures||{},d.READY=!1,d.utils={extend:function(a,c,d){for(var e in c)a[e]!==b&&d||(a[e]=c[e]);return a},each:function(a,c,d){var e,f;if("forEach"in a)a.forEach(c,d);else if(a.length!==b){for(e=0,f=a.length;f>e;e++)if(c.call(d,a[e],e,a)===!1)return}else for(e in a)if(a.hasOwnProperty(e)&&c.call(d,a[e],e,a)===!1)return},hasParent:function(a,b){for(;a;){if(a==b)return!0;a=a.parentNode}return!1},getCenter:function(a){var b=[],c=[];return d.utils.each(a,function(a){b.push("undefined"!=typeof a.clientX?a.clientX:a.pageX),c.push("undefined"!=typeof a.clientY?a.clientY:a.pageY)}),{pageX:(Math.min.apply(Math,b)+Math.max.apply(Math,b))/2,pageY:(Math.min.apply(Math,c)+Math.max.apply(Math,c))/2}},getVelocity:function(a,b,c){return{x:Math.abs(b/a)||0,y:Math.abs(c/a)||0}},getAngle:function(a,b){var c=b.pageY-a.pageY,d=b.pageX-a.pageX;return 180*Math.atan2(c,d)/Math.PI},getDirection:function(a,b){var c=Math.abs(a.pageX-b.pageX),e=Math.abs(a.pageY-b.pageY);return c>=e?a.pageX-b.pageX>0?d.DIRECTION_LEFT:d.DIRECTION_RIGHT:a.pageY-b.pageY>0?d.DIRECTION_UP:d.DIRECTION_DOWN},getDistance:function(a,b){var c=b.pageX-a.pageX,d=b.pageY-a.pageY;return Math.sqrt(c*c+d*d)},getScale:function(a,b){return a.length>=2&&b.length>=2?this.getDistance(b[0],b[1])/this.getDistance(a[0],a[1]):1},getRotation:function(a,b){return a.length>=2&&b.length>=2?this.getAngle(b[1],b[0])-this.getAngle(a[1],a[0]):0},isVertical:function(a){return a==d.DIRECTION_UP||a==d.DIRECTION_DOWN},stopDefaultBrowserBehavior:function(a,b){b&&a&&a.style&&(d.utils.each(["webkit","khtml","moz","Moz","ms","o",""],function(c){d.utils.each(b,function(b){c&&(b=c+b.substring(0,1).toUpperCase()+b.substring(1)),b in a.style&&(a.style[b]=b)})}),"none"==b.userSelect&&(a.onselectstart=function(){return!1}),"none"==b.userDrag&&(a.ondragstart=function(){return!1}))}},d.Instance=function(a,b){var e=this;return c(),this.element=a,this.enabled=!0,this.options=d.utils.extend(d.utils.extend({},d.defaults),b||{}),this.options.stop_browser_behavior&&d.utils.stopDefaultBrowserBehavior(this.element,this.options.stop_browser_behavior),d.event.onTouch(a,d.EVENT_START,function(a){e.enabled&&d.detection.startDetect(e,a)}),this},d.Instance.prototype={on:function(a,b){var c=a.split(" ");return d.utils.each(c,function(a){this.element.addEventListener(a,b,!1)},this),this},off:function(a,b){var c=a.split(" ");return d.utils.each(c,function(a){this.element.removeEventListener(a,b,!1)},this),this},trigger:function(a,b){b||(b={});var c=d.DOCUMENT.createEvent("Event");c.initEvent(a,!0,!0),c.gesture=b;var e=this.element;return d.utils.hasParent(b.target,e)&&(e=b.target),e.dispatchEvent(c),this},enable:function(a){return this.enabled=a,this}};var e=null,f=!1,g=!1;d.event={bindDom:function(a,b,c){var e=b.split(" ");d.utils.each(e,function(b){a.addEventListener(b,c,!1)})},onTouch:function(a,b,c){var h=this;this.bindDom(a,d.EVENT_TYPES[b],function(i){var j=i.type.toLowerCase();if(!j.match(/mouse/)||!g){j.match(/touch/)||j.match(/pointerdown/)||j.match(/mouse/)&&1===i.which?f=!0:j.match(/mouse/)&&!i.which&&(f=!1),j.match(/touch|pointer/)&&(g=!0);var k=0;f&&(d.HAS_POINTEREVENTS&&b!=d.EVENT_END?k=d.PointerEvent.updatePointer(b,i):j.match(/touch/)?k=i.touches.length:g||(k=j.match(/up/)?0:1),k>0&&b==d.EVENT_END?b=d.EVENT_MOVE:k||(b=d.EVENT_END),(k||null===e)&&(e=i),c.call(d.detection,h.collectEventData(a,b,h.getTouchList(e,b),i)),d.HAS_POINTEREVENTS&&b==d.EVENT_END&&(k=d.PointerEvent.updatePointer(b,i))),k||(e=null,f=!1,g=!1,d.PointerEvent.reset())}})},determineEventTypes:function(){var a;a=d.HAS_POINTEREVENTS?d.PointerEvent.getEvents():d.NO_MOUSEEVENTS?["touchstart","touchmove","touchend touchcancel"]:["touchstart mousedown","touchmove mousemove","touchend touchcancel mouseup"],d.EVENT_TYPES[d.EVENT_START]=a[0],d.EVENT_TYPES[d.EVENT_MOVE]=a[1],d.EVENT_TYPES[d.EVENT_END]=a[2]},getTouchList:function(a){return d.HAS_POINTEREVENTS?d.PointerEvent.getTouchList():a.touches?a.touches:(a.identifier=1,[a])},collectEventData:function(a,b,c,e){var f=d.POINTER_TOUCH;return(e.type.match(/mouse/)||d.PointerEvent.matchType(d.POINTER_MOUSE,e))&&(f=d.POINTER_MOUSE),{center:d.utils.getCenter(c),timeStamp:(new Date).getTime(),target:e.target,touches:c,eventType:b,pointerType:f,srcEvent:e,preventDefault:function(){this.srcEvent.preventManipulation&&this.srcEvent.preventManipulation(),this.srcEvent.preventDefault&&this.srcEvent.preventDefault()},stopPropagation:function(){this.srcEvent.stopPropagation()},stopDetect:function(){return d.detection.stopDetect()}}}},d.PointerEvent={pointers:{},getTouchList:function(){var a=this,b=[];return d.utils.each(a.pointers,function(a){b.push(a)}),b},updatePointer:function(a,b){return a==d.EVENT_END?this.pointers={}:(b.identifier=b.pointerId,this.pointers[b.pointerId]=b),Object.keys(this.pointers).length},matchType:function(a,b){if(!b.pointerType)return!1;var c=b.pointerType,e={};return e[d.POINTER_MOUSE]=c===b.MSPOINTER_TYPE_MOUSE||c===d.POINTER_MOUSE,e[d.POINTER_TOUCH]=c===b.MSPOINTER_TYPE_TOUCH||c===d.POINTER_TOUCH,e[d.POINTER_PEN]=c===b.MSPOINTER_TYPE_PEN||c===d.POINTER_PEN,e[a]},getEvents:function(){return["pointerdown MSPointerDown","pointermove MSPointerMove","pointerup pointercancel MSPointerUp MSPointerCancel"]},reset:function(){this.pointers={}}},d.detection={gestures:[],current:null,previous:null,stopped:!1,startDetect:function(a,b){this.current||(this.stopped=!1,this.current={inst:a,startEvent:d.utils.extend({},b),lastEvent:!1,name:""},this.detect(b))},detect:function(a){if(this.current&&!this.stopped){a=this.extendEventData(a);var b=this.current.inst.options;return d.utils.each(this.gestures,function(c){return this.stopped||b[c.name]===!1||c.handler.call(c,a,this.current.inst)!==!1?void 0:(this.stopDetect(),!1)},this),this.current&&(this.current.lastEvent=a),a.eventType==d.EVENT_END&&!a.touches.length-1&&this.stopDetect(),a}},stopDetect:function(){this.previous=d.utils.extend({},this.current),this.current=null,this.stopped=!0},extendEventData:function(a){var b=this.current.startEvent;!b||a.touches.length==b.touches.length&&a.touches!==b.touches||(b.touches=[],d.utils.each(a.touches,function(a){b.touches.push(d.utils.extend({},a))}));var c,e,f=a.timeStamp-b.timeStamp,g=a.center.pageX-b.center.pageX,h=a.center.pageY-b.center.pageY,i=d.utils.getVelocity(f,g,h);return"end"===a.eventType?(c=this.current.lastEvent&&this.current.lastEvent.interimAngle,e=this.current.lastEvent&&this.current.lastEvent.interimDirection):(c=this.current.lastEvent&&d.utils.getAngle(this.current.lastEvent.center,a.center),e=this.current.lastEvent&&d.utils.getDirection(this.current.lastEvent.center,a.center)),d.utils.extend(a,{deltaTime:f,deltaX:g,deltaY:h,velocityX:i.x,velocityY:i.y,distance:d.utils.getDistance(b.center,a.center),angle:d.utils.getAngle(b.center,a.center),interimAngle:c,direction:d.utils.getDirection(b.center,a.center),interimDirection:e,scale:d.utils.getScale(b.touches,a.touches),rotation:d.utils.getRotation(b.touches,a.touches),startEvent:b}),a},register:function(a){var c=a.defaults||{};return c[a.name]===b&&(c[a.name]=!0),d.utils.extend(d.defaults,c,!0),a.index=a.index||1e3,this.gestures.push(a),this.gestures.sort(function(a,b){return a.index<b.index?-1:a.index>b.index?1:0}),this.gestures}},d.gestures.Drag={name:"drag",index:50,defaults:{drag_min_distance:10,correct_for_drag_min_distance:!0,drag_max_touches:1,drag_block_horizontal:!1,drag_block_vertical:!1,drag_lock_to_axis:!1,drag_lock_min_distance:25},triggered:!1,handler:function(a,b){if(d.detection.current.name!=this.name&&this.triggered)return b.trigger(this.name+"end",a),this.triggered=!1,void 0;if(!(b.options.drag_max_touches>0&&a.touches.length>b.options.drag_max_touches))switch(a.eventType){case d.EVENT_START:this.triggered=!1;break;case d.EVENT_MOVE:if(a.distance<b.options.drag_min_distance&&d.detection.current.name!=this.name)return;if(d.detection.current.name!=this.name&&(d.detection.current.name=this.name,b.options.correct_for_drag_min_distance&&a.distance>0)){var c=Math.abs(b.options.drag_min_distance/a.distance);d.detection.current.startEvent.center.pageX+=a.deltaX*c,d.detection.current.startEvent.center.pageY+=a.deltaY*c,a=d.detection.extendEventData(a)}(d.detection.current.lastEvent.drag_locked_to_axis||b.options.drag_lock_to_axis&&b.options.drag_lock_min_distance<=a.distance)&&(a.drag_locked_to_axis=!0);var e=d.detection.current.lastEvent.direction;a.drag_locked_to_axis&&e!==a.direction&&(a.direction=d.utils.isVertical(e)?a.deltaY<0?d.DIRECTION_UP:d.DIRECTION_DOWN:a.deltaX<0?d.DIRECTION_LEFT:d.DIRECTION_RIGHT),this.triggered||(b.trigger(this.name+"start",a),this.triggered=!0),b.trigger(this.name,a),b.trigger(this.name+a.direction,a),(b.options.drag_block_vertical&&d.utils.isVertical(a.direction)||b.options.drag_block_horizontal&&!d.utils.isVertical(a.direction))&&a.preventDefault();break;case d.EVENT_END:this.triggered&&b.trigger(this.name+"end",a),this.triggered=!1}}},d.gestures.Hold={name:"hold",index:10,defaults:{hold_timeout:500,hold_threshold:1},timer:null,handler:function(a,b){switch(a.eventType){case d.EVENT_START:clearTimeout(this.timer),d.detection.current.name=this.name,this.timer=setTimeout(function(){"hold"==d.detection.current.name&&b.trigger("hold",a)},b.options.hold_timeout);break;case d.EVENT_MOVE:a.distance>b.options.hold_threshold&&clearTimeout(this.timer);break;case d.EVENT_END:clearTimeout(this.timer)}}},d.gestures.Release={name:"release",index:1/0,handler:function(a,b){a.eventType==d.EVENT_END&&b.trigger(this.name,a)}},d.gestures.Swipe={name:"swipe",index:40,defaults:{swipe_min_touches:1,swipe_max_touches:1,swipe_velocity:.7},handler:function(a,b){if(a.eventType==d.EVENT_END){if(b.options.swipe_max_touches>0&&a.touches.length<b.options.swipe_min_touches&&a.touches.length>b.options.swipe_max_touches)return;(a.velocityX>b.options.swipe_velocity||a.velocityY>b.options.swipe_velocity)&&(b.trigger(this.name,a),b.trigger(this.name+a.direction,a))}}},d.gestures.Tap={name:"tap",index:100,defaults:{tap_max_touchtime:250,tap_max_distance:10,tap_always:!0,doubletap_distance:20,doubletap_interval:300},handler:function(a,b){if(a.eventType==d.EVENT_END&&"touchcancel"!=a.srcEvent.type){var c=d.detection.previous,e=!1;if(a.deltaTime>b.options.tap_max_touchtime||a.distance>b.options.tap_max_distance)return;c&&"tap"==c.name&&a.timeStamp-c.lastEvent.timeStamp<b.options.doubletap_interval&&a.distance<b.options.doubletap_distance&&(b.trigger("doubletap",a),e=!0),(!e||b.options.tap_always)&&(d.detection.current.name="tap",b.trigger(d.detection.current.name,a))}}},d.gestures.Touch={name:"touch",index:-1/0,defaults:{prevent_default:!1,prevent_mouseevents:!1},handler:function(a,b){return b.options.prevent_mouseevents&&a.pointerType==d.POINTER_MOUSE?(a.stopDetect(),void 0):(b.options.prevent_default&&a.preventDefault(),a.eventType==d.EVENT_START&&b.trigger(this.name,a),void 0)}},d.gestures.Transform={name:"transform",index:45,defaults:{transform_min_scale:.01,transform_min_rotation:1,transform_always_block:!1},triggered:!1,handler:function(a,b){if(d.detection.current.name!=this.name&&this.triggered)return b.trigger(this.name+"end",a),this.triggered=!1,void 0;if(!(a.touches.length<2))switch(b.options.transform_always_block&&a.preventDefault(),a.eventType){case d.EVENT_START:this.triggered=!1;break;case d.EVENT_MOVE:var c=Math.abs(1-a.scale),e=Math.abs(a.rotation);if(c<b.options.transform_min_scale&&e<b.options.transform_min_rotation)return;d.detection.current.name=this.name,this.triggered||(b.trigger(this.name+"start",a),this.triggered=!0),b.trigger(this.name,a),e>b.options.transform_min_rotation&&b.trigger("rotate",a),c>b.options.transform_min_scale&&(b.trigger("pinch",a),b.trigger("pinch"+(a.scale<1?"in":"out"),a));break;case d.EVENT_END:this.triggered&&b.trigger(this.name+"end",a),this.triggered=!1}}},"function"==typeof define&&"object"==typeof define.amd&&define.amd?define('hammerjs',[],function(){return d}):"object"==typeof module&&"object"==typeof module.exports?module.exports=d:a.Hammer=d}(this);
-//# sourceMappingURL=hammer.min.map
+    Viewport.constructor = Viewport;
+    Viewport.prototype.isIn = function(x, y) {
+        return (x > this.x || x < (this.x + this.width)) && (y > this.y || y < (this.y + this.height));
+    }
+
+    return Viewport;
+})
 ;
+define('shape/renderer/renderer',[
+    'shape/viewport'
+], function(
+    Viewport
+) {
+    
+
+    function Renderer(canvas) {
+        this.context = canvas.getContext('2d');
+        this.width = canvas.width;
+        this.height = canvas.height;
+        this.viewport = new Viewport(0, 0, this.width, this.height);
+        this.zbuffer = Array(this.width * this.height);
+    }
+
+    Renderer.constructor = Renderer;
+    Renderer.prototype.clean = function() {
+        this.context.clearRect(0, 0, this.width, this.height);
+        this.imageData = this.context.getImageData(0, 0, this.width, this.height);
+        this.zbuffer = Array(this.width * this.height)
+    }
+    Renderer.prototype.render = function() {
+        this.flush();
+    };
+    Renderer.prototype.flush = function() {
+        this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
+    }
+    Renderer.prototype.fillTriangle = function(v1, v2, v3, texture) {
+        var order = this.topMiddleBottom(v1, v2, v3);
+
+        for (var y = order.bottom.projection.y >> 0; y < order.middle.projection.y >> 0; y++) {
+            this.processLine(y, order.bottom, order.middle, order.top, texture);
+        }
+        for (var y = order.middle.projection.y >> 0; y < order.top.projection.y >> 0; y++) {
+            this.processLine(y, order.top, order.middle, order.bottom, texture);
+        }
+    }
+    Renderer.prototype.topMiddleBottom = function(v1, v2, v3) {
+        var result = {
+            bottom: v1,
+            middle: v2,
+            top: v3
+        };
+
+        if(result.bottom.projection.y > result.middle.projection.y) {
+            this.swap(result, 'bottom', 'middle');
+        }
+        if(result.middle.projection.y > result.top.projection.y) {
+            this.swap(result, 'top', 'middle');
+        }
+        if(result.bottom.projection.y > result.middle.projection.y) {
+            this.swap(result, 'bottom', 'middle');
+        }
+
+        return result;
+    }
+    Renderer.prototype.swap = function(object, key1, key2) {
+        var temp = object[key2];
+        object[key2] = object[key1];
+        object[key1] = temp;
+    }
+    Renderer.prototype.processLine = function(y, v1, v2, v3, texture) {
+        var p1 = v1.projection;
+        var p2 = v2.projection;
+        var p3 = v3.projection;
+
+        var t1 = v1.texture;
+        var t2 = v2.texture;
+        var t3 = v3.texture;
+
+        var data = {};
+
+        // interpolate start and end x
+        data.x1 = this.interpolate(p1.x, p2.x, p1.y, p2.y, y);
+        data.x2 = this.interpolate(p1.x, p3.x, p1.y, p3.y, y);
+        // interpolate depth
+        data.z1 = this.interpolate(p1.z, p2.z, p1.y, p2.y, y);
+        data.z2 = this.interpolate(p1.z, p3.z, p1.y, p3.y, y);
+
+        // interpolate start and end texture point
+        data.u1 = this.interpolate(t1.x, t2.x, p1.y, p2.y, y);
+        data.u2 = this.interpolate(t1.x, t3.x, p1.y, p3.y, y);
+        data.v1 = this.interpolate(t1.y, t2.y, p1.x, p2.x, data.x1);
+        data.v2 = this.interpolate(t1.y, t3.y, p1.x, p3.x, data.x2);
+
+        if (data.x1 === data.x2) return;
+
+        if (data.x1 > data.x2) {
+            this.swap(data, 'x1', 'x2');
+            this.swap(data, 'z1', 'z2');
+            this.swap(data, 'u1', 'u2');
+            this.swap(data, 'v1', 'v2');
+        }
+
+        var dx = data.x2 - data.x1;
+        var dz = (data.z2 - data.z1)/dx;
+        var du = (data.u2 - data.u1)/dx;
+        var dv = (data.v2 - data.v1)/dx;
+
+        var x = data.x1 >> 0;
+        var z = data.z1;
+        var u = data.u1;
+        var v = data.v1;
+
+        for (; x < data.x2 >> 0; x++, z += dz, u += du, v += dv) {
+            this.drawPixel(x, y, z, texture.map(u, v));
+        }
+    }
+    Renderer.prototype.interpolate = function(x1, x2, y1, y2, y) {
+        if (y1 === y2) return x1;
+        return ((y - y1)/(y2 - y1) * (x2 - x1)) + x1;
+    }
+    Renderer.prototype.clipTo = function(viewport) {
+        this.viewport = viewport;
+    }
+    Renderer.prototype.drawPoint = function(point, color) {
+        this.drawPixel(point.x, point.y, point.z, color);
+    }
+    Renderer.prototype.drawPixel = function(x, y, z, color) {
+        if (this.viewport.isIn(x, y)) {
+            this.putPixel(x, y, z, color);
+        }
+    }
+    Renderer.prototype.putPixel = function(x, y, z, color) {
+        var index = (y * this.width) + x;
+        var index4 = index * 4;
+
+        if (this.zbuffer[index] < z) return;
+        this.zbuffer[index] = z;
+
+        this.imageData.data[index4]     = color.r;
+        this.imageData.data[index4 + 1] = color.g;
+        this.imageData.data[index4 + 2] = color.b;
+        this.imageData.data[index4 + 3] = color.a;
+    }
+
+    return Renderer;
+});
+
 define('math/matrix',[],function(){
     
 
@@ -230,530 +377,6 @@ define('math/vector3',['math/matrix'], function(Matrix) {
     return Vector3;
 })
 ;
-define('shape/color',[],function(){
-    
-
-    function Color() {
-        this.r = 0;
-        this.g = 0;
-        this.b = 0;
-        this.a = 255;
-    }
-    Color.prototype.clone = function() {
-        var clone = new Color();
-        clone.r = this.r;
-        clone.g = this.g;
-        clone.b = this.b;
-        clone.a = this.a;
-        return clone;
-    }
-
-    Color.fromName = function(name) {
-        var result = new Color();
-
-        switch(name) {
-            case 'red':   result.r = 255; break;
-            case 'green': result.g = 255; break;
-            case 'blue':  result.b = 255; break;
-            case 'orange':  result.r = 255; result.g = 165; break;
-        }
-
-        return result;
-    }
-
-    Color.prototype.toString = function() {
-        return 'rgba('+ this.r +','+ this.g +','+ this.b +', '+ this.a / 255 +')';
-    }
-
-    return Color;
-
-})
-;
-define('shape/renderer/renderer',['math/vector3', 'shape/color'], function(Vector3, Color){
-    
-
-    function isInfinity(value) {
-        return value === Infinity || value === -Infinity; // || isNaN(value);
-    }
-
-    function Renderer(canvas) {
-        this.context = canvas.getContext('2d');
-        this.width = canvas.width;
-        this.height = canvas.height;
-        this.buffer = [];
-        this.zbuffer = Array(this.width * this.height);
-        this.nullPoint = Vector3.zero();
-        this.position = this.nullPoint;
-        this.color = Color.fromName('black');
-        this.lightPosition = new Vector3(0, 0, 1);
-    }
-
-    Renderer.constructor = Renderer;
-    Renderer.prototype.clean = function() {
-        this.context.clearRect(0, 0, this.width, this.height);
-        this.imageData = this.context.getImageData(0, 0, this.width, this.height);
-        this.buffer = []
-        this.zbuffer = Array(this.width * this.height)
-        this.position = this.nullPoint;
-        this.color = Color.fromName('black');
-    }
-    Renderer.prototype.render = function() {
-        this.flush();
-    };
-    Renderer.prototype.flush = function() {
-        var method, args;
-        var i = 0,
-        buffer = this.buffer,
-        length = buffer.length;
-
-        this.buffer = [];
-        this.position = this.nullPoint;
-        var colors = [this.color];
-        var fill = [];
-
-        for (; i < length; i++) {
-            method = buffer[i][0];
-            args = buffer[i][1];
-            switch(method) {
-                case 'stroke':
-                    // fill = [];
-                    break;
-
-                case 'fill':
-                    if (fill.length < 3) break;
-                // console.log(fill);
-                // console.log(fill.pop(), fill.pop(), fill.pop())
-                // this.fillTriangle(fill[0], fill[1], fill[2]);
-                // this.fillTriangle(fill[2], fill[3], fill[0]);
-                fill = [];
-                break;
-
-                // case 'fillRect':     this.context.fillRect(args[0].x, args[0].y, args[1], args[2]); break;
-                case 'fillStyle':
-                    colors.push(
-                        args[0] instanceof Color ? args[0] : Color.fromName('black')
-                );
-                // this.context.fillStyle = 'rgba('+ this.color.r +','+ this.color.g +','+ this.color.b +',1)';
-                break;
-
-                // case 'fillText':     this.context.fillText(args[0], args[1].x, args[1].y); break;
-                case 'beginPath':
-                    this.color = colors.length ? colors[colors.length - 1] : this.color;
-                break;
-
-                case 'closePath':
-                    // colors.shift();
-                    break;
-                case 'moveTo':
-                    // this.context.moveTo(args[0].x, args[0].y);
-                    this.position = args[0];
-                // fill.push(args[0]);
-                break;
-
-                case 'lineTo':
-                    // this.context.lineTo(args[0].x, args[0].y);
-                    // this.context.stroke();
-
-                    this.drawCline(this.position, args[0]);
-                    // this.drawBline(this.position, args[0]);
-                // this.drawLine(this.position, args[0]);
-                this.position = args[0];
-                fill.push(args[0]);
-                break;
-
-                // case 'font':         this.context.font = args[0]; break;
-                // case 'textBaseline': this.context.textBaseline = args[0]; break;
-                // case 'putImageData': this.context.putImageData(args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                // case 'drawImage':    this.context.drawImage(args[0], args[1].x, args[1].y, args[2], args[3]); break;
-            }
-        }
-
-        this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
-    }
-    Renderer.prototype.fillTriangle = function(p1, p2, p3, fn) {
-        var top, middle, bottom, a;
-        var min = Math.min(p1.y, p2.y, p3.y);
-        var max = Math.max(p1.y, p2.y, p3.y);
-
-        // TODO: Experiment, make it better
-        var angle = this.lightPosition.dot(fn);
-        this.angle = Math.max(0, angle);
-
-        for (var i = 0; i < 3; i++) {
-            a = arguments[i];
-            switch(true) {
-                case min === a.y && !bottom: bottom = a; break;
-                case max === a.y && !top: top = a; break;
-                default: middle = a; break;
-            }
-        }
-
-        var vectorTB = top.subtract(bottom);
-        var vectorMB = middle.subtract(bottom);
-        var vectorTM = top.subtract(middle);
-
-        var slopeTBy = this.slopeYX(vectorTB);
-        var slopeMBy = this.slopeYX(vectorMB);
-        var slopeTMy = this.slopeYX(vectorTM);
-
-        var slopeTBz = this.slopeYZ(vectorTB);
-        var slopeMBz = this.slopeYZ(vectorMB);
-        var slopeTMz = this.slopeYZ(vectorTM);
-
-
-        var by1 = this.offset(bottom.y, bottom.x, slopeTBy); // b = y - (x * slope)
-        console.log('[BBB] b1', bottom.y, bottom.x, slopeTBy, by1);
-        var x1 = this.calcX(bottom.y, by1, slopeTBy); // x = (y - b) / slope
-        console.log('[BBB] x1', x1);
-
-
-        var by2 = this.offset(middle.y, middle.x, slopeMBy);
-        var by3 = this.offset(top.y, top.x, slopeTMy);
-
-        var bz1 = this.offset(bottom.z, bottom.y, slopeTBz);
-        var bz2 = this.offset(middle.z, middle.y, slopeMBz);
-        var bz3 = this.offset(top.z, top.y, slopeTMz);
-
-
-        console.log('top', top.toString())
-        console.log('middle', middle.toString())
-        console.log('botom', bottom.toString())
-
-        console.log('from', bottom.z)
-        console.log('to', middle.z)
-        console.log('slope', slopeTBy, slopeMBy, slopeTMy)
-        // console.log('TMz', slopeTMz, vectorTM.toString())
-        // console.log('slope', slopeTBz, slopeMBz, slopeTMz);
-        console.log('offset', bz1, bz2, bz3);
-
-        this.scanLines(
-            bottom, middle,
-            by1, by2,
-            slopeTBy, slopeMBy,
-            bz1, bz2,
-            slopeTBz, slopeMBz
-        );
-        // this.scanLines(
-        //     middle, top,
-        //     by1, by3,
-        //     slopeTBy, slopeTMy,
-        //     bz1, bz3,
-        //     slopeTBz, slopeTMz
-        // );
-    };
-    Renderer.prototype.fillTriangle2 = function(p1, p2, p3, fn) {
-        var temp;
-        // p1 - bottom
-        // p2 - middle
-        // p3 - top
-        if(p1.y > p2.y) {
-            temp = p2;
-            p2 = p1;
-            p1 = temp;
-        } else if (p1.y == p2.y && p1.z < p2.z) {
-            temp = p2;
-            p2 = p1;
-            p1 = temp;
-        }
-
-        if(p2.y > p3.y) {
-            temp = p2;
-            p2 = p3;
-            p3 = temp;
-        } else if (p2.y === p3.y && p2.z < p3.z) {
-            temp = p2;
-            p2 = p3;
-            p3 = temp;
-        }
-
-        if(p1.y > p2.y) {
-            temp = p2;
-            p2 = p1;
-            p1 = temp;
-        } else if (p1.y == p2.y && p1.z < p2.y) {
-            temp = p2;
-            p2 = p1;
-            p1 = temp;
-        }
-
-        var dot = this.lightPosition.dot(fn);
-        this.angle = Math.max(0, dot);
-
-        // Vectors
-        var edge1 = p3.subtract(p1); // top - bottom
-        var edge2 = p2.subtract(p1); // middle - bottom
-        var edge3 = p3.subtract(p2); // top - middle
-
-        var slope1x = edge1.x === 0 ? 0 : edge1.y/edge1.x;
-        var slope2x = edge2.x === 0 ? 0 : edge2.y/edge2.x;
-        var slope3x = edge3.x === 0 ? 0 : edge3.y/edge3.x;
-        var slope1z = edge1.z === 0 ? 0 : edge1.y/edge1.z;
-        var slope2z = edge2.z === 0 ? 0 : edge2.y/edge2.z;
-        var slope3z = edge3.z === 0 ? 0 : edge3.y/edge3.z;
-        // console.log('p1', p1.toString())
-        // console.log('p2', p2.toString())
-        // console.log('p3', p3.toString())
-        // console.log(slope1x, slope3x)
-
-        var dy = p2.y - p1.y >> 0;
-        for (var y = p1.y >> 0; y < p2.y >> 0; y++) {
-            this.processLine(y, dy, p1, p2, p3, slope1x, slope2x, slope1z, slope2z);
-        }
-        for (var y = p2.y >> 0; y < p3.y >> 0; y++) {
-            this.processLine(y, dy, p3, p2, p1, slope1x, slope3x, slope1z, slope3z);
-        }
-    }
-    Renderer.prototype.processLine = function(y, dy, p1, p2, p3, slope1x, slope2x, slope1z, slope2z) {
-        var x1 = this.interpolate2(y, p1.y, p1.x, slope1x) >> 0;
-        var x2 = this.interpolate2(y, p2.y, p2.x, slope2x) >> 0;
-        var z1 = this.interpolate2(y, p1.y, p1.z, slope1z);
-        var z2 = this.interpolate2(y, p2.y, p2.z, slope2z);
-
-        // swap
-        if (x1 > x2) {
-            var temp = x1;
-            x1 = x2;
-            x2 = temp;
-
-            temp = z1;
-            z1 = z2;
-            z2 = z1;
-        }
-
-        var dx = x2 - x1;
-        if (dx < 1) return;
-
-        var dz = (z2 - z1);
-
-        // var bost = 0;
-        // if (p1.z >> 0 == p2.z >> 0 && p1.z >> 0 == p3.z >> 0) {
-        //     bost = 2;
-        // } else if (p1.z >> 0 == p2.z >> 0 || p1.z >> 0 == p3.z >> 0) {
-        //     bost = 1;
-        // } else {
-        //
-        // }
-
-        if (dz == 0) {
-            dz = 0;
-        } else {
-            dz /= dx;
-            // dz += bost
-        }
-
-        var color = this.color.clone();
-        color.r *= this.angle;
-        color.g *= this.angle;
-        color.b *= this.angle;
-
-        for (var x = x1, z = z1; x < x2; x++, z += dz) {
-            // this.drawPixel(x, y + dy, z, color);
-            this.drawPixel(x, y, z, color);
-        }
-    }
-    Renderer.prototype.interpolate2 = function(y, y1, x1, slope) {
-        var b = slope === 0 ? x1 : (y1 - slope * x1);
-        return slope === 0 ? (b) : ((y - b)/slope);
-    }
-    Renderer.prototype.interpolate3 = function(y, y1, x1, slope) {
-        // var b = slope === 0 ? x1 : (y1 - slope * x1);
-        var b = x1;
-        return slope === 0 ? (b) : (y/slope + b);
-    }
-    Renderer.prototype.slopeYX = function(vector) {
-        return vector.y / vector.x;
-    }
-    Renderer.prototype.slopeYZ = function(vector) {
-        return vector.y / vector.z;
-    }
-    Renderer.prototype.scanLines = function(bottom, top, by1, by2, slope1y, slope2y, bz1, bz2, slope1z, slope2z) {
-        if (bottom.y - top.y === 0) {
-            console.log('[!!!] y=const');
-            return;
-        };
-
-        for (var y = bottom.y; y < top.y; y++) {
-            var x1 = this.calcX(y, by1, slope1y);
-            var x2 = this.calcX(y, by2, slope2y);
-            var z1 = this.calcX(y, bz1, slope1z);
-            var z2 = this.calcX(y, bz2, slope2z);
-
-            var delta = x1 - x2;
-            if (delta < 2 && delta > -2) {
-                continue;
-            }
-            // console.log('y', y, z1, z2);
-
-            this.drawYLine(y, x1, x2, z1, z2);
-        }
-    }
-    Renderer.prototype.calcX = function(y, b, slope) {
-        if (isInfinity(slope)) {
-            // return y;
-            return b;
-        }
-        if (isNaN(slope)) {
-            b = 0;
-        }
-        return (y - b) / slope >> 0;
-    }
-    Renderer.prototype.offset = function(y, x, slope) {
-        if (isInfinity(slope)) {
-            // return 0;
-            return x;
-        }
-        if (isNaN(slope)) {
-            slope = 1;
-            slope = 0;
-        }
-        return y - (x * slope);
-    }
-    Renderer.prototype.drawYLine = function(y, x1, x2, z1, z2) {
-        var min = x1,
-            max = x2;
-
-        var z = z1;
-        var dz = z1 - z2;
-
-        if (min > max) {
-            min = x2;
-            max = x1;
-            dz = z2 - z1;
-            z = z2;
-        }
-
-        dz /= (max - min);
-        // dz = dz >> 0;
-
-        var color = this.color.clone();
-        // color.r = this.angle * 255;
-        // color.g = this.angle * 255;
-        // color.b = this.angle * 255;
-        color.r *= this.angle;
-        color.g *= this.angle;
-        color.b *= this.angle;
-
-        for (var x = min; x < max; x++) {
-            z += dz;
-            if (y === 485)
-                console.log(x, y, z);
-            this.drawPixel(x, y, z, color);
-        }
-    }
-    // Renderer.prototype.canScanLine = function(v1, v2) {
-    //     return true;
-    //     return v1.x != 0 && v2.x != 0;
-    //     // return v1.x != 0 && v2.x != 0 && v1.y != 0 && v2.y != 0;
-    // }
-
-    Renderer.prototype.drawCline = function(point0, point1) {
-        var x, y, x0, x1, y0, y1, z = 0;
-
-        if (point1.y > point0.y) {
-            x0 = point0.x >> 0;
-            y0 = point0.y >> 0;
-            x1 = point1.x >> 0;
-            y1 = point1.y >> 0;
-            for (y = y0; y < y1; y++) {
-                x = this.interpolate(y0, y1, x0, x1, y);
-                this.drawPoint(new Vector3(x, y, z), this.color);
-            }
-        } else if (point1.y < point0.y) {
-            x0 = point1.x >> 0;
-            y0 = point1.y >> 0;
-            x1 = point0.x >> 0;
-            y1 = point0.y >> 0;
-            for (y = y0; y < y1; y++) {
-                x = this.interpolate(y0, y1, x0, x1, y);
-                this.drawPoint(new Vector3(x, y, z), this.color);
-            }
-        }
-
-        if (point1.x > point0.x) {
-            x0 = point0.x;
-            y0 = point0.y;
-            x1 = point1.x;
-            y1 = point1.y;
-            for (x = x0; x < x1; x++) {
-                y = this.interpolate(x0, x1, y0, y1, x);
-                this.drawPoint(new Vector3(x, y, z), this.color);
-            }
-        } else if (point1.x < point0.x) {
-            x0 = point1.x >> 0;
-            y0 = point1.y >> 0;
-            x1 = point0.x >> 0;
-            y1 = point0.y >> 0;
-            for (x = x0; x < x1; x++) {
-                y = this.interpolate(x0, x1, y0, y1, x);
-                this.drawPoint(new Vector3(x, y, z), this.color);
-            }
-        }
-    }
-    Renderer.prototype.interpolate = function(x0, x1, y0, y1, x) {
-        return (y0 + ((y1 - y0) * (x - x0) / (x1- x0))) >> 0;
-    }
-    Renderer.prototype.drawPoint = function(point) {
-        this.drawPixel(point.x, point.y, point.z, this.color)
-    }
-    Renderer.prototype.drawPixel = function(x, y, z, color) {
-        if (x < 0 || x > this.width || y < 0 || y > this.height) return;
-        this.putPixel(x, y, z, color);
-    }
-    Renderer.prototype.putPixel = function(x, y, z, color) {
-        var index = (y * this.width) + x;
-        var index4 = index * 4;
-
-        // Here we need to rememeber that z is negative
-        if (this.zbuffer[index] > z) return;
-        this.zbuffer[index] = z;
-
-        this.imageData.data[index4]     = color.r;
-        this.imageData.data[index4 + 1] = color.g;
-        this.imageData.data[index4 + 2] = color.b;
-        this.imageData.data[index4 + 3] = color.a;
-    }
-    Renderer.prototype.fillRect = function(point, width, height) {
-        this.buffer.push(['fillRect', [point, width, height]]);
-    }
-    Renderer.prototype.beginPath = function() {
-        this.buffer.push(['beginPath']);
-    }
-    Renderer.prototype.closePath = function() {
-        this.buffer.push(['closePath']);
-    }
-    Renderer.prototype.fill = function() {
-        this.buffer.push(['fill']);
-    }
-    Renderer.prototype.stroke = function() {
-        this.buffer.push(['stroke']);
-    }
-    Renderer.prototype.moveTo = function(point) {
-        this.buffer.push(['moveTo', [point]]);
-    }
-    Renderer.prototype.lineTo = function(point) {
-        this.buffer.push(['lineTo', [point]]);
-    }
-    Renderer.prototype.fillStyle = function(style) {
-        this.buffer.push(['fillStyle', [style]]);
-    }
-    Renderer.prototype.fillText = function(text, point, options) {
-        this.buffer.push(['font', [options.style + ' ' + options.weigth + ' ' + options.size + ' ' + options.font]]);
-        this.buffer.push(['textBaseline', [options.baseline]]);
-        this.buffer.push(['fillText', [text, point]]);
-    }
-    Renderer.prototype.getImageData = function(x, y, width, height) {
-        return this.context.getImageData(x, y, width, height);
-    }
-    Renderer.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
-        this.buffer.push(['putImageData', [imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight]]);
-    }
-    Renderer.prototype.drawImage = function(img, point, width, height) {
-        this.buffer.push(['drawImage', [img, point, width, height]]);
-    }
-
-    return Renderer;
-});
-
 define('math/vector4',['math/matrix'], function(Matrix) {
     
 
@@ -1006,26 +629,76 @@ define('math/matrix4',[
             0, 0, 0, 1
         ]);
     }
-    Matrix4.perspectiveProjection = function(width, height, angle, d) {
+    Matrix4.perspectiveProjection = function(width, height, angle, near, far) {
         angle *= TO_RADIAN / 2;
-        d = d || -1;
 
-        var ratio = width/height;
-
-        var ew = Math.tan(angle) * Math.abs(d) * 2;
-        var eh = ew / ratio;
+        var r = width/height;
+        var e = Math.tan(angle);
+        var a = (near + far)/(near - far);
+        var b = 2*near*far/(near - far);
 
         return new Matrix4([
-            width/ew, 0, 0, 0,
-            0, height/eh, 0, 0,
+            1/e, 0, 0, 0,
+            0, r/e, 0, 0,
+            0, 0, a, b,
+            0, 0, -1, 0
+        ]);
+    }
+
+    Matrix4.viewportMatrix = function(width, height) {
+         var w = width,
+             h = height;
+
+         return new Matrix4([
+            w, 0, 0, 0,
+            0, h, 0, 0,
             0, 0, 1, 0,
-            0, 0, 1/d, 0
+            0, 0, 0, 1
         ]);
     }
 
     return Matrix4;
 });
 
+define('shape/color',[],function(){
+    
+
+    function Color(r, g, b, a) {
+        this.r = r || 0;
+        this.g = g || 0;
+        this.b = b || 0;
+        this.a = a || 255;
+    }
+    Color.prototype.clone = function() {
+        return new Color(
+            this.r,
+            this.g,
+            this.b,
+            this.a
+        );
+    }
+
+    Color.fromName = function(name) {
+        var result = new Color();
+
+        switch(name) {
+            case 'red':   result.r = 255; break;
+            case 'green': result.g = 255; break;
+            case 'blue':  result.b = 255; break;
+            case 'orange':  result.r = 255; result.g = 165; break;
+        }
+
+        return result;
+    }
+
+    Color.prototype.toString = function() {
+        return 'rgba('+ this.r +','+ this.g +','+ this.b +', '+ this.a / 255 +')';
+    }
+
+    return Color;
+
+})
+;
 define('shape/render',[
     'math/matrix4',
     'math/vector3',
@@ -1048,12 +721,12 @@ define('shape/render',[
         this.renderer = renderer;
         this.viewMatrix = viewMatrix;
         this.projectionMatrix = projectionMatrix;
+        this.viewportMatrix = Matrix4.viewportMatrix(viewport.width, viewport.height);
         // temporary callculation
-        this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
-        // this.cammeraPossition = new Vector3(0, 0, 700)
+        this.transformationMatrix = this.viewportMatrix.multiply(this.projectionMatrix).multiply(this.viewMatrix)
     }
-    ShapeRender.prototype.render = function(meshes) {
-        var wordMatrix, mesh, face;
+    ShapeRender.prototype.update = function(meshes) {
+        var wordMatrix, mesh;
 
         var depth = [];
         for (var i = 0, length = meshes.length; i < length; i++) {
@@ -1061,7 +734,7 @@ define('shape/render',[
             wordMatrix = Matrix4.translation(mesh.translation).multiply(
                 Matrix4.rotation(mesh.rotation).multiply(
                     Matrix4.scale(mesh.scale)
-            )
+                )
             );
 
             // Store vertices information in word matrix. Usefull for collision detection
@@ -1079,60 +752,58 @@ define('shape/render',[
 
                 object.normal = vertexA.subtract(vertexB).cross(vertexA.subtract(vertexC)).normalize();
             })
+        }
+    }
+    ShapeRender.prototype.render = function(meshes) {
+        var mesh, face, facesDepth = [];
 
-            this.transformationMatrix = this.projectionMatrix.multiply(this.viewMatrix)
+        this.renderer.clipTo(this.viewport);
 
-            var cameraPosition  = new Vector3(0, 0, 1);
+        this.transformationMatrix = this.viewportMatrix.multiply(this.projectionMatrix).multiply(this.viewMatrix)
+
+        for (var i = 0, length = meshes.length; i < length; i++) {
+            mesh = meshes[i];
 
             for (var f = 0, fl = mesh.faces.length; f < fl; f++) {
                 face = mesh.faces[f];
 
-                // Do not render faces that are at the back
-                if (face.normal.dot(cameraPosition) < 0) continue;
+                var vertexA = mesh.vertices[face.face.a]
+                var vertexB = mesh.vertices[face.face.b]
+                var vertexC = mesh.vertices[face.face.c]
 
-                var vertexA = mesh.vertices[face.face.a].word;
-                var vertexB = mesh.vertices[face.face.b].word;
-                var vertexC = mesh.vertices[face.face.c].word;
+                var pointA = this.project(vertexA.word);
+                var pointB = this.project(vertexB.word);
+                var pointC = this.project(vertexC.word);
 
-                var n = mesh.vertices[face.face.a].normal;
-                // n = this.project(n).normalize();
-                // n = wordMatrix.multiply(n).normalize();
-                // var pointN = this.project(vertexA.add(n.scale(50)))
-                var pointF = this.project(vertexA.add(face.normal.scale(50)));
+                if (pointA.z > 1 || pointA.z < -1) continue;
+                if (pointB.z > 1 || pointB.z < -1) continue;
+                if (pointC.z > 1 || pointC.z < -1) continue;
 
-                var pointA = this.project(vertexA);
-                var pointB = this.project(vertexB);
-                var pointC = this.project(vertexC);
+                vertexA.projection = pointA;
+                vertexB.projection = pointB;
+                vertexC.projection = pointC;
 
-                // if (pointA.z > 0 && pointB.z > 0 && pointC.z > 0) continue;
-                if (pointA.z > 0 || pointB.z > 0 || pointC.z > 0) continue;
-
-                depth.push({
+                facesDepth.push({
                     z: Math.min(vertexA.z, vertexB.z, vertexC.z),
-                    a: pointA,
-                    b: pointB,
-                    c: pointC,
-                    color: mesh.color,
-                    normal: face.normal
+                    a: vertexA,
+                    b: vertexB,
+                    c: vertexC,
+                    normal: face.normal,
+                    texture: mesh.texture
                 });
-
-                // this.renderer.fillStyle(mesh.color)
-                // this.drawTriangle(pointA, pointB, pointC);
-                // this.renderer.color = mesh.color;
-                // this.renderer.fillTriangle2(pointA, pointB, pointC, face.normal);
-                // this.renderer.fillTriangle(pointA, pointB, pointC, face.normal);
-                // this.renderer.fillStyle(Color.fromName('blue'));
-                // this.drawLine(pointA, pointN);
-                // this.renderer.fillStyle(Color.fromName('orange'));
-                // this.drawLine(pointA, pointF);
             }
         }
 
-        depth.sort(compareNumbers);
-        depth.forEach(function(o) {
-            this.renderer.color = o.color;
-            this.renderer.fillTriangle2(o.a, o.b, o.c, o.normal);
+        facesDepth.sort(compareNumbers);
+        facesDepth.forEach(function(o) {
+            this.renderer.fillTriangle(o.a, o.b, o.c, o.texture);
         }.bind(this));
+    }
+    ShapeRender.prototype.clean = function() {
+        this.renderer.clean();
+    }
+    ShapeRender.prototype.flush = function() {
+        this.renderer.render();
     }
     ShapeRender.prototype.project = function(vertex) {
         // Homogeneous coordinates
@@ -1150,53 +821,17 @@ define('shape/render',[
     }
 
     ShapeRender.prototype.transformCoordinates = function(vector4) {
-        var result = Vector3.zero(), w = vector4.w;
+        var result = Vector3.zero(),
+            w = vector4.w;
 
-        if (w > 0) {
-            result.x = vector4.x / w;
-            result.y = vector4.y / w;
-            result.z = vector4.z;
-            // result.z = vector4.z / w;
-        } else if (w < 0) {
-            result.x = -vector4.x / w;
-            result.y = -vector4.y / w;
-            result.z = -vector4.z;
-            // result.z = -vector4.z / w;
-        }
+        result.x = vector4.x / w;
+        result.y = vector4.y / w;
+        result.z = vector4.z / w;
 
         return result;
     }
-    ShapeRender.prototype.drawLine = function(a, b) {
-        this.renderer.beginPath();
-        this.renderer.moveTo(a);
-        this.renderer.lineTo(b);
-        this.renderer.closePath();
-        this.renderer.stroke();
-    }
-    ShapeRender.prototype.drawTriangle = function(a, b, c) {
-        this.renderer.beginPath();
-        this.renderer.moveTo(a);
-        this.renderer.lineTo(b);
-        this.renderer.lineTo(c);
-        this.renderer.lineTo(a);
-        this.renderer.closePath();
-        this.renderer.stroke();
-    }
 
     return ShapeRender;
-})
-;
-define('shape/viewport',[],function() {
-    
-
-    function Viewport(x, y, width, height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    }
-
-    return Viewport;
 })
 ;
 define('math/quaternion',[
@@ -1287,15 +922,112 @@ define('math/quaternion',[
 define('shape/mesh/interface',['math/matrix4', 'math/vector3'], function(Matrix4, Vector3){
     
 
-    function MeshInterface(x, y, z) {
+    function MeshInterface(x, y, z, texture) {
         this.rotation = new Vector3(0, 0, 0);
         this.translation = new Vector3(x, y, z);
         this.scale = new Vector3(1, 1, 1);
         this.vertices = [];
         this.faces = [];
+        this.texture = texture;
     }
 
     return MeshInterface;
+})
+;
+define('math/vector2',['math/matrix'], function(Matrix) {
+    
+
+    var abs = Math.abs,
+        sqrt = Math.sqrt,
+        acos = Math.acos;
+
+    var TO_DEGREE = 180/Math.PI;
+
+    var keys = ['x', 'y'];
+
+    function Vector2(x, y) {
+        Matrix.call(this, 2, [x, y]);
+        this.x = x;
+        this.y = y;
+    }
+
+    Vector2.constructor = Vector2;
+    Vector2.prototype = Object.create(Matrix.prototype);
+    Vector2.prototype.toString = function() {
+        return 'Vector2(' + this.x.toFixed(3) +','+ this.y.toFixed(3) + ')';
+    }
+    Vector2.prototype.clone = function() {
+        return new Vector2(this.x, this.y);
+    }
+    Vector2.prototype.get = function(index) {
+        return this[keys[index]];
+    }
+    Vector2.prototype.set = function(index, value) {
+        this[keys[index]] = value;
+    }
+    Vector2.prototype.normalize = function() {
+        var length = this.length();
+        return new Vector2(
+            this.x / length,
+            this.y / length
+        );
+    }
+    Vector2.prototype.length = function() {
+        return sqrt(this.lengthSqrt());
+    }
+    Vector2.prototype.lengthSqrt = function() {
+        return (this.x * this.x) + (this.y * this.y);
+    }
+    Vector2.prototype.compare = function(vector) {
+        var a = this.lengthSqrt();
+        var b = vector.lengthSqrt();
+        if (a < b) return -1;
+        else if (a > b) return 1;
+        else return 0;
+    }
+    Vector2.prototype.subtract = function(vector) {
+        return new Vector2(
+            (this.x - vector.x), (this.y - vector.y)
+        );
+    }
+    Vector2.prototype.add = function(vector) {
+        return new Vector2(
+            (this.x + vector.x), (this.y + vector.y)
+        );
+    }
+    Vector2.prototype.scale = function(scale) {
+        return new Vector2(
+            (this.x * scale), (this.y * scale)
+        );
+    }
+    Vector2.prototype.dot = function(vector) {
+        return (this.x * vector.x) + (this.y * vector.y)
+    }
+    Vector2.prototype.angle = function(vector) {
+        var divisor = this.length() * vector.length();
+        if (divisor === 0) return null;
+
+        var angle = this.dot(vector) / divisor;
+
+        if (angle < -1) angle = -1;
+        if (angle > 1) angle = 1;
+
+        return acos(angle) * TO_DEGREE;
+    }
+    Vector2.prototype.abs = function() {
+        return new Vector2(
+            abs(this.x),
+            abs(this.y)
+        );
+    }
+    Vector2.prototype.round = function() {
+        return new Vector2(
+            this.x >> 0,
+            this.y >> 0
+        );
+    }
+
+    return Vector2;
 })
 ;
 define('shape/face',[],function() {
@@ -1312,18 +1044,20 @@ define('shape/face',[],function() {
 
 define('shape/mesh/cube',[
     'shape/mesh/interface',
+    'math/vector2',
     'math/vector3',
     'shape/face'
 ], function(
     MeshInterface,
+    Vector2,
     Vector3,
     Face
 ) {
     
 
-    function CubeMesh(x, y, z, width, color) {
+    function CubeMesh(x, y, z, width, texture) {
         // invoke parent constructor
-        MeshInterface.call(this, x, y, z);
+        MeshInterface.call(this, x, y, z, texture);
 
         var hw = width/2 >> 0;
 
@@ -1332,48 +1066,56 @@ define('shape/mesh/cube',[
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(0, 0)
         });
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw, - hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw, - hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw, - hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw,   hw,   hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw,   hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw,   hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(0, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw,   hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(0, 0)
         })
 
         this.faces.push({
@@ -1434,11 +1176,70 @@ define('shape/mesh/cube',[
         }.bind(this));
 
         this.width = width;
-        this.color = color;
     }
     CubeMesh.prototype = Object.create(MeshInterface.prototype);
 
     return CubeMesh;
+})
+;
+define('shape/mesh/triangle',[
+    'shape/mesh/interface',
+    'math/vector2',
+    'math/vector3',
+    'shape/face'
+], function(
+    MeshInterface,
+    Vector2,
+    Vector3,
+    Face
+) {
+    
+
+    function TriangleMesh(x, y, z, width, texture) {
+        // invoke parent constructor
+        MeshInterface.call(this, x, y, z, texture);
+
+        var hw = width/2 >> 0;
+
+        this.vertices.push({
+            coordinates: new Vector3(- hw,   hw, - hw),
+            word: null,
+            normal: null,
+            projection: null,
+            faces: [],
+            texture: new Vector2(0, 0)
+        });
+        this.vertices.push({
+            coordinates: new Vector3(  hw,   hw, - hw),
+            word: null,
+            normal: null,
+            projection: null,
+            faces: [],
+            texture: new Vector2(0, 1)
+        })
+        this.vertices.push({
+            coordinates: new Vector3(  hw, - hw, - hw),
+            word: null,
+            normal: null,
+            projection: null,
+            faces: [],
+            texture: new Vector2(1, 0)
+        })
+
+        this.faces.push({
+            face: new Face(1, 0, 2),
+            normal: null
+        });
+
+        this.vertices.forEach(function(object) {
+            object.normal = object.coordinates.subtract(Vector3.zero()).normalize();
+        }.bind(this));
+
+        this.width = width;
+    }
+    TriangleMesh.prototype = Object.create(MeshInterface.prototype);
+
+    return TriangleMesh;
 })
 ;
 define('shape/mesh/coordinate',[
@@ -2080,8 +1881,103 @@ define('state',['event/event'], function(Event){
     return StateMachine;
 })
 ;
-define('game10',[
-    'hammerjs',
+define('shape/texture/interface',[],function() {
+    
+
+    function TextureInterface() {}
+    TextureInterface.prototype.map = function(u, v) {}
+
+    return TextureInterface;
+})
+;
+define('shape/texture/image',[
+    'shape/texture/interface',
+    'shape/color'
+], function(
+    TextureInterface,
+    Color
+) {
+    
+
+    var abs = Math.abs;
+
+    function ImageTexture(path, width, height) {
+        this.width = width;
+        this.height = height;
+        this.internalBuffer = null;
+        this.cache = Array(width * height);
+        this.load(path);
+    }
+
+    ImageTexture.constructor = ImageTexture;
+    ImageTexture.prototype = Object.create(TextureInterface.prototype);
+    ImageTexture.prototype.load = function (path) {
+        var imageTexture = new Image();
+        imageTexture.height = this.height;
+        imageTexture.width = this.width;
+
+        imageTexture.onload = function () {
+            this.loaded = true;
+            var internalCanvas = document.createElement("canvas");
+            internalCanvas.width = this.width;
+            internalCanvas.height = this.height;
+            var internalContext = internalCanvas.getContext("2d");
+            internalContext.drawImage(imageTexture, 0, 0);
+            this.internalBuffer = internalContext.getImageData(0, 0, this.width, this.height);
+        }.bind(this);
+
+        imageTexture.src = path;
+    };
+    ImageTexture.prototype.map = function (tu, tv) {
+        if (this.internalBuffer) {
+            // using a % operator to cycle/repeat the texture if needed
+            var u = abs(((tu * this.width) % this.width)) >> 0;
+            var v = abs(((tv * this.height) % this.height)) >> 0;
+
+            var index = (u + v * this.width);
+
+            if (this.cache[index]) {
+                return this.cache[index];
+            }
+
+            var intex4 = index * 4;
+
+            var r = this.internalBuffer.data[intex4];
+            var g = this.internalBuffer.data[intex4 + 1];
+            var b = this.internalBuffer.data[intex4 + 2];
+            var a = this.internalBuffer.data[intex4 + 3];
+
+            return this.cache[index] = new Color(r, g, b, a);
+        } else {
+            return Color.fromName('back');
+        }
+    }
+
+    return ImageTexture;
+});
+
+define('shape/texture/color',[
+    'shape/texture/interface',
+    'shape/color'
+], function(
+    TextureInterface,
+    Color
+) {
+    
+
+    function ColorTexture(color) {
+        this.color = color;
+    }
+
+    ColorTexture.prototype = Object.create(TextureInterface.prototype);
+    ColorTexture.prototype.map = function (tu, tv) {
+        return this.color;
+    }
+
+    return ColorTexture;
+})
+;
+define('game11',[
     'shape/renderer/renderer',
     'shape/render',
     'shape/viewport',
@@ -2089,16 +1985,18 @@ define('game10',[
     'math/vector3',
     'math/quaternion',
     'shape/mesh/cube',
+    'shape/mesh/triangle',
     'shape/mesh/coordinate',
     'shape/color',
     'game/config',
     'collision/manager',
     'collision/strategy/triangle',
     'collision/strategy/aabb',
-    'state'
+    'state',
+    'shape/texture/image',
+    'shape/texture/color'
 ],
 function(
-    Hammer,
     Renderer,
     ShapeRender,
     Viewport,
@@ -2106,167 +2004,89 @@ function(
     Vector3,
     Quaternion,
     CubeMesh,
+    TriangleMesh,
     CoordinateMesh,
     Color,
     GameConfig,
     CollisionManager,
     CollisionStrategyTriangle,
     CollisionStrategyAABB,
-    StateMachine
+    StateMachine,
+    ImageTexture,
+    ColorTexture
 ) {
     
 
     function SomeGame(canvas) {
         this.renderer = new Renderer(canvas);
         this.collision = new CollisionManager(new CollisionStrategyAABB());
-        // this.collision = new CollisionManager(new CollisionStrategyTriangle());
+        this.previousTime = Date.now();
 
-        var w = canvas.width;
+
+        var w = canvas.width * .6;
         var h = canvas.height;
+        var pw = canvas.width * .3;
+        var ph = canvas.height * .3;
 
-        var viewportMain = new Viewport(0, 0, w, h);
+        this.cameraA =  Matrix4.lookAtRH(
+            new Vector3(0, 0, 300),
+            Vector3.zero(),
+            Vector3.up()
+        );
+        this.viewportA = new Viewport(pw, 0, w, h);
+
+        this.cameraX = this.cameraA.multiply(Matrix4.rotationX(90));
+        this.viewportX = new Viewport(0, 0, pw, ph);
+
+        this.cameraY = this.cameraA.multiply(Matrix4.rotationY(90));
+        this.viewportY = new Viewport(0, ph, pw, ph);
+
+        this.cameraZ = Matrix4.lookAtRH(
+            new Vector3(0, 0, -300),
+            Vector3.zero(),
+            Vector3.up()
+        );
+        this.viewportZ = new Viewport(0, ph * 2, pw, ph);
+
         this.engine = new ShapeRender(
-            viewportMain,
+            this.viewportA,
             this.renderer,
-            Matrix4.lookAtRH(
-                new Vector3(0, 0, 700),
-                Vector3.zero(),
-                Vector3.up()
-            ),//.multiply(Matrix4.rotationX(-45)).multiply(Matrix4.rotationZ(-45)).multiply(Matrix4.rotationY(-45)),
-            Matrix4.perspectiveProjection(viewportMain.width, viewportMain.height, 90)
+            this.cameraA,
+            Matrix4.perspectiveProjection(this.viewportA.width, this.viewportA.height, 90, 1, 1000)
         );
 
         document.addEventListener("keydown", this.captureKeys.bind(this), false);
 
         this.cube = new CubeMesh(0, 0, GameConfig.BOARD_EDGE + 1/3 * GameConfig.CUBE_FIELD_SIZE, GameConfig.CUBE_FIELD_SIZE, Color.fromName('red'));
         this.meshes = []
-        this.meshes.push(this.cube);
+        // this.meshes.push(this.cube);
 
-        this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, Color.fromName('green'));
+        this.texture = new ImageTexture('assets/texture.jpg', 512, 512);
+        this.triangle = new TriangleMesh(0, 0, 0, 100, this.texture);
+        this.meshes.push(this.triangle);
+
+        this.triangle2 = new TriangleMesh(0, 0, 80, 190, new ColorTexture(Color.fromName('blue')));
+        this.meshes.push(this.triangle2);
+
+        this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture3.jpg', 512, 512));
+        // this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture2.jpg', 768,512));
         this.meshes.push(this.bigMesh);
-        this.collision.push(this.bigMesh)
-
-        this.velocity = 1;
-        this.up = Vector3.up();
-        this.cross = Vector3.forward();
-        this.direction = new Vector3(0, 0, -1);
-        this.rotation = new Vector3(0, 1, 0);
-        this.fromSide =  Vector3.zero();
-
-        Hammer(document, {
-            release: false,
-            drag_lock_to_axis: true
-        })
-        .on('drag', function(e) {
-            e.gesture.preventDefault();
-            switch(e.gesture.direction) {
-                case 'left': this.sm.trigger('press.left'); break;
-                case 'right': this.sm.trigger('press.right'); break;
-                case 'up': this.sm.trigger('press.up'); break;
-                case 'down': this.sm.trigger('press.down'); break;
-            }
-        }.bind(this));
-
-
-        this.sm = new StateMachine({
-            'falling': {
-                'ray.hit': 'climbing',
-                'ray.miss': 'falling',
-                'press.left': 'left',
-                'press.right': 'right',
-                'press.up': 'up',
-                'press.down': 'down',
-            },
-            'climbing': {
-                // 'ray.hit': 'climbing',
-                'ray.miss': 'falling',
-                'press.left': 'left',
-                'press.right': 'right'
-            },
-            'up': {
-                'ray.hit': 'climbing',
-                'ray.miss': 'falling',
-                'press.left': 'left',
-                'press.right': 'right'
-            },
-            'down': {
-                'ray.hit': 'climbing',
-                'ray.miss': 'falling',
-                'press.left': 'left',
-                'press.right': 'right'
-            },
-            'left': {
-                'ray.hit': 'climbing',
-                'ray.miss': 'falling',
-                'press.up': 'up',
-                'press.down': 'down'
-            },
-            'right': {
-                'ray.hit': 'climbing',
-                'ray.miss': 'falling',
-                'press.up': 'up',
-                'press.down': 'down'
-            }
-        });
-
-        this.sm.on('enter:right', function(e){
-            var cross = this.direction.cross(this.rotation);
-            this.direction = new Quaternion(-90, cross).multiply(this.direction).v;
-            this.rotation = new Quaternion(-90, cross).multiply(this.rotation).v;
-        }.bind(this))
-        this.sm.on('enter:left', function(e){
-            var cross = this.direction.cross(this.rotation);
-            this.direction = new Quaternion(90, cross).multiply(this.direction).v;
-            this.rotation = new Quaternion(90, cross).multiply(this.rotation).v;
-        }.bind(this));
-        this.sm.on('enter:up', function(e, from){
-            var sign = from === 'left' ? -1 : 1;
-            var cross = this.direction.cross(this.rotation);
-            this.direction = new Quaternion(sign * 90, cross).multiply(this.direction).v;
-            this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
-        }.bind(this));
-        this.sm.on('enter:down', function(e, from){
-            var sign = from === 'left' ? 1 : -1;
-            var cross = this.direction.cross(this.rotation);
-            this.direction = new Quaternion(sign * 90, cross).multiply(this.direction).v;
-            this.rotation = new Quaternion(sign * 90, cross).multiply(this.rotation).v;
-        }.bind(this));
-        this.sm.on('enter:falling', function(e){
-            // console.log('falling')
-            var dir = new Quaternion(90, this.rotation).multiply(this.direction).v;
-            var cross = dir.cross(this.rotation);
-            var dot = cross.dot(this.up) >> 0;
-            this.fromSide = this.cross.clone();
-            this.cross = cross;
-            this.up = (dot != 0) ? dir.scale(dot).normalize() : this.up;
-            this.direction = dir;
-            this.step = 0;
-        }.bind(this));
-        this.sm.on('enter:climbing', function(e){
-            // console.log('climb')
-            // var dir = new Quaternion(-90, this.rotation).multiply(this.direction).v;
-            // var cross = dir.cross(this.rotation);
-            // var dot = cross.dot(this.up) >> 0;
-            // this.fromSide = this.cross.clone();
-            // this.cross = cross;
-            // this.up = (dot != 0) ? dir.scale(dot).normalize() : this.up;
-            // this.direction = dir;
-            // this.step = 0;
-            // console.log(this.direction);
-            this.direction = new Quaternion(-90, this.rotation).multiply(this.direction).v
-        }.bind(this));
-        this.sm.on('change', function(e, from, to) {
-            this.velocity = 0;
-            // this.step = 0;
-        }.bind(this))
-        this.sm.state = 'falling';
     }
     SomeGame.prototype.captureKeys = function(e) {
         switch(e.keyCode) {
-            case 37: e.preventDefault(); this.sm.trigger('press.left'); break; // left
-            case 39: e.preventDefault(); this.sm.trigger('press.right'); break; // right
-            case 38: e.preventDefault(); this.sm.trigger('press.up'); break; // up
-            case 40: e.preventDefault(); this.sm.trigger('press.down'); break; // down
+            case 37: e.preventDefault(); this.triangle.translation.x -=10; break; // left
+            case 39: e.preventDefault(); this.triangle.translation.x +=10; break; // right
+            case 38: e.preventDefault(); this.triangle.translation.y +=10; break; // up
+            case 40: e.preventDefault(); this.triangle.translation.y -=10; break; // down
+            case 65: e.preventDefault(); this.triangle.rotation.y +=10; break;
+            case 68: e.preventDefault(); this.triangle.rotation.y -=10; break;
+            case 87: e.preventDefault(); this.triangle.rotation.x +=10; break;
+            case 83: e.preventDefault(); this.triangle.rotation.x -=10; break;
+            case 32: e.preventDefault();
+                this.triangle.rotation = Vector3.zero();
+                this.triangle.translation = Vector3.zero();
+                break;
+            default: console.log(e.keyCode);
         }
     }
     SomeGame.prototype.approach = function(g, c, dt) {
@@ -2276,126 +2096,62 @@ function(
         if (diff < dt) return c - dt;
         return g;
     }
-    SomeGame.prototype.doCollision = function() {
-        var goal = 5;
-        this.velocity = this.approach(goal, this.velocity, this.dt * 20);
-        // this.velocity = 5;
-        this.cube.translation = this.cube.translation.add(this.direction.scale(this.velocity))
-
-        var self = this;
-        var from = this.cube.translation;
-        var toFrontDirection = this.direction;
-        var toGroundDirection = new Quaternion(90, this.rotation).multiply(this.direction).v;
-
-        var rayFront = this.collision.raycast(from, toFrontDirection);
-        var rayGround = this.collision.raycast(from, toGroundDirection);
-
-        var hitCloseFront = rayFront.intersections.length && rayFront.intersections[0].distance <= 20;
-        var hitCloseGround = rayGround.intersections.length && rayGround.intersections[0].distance <= 20;
-        var hitFarFront = rayFront.intersections.length;
-        var hitFarGround = rayGround.intersections.length;
-
-        if (hitCloseFront) {
-            this.sm.trigger('ray.hit');
-        } else if (hitCloseGround) {
-        } else if (hitFarFront) {
-        } else if (!hitFarGround) {
-            this.cube.translation = this.cube.translation.add(toGroundDirection.scale(20));
-            this.cube.translation = this.cube.translation.add(toFrontDirection.scale(20));
-            this.sm.trigger('ray.miss');
-        }
-
-        this.lineTo(from, from.add(toGroundDirection.scale(50)))
-
-        this.step = this.approach(1, this.step, this.dt/20);
-        var v = new Quaternion(90,this.fromSide).slerp(new Quaternion(90, this.cross),  this.step).v;
-        var eye = this.bigMesh.translation.add(v.scale(1000));
-        var at = Vector3.zero();
-        this.engine.viewMatrix = Matrix4.lookAtRH(eye, at, this.up);
-    }
     SomeGame.prototype.lineTo = function(from, to) {
         this.renderer.drawCline(
             this.engine.project(from),
             this.engine.project(to)
         );
     }
-    SomeGame.prototype.doTest = function() {
-        var object = this.bigMesh;
-        var test = new CollisionStrategyAABB();
-        var manager = new CollisionManager(test);
-        manager.push(object);
-
-        var data =[
-            {o: new Vector3(0, 0, -400), d: new Vector3(0,0,1)},
-            {o: new Vector3(0, 0, 400), d: new Vector3(0,0,-1)},
-            {o: new Vector3(0, 400, 0), d: new Vector3(0,-1,0)},
-            {o: new Vector3(0, 0,0), d: new Vector3(-0.707,0,0.707)},
-            {o: new Vector3(0, 0,0), d: new Vector3(0.707,0,-0.707)},
-            {o: new Vector3(0, 0,0), d: new Vector3(-0.707,0,-0.707)}
-        ];
-
-        data.forEach(function(i) {
-            var ray = manager.raycast(i.o, i.d);
-            if (ray.intersections.length) {
-                this.lineTo(ray.origin, ray.intersections[0].point);
-            }
-        }.bind(this));
-    }
-    SomeGame.prototype.run = function() {
-        this.currentTime = Date.now();
-        this.dt = (this.currentTime - this.previousTime) / 100;
-        // this.dt = this.dt > .16 ? .16 : this.dt;
-        this.previousTime = this.currentTime;
-
-        this.renderer.clean();
-
-        // this.bigMesh.rotation.x += 35;
-        // this.bigMesh.rotation.y += 45;
-        // this.bigMesh.rotation.z += 45;
-
-        this.engine.render(this.meshes);
-        // this.doCollision();
-        // this.doTest();
-        // var p1= new Vector3(-30, 14, 0);
-        // var p2= new Vector3(89, 16, 0);
-        // var p3= new Vector3(64, 196, 0);
-        // var fn = p2.subtract(p1).cross(p3.subtract(p1)).normalize();
-        // p1 = this.engine.project(p1);
-        // p2 = this.engine.project(p2);
-        // p3 = this.engine.project(p3);
-        //
-        // this.renderer.color = Color.fromName('green')
-        // this.renderer.fillTriangle2(p1, p2, p3, fn);
-        //
-        // var p1= new Vector3(30, 10, 0);
-        // var p2= new Vector3(-100, 0, 0);
-        // var p3= new Vector3(-90, 200, 0);
-        // var fn = p2.subtract(p1).cross(p3.subtract(p1)).normalize();
-        // p1 = this.engine.project(p1);
-        // p2 = this.engine.project(p2);
-        // p3 = this.engine.project(p3);
-        //
-        // this.renderer.color = Color.fromName('blue')
-        // this.renderer.fillTriangle2(p1, p2, p3, fn);
-        // this.renderer.fillTriangle(p1, p2, p3, fn);
-        //
-        this.renderer.render();
-
-        this.bigMesh.rotation.x += 1;
-        this.bigMesh.rotation.y += 1;
-        this.bigMesh.rotation.z += 1;
+    SomeGame.prototype.update = function() {
+        this.bigMesh.rotation.x += 10;
+        this.bigMesh.rotation.y += 10;
+        this.bigMesh.rotation.z += 5;
 
         this.cube.rotation.x += 5;
         this.cube.rotation.y += -5;
         this.cube.rotation.z += -2;
+
+        this.texture.map(0, 1)
+    }
+    SomeGame.prototype.run = function() {
+        this.currentTime = Date.now();
+        this.dt = (this.currentTime - this.previousTime) / 1000;
+        this.previousTime = this.currentTime;
+
+        this.update();
+
+        this.engine.clean();
+        this.engine.update(this.meshes);
+
+        this.engine.viewMatrix = this.cameraA;
+        this.engine.viewport = this.viewportA;
+        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+        this.engine.render(this.meshes);
+
+        this.engine.viewMatrix = this.cameraX;
+        this.engine.viewport = this.viewportX;
+        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+        this.engine.render(this.meshes);
+
+        this.engine.viewMatrix = this.cameraY;
+        this.engine.viewport = this.viewportY;
+        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+        this.engine.render(this.meshes);
+
+        this.engine.viewMatrix = this.cameraZ;
+        this.engine.viewport = this.viewportZ;
+        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+        this.engine.render(this.meshes);
+
+        this.engine.flush();
 
         // requestAnimationFrame(this.run.bind(this));
         setTimeout(this.run.bind(this), 1000/30)
     }
 
     return SomeGame;
-});
-
+})
+;
 require.config({
     baseUrl: "js",
     paths: {
@@ -2404,7 +2160,7 @@ require.config({
     ,optimize: "none"
 });
 
-require(['game10'], function(TetrisGame) {
+require(['game11'], function(TetrisGame) {
     
 
     var tetris, game;
