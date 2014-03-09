@@ -82,16 +82,16 @@ function(
         this.meshes = []
         // this.meshes.push(this.cube);
 
-        this.texture = new ImageTexture(location.href + 'assets/texture.jpg', 512, 512);
+        this.texture = new ImageTexture(location.href + 'assets/texture3.jpg', 512, 512);
         this.triangle = new TriangleMesh(0, 0, 0, 100, this.texture);
         this.meshes.push(this.triangle);
 
         this.triangle2 = new TriangleMesh(0, 0, 80, 190, new ColorTexture(Color.fromName('blue')));
-        this.meshes.push(this.triangle2);
+        // this.meshes.push(this.triangle2);
 
         this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture(location.href + 'assets/texture3.jpg', 512, 512));
         // this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture2.jpg', 768,512));
-        this.meshes.push(this.bigMesh);
+        // this.meshes.push(this.bigMesh);
     }
     SomeGame.prototype.captureKeys = function(e) {
         switch(e.keyCode) {
@@ -107,6 +107,7 @@ function(
                 this.triangle.rotation = Vector3.zero();
                 this.triangle.translation = Vector3.zero();
                 break;
+            case 9: e.preventDefault(); this.run(); break;
             default: console.log(e.keyCode);
         }
     }
@@ -131,8 +132,6 @@ function(
         this.cube.rotation.x += 5;
         this.cube.rotation.y += -5;
         this.cube.rotation.z += -2;
-
-        this.texture.map(0, 1)
     }
     SomeGame.prototype.run = function() {
         this.currentTime = Date.now();
@@ -149,25 +148,25 @@ function(
         this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
         this.engine.render(this.meshes);
 
-        this.engine.viewMatrix = this.cameraX;
-        this.engine.viewport = this.viewportX;
-        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
-        this.engine.render(this.meshes);
-
-        this.engine.viewMatrix = this.cameraY;
-        this.engine.viewport = this.viewportY;
-        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
-        this.engine.render(this.meshes);
-
-        this.engine.viewMatrix = this.cameraZ;
-        this.engine.viewport = this.viewportZ;
-        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
-        this.engine.render(this.meshes);
-
+//         this.engine.viewMatrix = this.cameraX;
+//         this.engine.viewport = this.viewportX;
+//         this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+//         this.engine.render(this.meshes);
+//
+//         this.engine.viewMatrix = this.cameraY;
+//         this.engine.viewport = this.viewportY;
+//         this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+//         this.engine.render(this.meshes);
+//
+//         this.engine.viewMatrix = this.cameraZ;
+//         this.engine.viewport = this.viewportZ;
+//         this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+//         this.engine.render(this.meshes);
+//
         this.engine.flush();
 
         // requestAnimationFrame(this.run.bind(this));
-        setTimeout(this.run.bind(this), 1000/30)
+        // setTimeout(this.run.bind(this), 1000/30)
     }
 
     return SomeGame;

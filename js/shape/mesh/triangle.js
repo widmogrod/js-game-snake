@@ -22,7 +22,6 @@ define([
             word: null,
             normal: null,
             projection: null,
-            faces: [],
             texture: new Vector2(0, 0)
         });
         this.vertices.push({
@@ -30,7 +29,6 @@ define([
             word: null,
             normal: null,
             projection: null,
-            faces: [],
             texture: new Vector2(0, 1)
         })
         this.vertices.push({
@@ -38,8 +36,7 @@ define([
             word: null,
             normal: null,
             projection: null,
-            faces: [],
-            texture: new Vector2(1, 0)
+            texture: new Vector2(.998, 0)
         })
 
         this.faces.push({

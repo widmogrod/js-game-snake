@@ -76,12 +76,13 @@ define([
         // interpolate depth
         data.z1 = this.interpolate(p1.z, p2.z, p1.y, p2.y, y);
         data.z2 = this.interpolate(p1.z, p3.z, p1.y, p3.y, y);
-
         // interpolate start and end texture point
         data.u1 = this.interpolate(t1.x, t2.x, p1.y, p2.y, y);
         data.u2 = this.interpolate(t1.x, t3.x, p1.y, p3.y, y);
         data.v1 = this.interpolate(t1.y, t2.y, p1.x, p2.x, data.x1);
         data.v2 = this.interpolate(t1.y, t3.y, p1.x, p3.x, data.x2);
+        // data.v1 = this.interpolate(t1.y, t2.y, t1.x, t2.x, data.u1);
+        // data.v2 = this.interpolate(t1.y, t3.y, t1.x, t3.x, data.u2);
 
         if (data.x1 === data.x2) return;
 
@@ -108,6 +109,7 @@ define([
     }
     Renderer.prototype.interpolate = function(x1, x2, y1, y2, y) {
         if (y1 === y2) return x1;
+        if (x1 === x2) return x1;
         return ((y - y1)/(y2 - y1) * (x2 - x1)) + x1;
     }
     Renderer.prototype.clipTo = function(viewport) {
@@ -117,11 +119,11 @@ define([
         this.drawPixel(point.x, point.y, point.z, color);
     }
     Renderer.prototype.drawPixel = function(x, y, z, color) {
-        if (this.viewport.isIn(x, y)) {
-            this.putPixel(x, y, z, color);
-        }
+        this.putPixel(x, y, z, color);
     }
     Renderer.prototype.putPixel = function(x, y, z, color) {
+        if (!this.viewport.isIn(x, y)) return;
+
         var index = (y * this.width) + x;
         var index4 = index * 4;
 

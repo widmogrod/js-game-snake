@@ -21,56 +21,56 @@ define([
             coordinates: new Vector3(- hw,   hw, - hw),
             word: null,
             normal: null,
-            faces: [],
+            projection: null,
             texture: new Vector2(0, 0)
         });
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw, - hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(1, 0)
+            projection: null,
+            texture: new Vector2(0, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw, - hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(1, 0)
+            projection: null,
+            texture: new Vector2(0, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw, - hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(1, 1)
+            projection: null,
+            texture: new Vector2(0, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw,   hw,   hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(1, 0)
+            projection: null,
+            texture: new Vector2(0, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw,   hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(1, 1)
+            projection: null,
+            texture: new Vector2(0, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw,   hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(0, 1)
+            projection: null,
+            texture: new Vector2(0, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw,   hw),
             word: null,
             normal: null,
-            faces: [],
+            projection: null,
             texture: new Vector2(0, 0)
         })
 
