@@ -2061,14 +2061,14 @@ function(
         this.meshes = []
         // this.meshes.push(this.cube);
 
-        this.texture = new ImageTexture('assets/texture.jpg', 512, 512);
+        this.texture = new ImageTexture(location.href + 'assets/texture.jpg', 512, 512);
         this.triangle = new TriangleMesh(0, 0, 0, 100, this.texture);
         this.meshes.push(this.triangle);
 
         this.triangle2 = new TriangleMesh(0, 0, 80, 190, new ColorTexture(Color.fromName('blue')));
         this.meshes.push(this.triangle2);
 
-        this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture3.jpg', 512, 512));
+        this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture(location.href + 'assets/texture3.jpg', 512, 512));
         // this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture2.jpg', 768,512));
         this.meshes.push(this.bigMesh);
     }
