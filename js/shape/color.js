@@ -1,19 +1,19 @@
 define(function(){
     'use strict';
 
-    function Color() {
-        this.r = 0;
-        this.g = 0;
-        this.b = 0;
-        this.a = 255;
+    function Color(r, g, b, a) {
+        this.r = r || 0;
+        this.g = g || 0;
+        this.b = b || 0;
+        this.a = a || 255;
     }
     Color.prototype.clone = function() {
-        var clone = new Color();
-        clone.r = this.r;
-        clone.g = this.g;
-        clone.b = this.b;
-        clone.a = this.a;
-        return clone;
+        return new Color(
+            this.r,
+            this.g,
+            this.b,
+            this.a
+        );
     }
 
     Color.fromName = function(name) {

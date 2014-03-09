@@ -9,9 +9,9 @@ define([
 ) {
     'use strict';
 
-    function CubeMesh(x, y, z, width, color) {
+    function CubeMesh(x, y, z, width, texture) {
         // invoke parent constructor
-        MeshInterface.call(this, x, y, z);
+        MeshInterface.call(this, x, y, z, texture);
 
         var hw = width/2 >> 0;
 
@@ -122,7 +122,6 @@ define([
         }.bind(this));
 
         this.width = width;
-        this.color = color;
     }
     CubeMesh.prototype = Object.create(MeshInterface.prototype);
 

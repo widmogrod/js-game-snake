@@ -13,7 +13,9 @@ define([
     'collision/manager',
     'collision/strategy/triangle',
     'collision/strategy/aabb',
-    'state'
+    'state',
+    'shape/texture/image',
+    'shape/texture/color'
 ],
 function(
     Renderer,
@@ -30,7 +32,9 @@ function(
     CollisionManager,
     CollisionStrategyTriangle,
     CollisionStrategyAABB,
-    StateMachine
+    StateMachine,
+    ImageTexture,
+    ColorTexture
 ) {
     'use strict';
 
@@ -38,6 +42,7 @@ function(
         this.renderer = new Renderer(canvas);
         this.collision = new CollisionManager(new CollisionStrategyAABB());
         this.previousTime = Date.now();
+
 
         var w = canvas.width * .6;
         var h = canvas.height;
@@ -77,13 +82,14 @@ function(
         this.meshes = []
         // this.meshes.push(this.cube);
 
-        this.triangle = new TriangleMesh(0, 0, 0, 100, Color.fromName('red'));
+        this.texture = new ImageTexture('assets/texture.jpg', 512, 512);
+        this.triangle = new TriangleMesh(0, 0, 0, 100, this.texture);
         this.meshes.push(this.triangle);
 
-        this.triangle2 = new TriangleMesh(0, 0, 80, 190, Color.fromName('blue'));
+        this.triangle2 = new TriangleMesh(0, 0, 80, 190, new ColorTexture(Color.fromName('blue')));
         this.meshes.push(this.triangle2);
 
-        this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, Color.fromName('green'));
+        this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, new ColorTexture(Color.fromName('green')));
         // this.meshes.push(this.bigMesh);
     }
     SomeGame.prototype.captureKeys = function(e) {
@@ -124,6 +130,8 @@ function(
         this.cube.rotation.x += 5;
         this.cube.rotation.y += -5;
         this.cube.rotation.z += -2;
+
+        this.texture.map(0, 1)
     }
     SomeGame.prototype.run = function() {
         this.currentTime = Date.now();

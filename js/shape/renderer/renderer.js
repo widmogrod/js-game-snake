@@ -99,110 +99,95 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
 
         this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
     }
-    Renderer.prototype.fillTriangle = function(p1, p2, p3, fn) {
-        var temp;
-        // p1 - bottom
-        // p2 - middle
-        // p3 - top
-        if(p1.y > p2.y) {
-            temp = p2;
-            p2 = p1;
-            p1 = temp;
-        } else if (p1.y == p2.y && p1.z < p2.z) {
-            temp = p2;
-            p2 = p1;
-            p1 = temp;
-        }
+    Renderer.prototype.fillTriangle = function(v1, v2, v3, texture) {
+        var order = this.topMiddleBottom(v1, v2, v3);
 
-        if(p2.y > p3.y) {
-            temp = p2;
-            p2 = p3;
-            p3 = temp;
-        } else if (p2.y === p3.y && p2.z < p3.z) {
-            temp = p2;
-            p2 = p3;
-            p3 = temp;
+        for (var y = order.bottom.projection.y >> 0; y < order.middle.projection.y >> 0; y++) {
+            this.processLine(y, order.bottom, order.middle, order.top, texture);
         }
-
-        if(p1.y > p2.y) {
-            temp = p2;
-            p2 = p1;
-            p1 = temp;
-        } else if (p1.y == p2.y && p1.z < p2.y) {
-            temp = p2;
-            p2 = p1;
-            p1 = temp;
-        }
-
-        var dot = this.lightPosition.dot(fn);
-        this.angle = Math.max(0, dot);
-
-        for (var y = p1.y >> 0; y < p2.y >> 0; y++) {
-            this.processLine(y, p1, p2, p3);
-        }
-        for (var y = p2.y >> 0; y < p3.y >> 0; y++) {
-            this.processLine(y, p3, p2, p1);
+        for (var y = order.middle.projection.y >> 0; y < order.top.projection.y >> 0; y++) {
+            this.processLine(y, order.top, order.middle, order.bottom, texture);
         }
     }
-    Renderer.prototype.processLine = function(y, p1, p2, p3) {
-        var x1 = this.interpolate(p1.x, p2.x, p1.y, p2.y, y);
-        var x2 = this.interpolate(p1.x, p3.x, p1.y, p3.y, y);
-        var z1 = this.interpolate(p1.z, p2.z, p1.y, p2.y, y);
-        var z2 = this.interpolate(p1.z, p3.z, p1.y, p3.y, y);
+    Renderer.prototype.topMiddleBottom = function(v1, v2, v3) {
+        var temp;
 
-        var color = this.color.clone();
-        color.r *= this.angle;
-        color.g *= this.angle;
-        color.b *= this.angle;
-
-
-        // swap
-        if (x1 > x2) {
-            var temp = x1;
-            x1 = x2;
-            x2 = temp;
-            temp = z1;
-            z1 = z2;
-            z2 = z1;
+        if(v1.projection.y > v2.projection.y) {
+            temp = v2;
+            v2 = v1;
+            v1 = temp;
+        }
+        if(v2.projection.y > v3.projection.y) {
+            temp = v2;
+            v2 = v3;
+            v3 = temp;
+        }
+        if(v1.projection.y > v2.projection.y) {
+            temp = v2;
+            v2 = v1;
+            v1 = temp;
         }
 
-        var dx = x2 - x1,
-        dz = z2 - z1;
-        dz /= dx;
+        return {
+            bottom: v1,
+            middle: v2,
+            top: v3
+        };
+    }
+    Renderer.prototype.swap = function(object, key1, key2) {
+        var temp = object[key2];
+        object[key2] = object[key1];
+        object[key1] = temp;
+    }
+    Renderer.prototype.processLine = function(y, v1, v2, v3, texture) {
+        var p1 = v1.projection;
+        var p2 = v2.projection;
+        var p3 = v3.projection;
 
-        for (var x = x1 >> 0, z = z1; x < x2 >> 0; x++, z += dz) {
-            this.drawPixel(x, y, z, color);
+        var t1 = v1.texture;
+        var t2 = v2.texture;
+        var t3 = v3.texture;
+
+        var data = {};
+
+        // interpolate start and end x
+        data.x1 = this.interpolate(p1.x, p2.x, p1.y, p2.y, y);
+        data.x2 = this.interpolate(p1.x, p3.x, p1.y, p3.y, y);
+        // interpolate depth
+        data.z1 = this.interpolate(p1.z, p2.z, p1.y, p2.y, y);
+        data.z2 = this.interpolate(p1.z, p3.z, p1.y, p3.y, y);
+        // interpolate start and end texture point
+        data.u1 = this.interpolate(t1.x, t2.x, t1.y, t2.y, y);
+        data.v1 = this.interpolate(t1.y, t2.y, t1.x, t2.x, data.x1);
+        data.u2 = this.interpolate(t1.x, t3.x, t1.y, t3.y, y);
+        data.v2 = this.interpolate(t1.y, t3.y, t1.x, t3.x, data.x2);
+
+        if (data.x1 === data.x2) return;
+
+        if (data.x1 > data.x2) {
+            this.swap(data, 'x1', 'x2');
+            this.swap(data, 'z1', 'z2');
+            this.swap(data, 'u1', 'u2');
+            this.swap(data, 'v1', 'v2');
+        }
+
+        var dx = data.x2 - data.x1;
+        var dz = (data.z2 - data.z1)/dx;
+        var du = (data.u2 - data.u1)/dx;
+        var dv = (data.v2 - data.v1)/dx;
+
+        var x = data.x1 >> 0;
+        var z = data.z1;
+        var u = data.u1;
+        var v = data.v1;
+
+        for (; x < data.x2 >> 0; x++, z += dz, u += du, v += dv) {
+            this.drawPixel(x, y, z, texture.map(u, v));
         }
     }
     Renderer.prototype.interpolate = function(x1, x2, y1, y2, y) {
         if (y1 === y2) return x1;
         return ((y - y1)/(y2 - y1) * (x2 - x1)) + x1;
-    }
-    Renderer.prototype.drawYLine = function(y, x1, x2, z1, z2) {
-        var min = x1,
-        max = x2;
-
-        var z = z1;
-        var dz = z1 - z2;
-
-        if (min > max) {
-            min = x2;
-            max = x1;
-            dz = z2 - z1;
-            z = z2;
-        }
-
-        dz /= (max - min);
-
-        var color = this.color.clone();
-        color.r *= this.angle;
-        color.g *= this.angle;
-        color.b *= this.angle;
-
-        for (var x = min; x < max; x++) {
-            z += dz;
-            this.drawPixel(x, y, z, color);
-        }
     }
     Renderer.prototype.drawPoint = function(point) {
         this.drawPixel(point.x, point.y, point.z, this.color)
@@ -261,124 +246,6 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
     Renderer.prototype.drawImage = function(img, point, width, height) {
         this.buffer.push(['drawImage', [img, point, width, height]]);
     }
-
-    Renderer.prototype.drawTriangle = function (p1, p2, p3, color) {
-        // Sorting the points in order to always have this order on screen p1, p2 & p3
-        // with p1 always up (thus having the Y the lowest possible to be near the top screen)
-        // then p2 between p1 & p3
-        if(p1.y > p2.y) {
-            var temp = p2;
-            p2 = p1;
-            p1 = temp;
-        }
-        if(p2.y > p3.y) {
-            var temp = p2;
-            p2 = p3;
-            p3 = temp;
-        }
-        if(p1.y > p2.y) {
-            var temp = p2;
-            p2 = p1;
-            p1 = temp;
-        }
-
-        // inverse slopes
-        var dP1P2; var dP1P3;
-
-        // http://en.wikipedia.org/wiki/Slope
-        // Computing slopes
-        if(p2.y - p1.y > 0) {
-            dP1P2 = (p2.x - p1.x) / (p2.y - p1.y);
-        } else {
-            dP1P2 = 0;
-        }
-
-        if(p3.y - p1.y > 0) {
-            dP1P3 = (p3.x - p1.x) / (p3.y - p1.y);
-        } else {
-            dP1P3 = 0;
-        }
-
-        // First case where triangles are like that:
-        // P1
-        // -
-        // --
-        // - -
-        // -  -
-        // -   - P2
-        // -  -
-        // - -
-        // -
-        // P3
-        if(dP1P2 > dP1P3) {
-            for(var y = p1.y >> 0; y <= p3.y >> 0; y++) {
-                if(y < p2.y) {
-                    this.processScanLine(y, p1, p3, p1, p2, color);
-                } else {
-                    this.processScanLine(y, p1, p3, p2, p3, color);
-                }
-            }
-        }
-        // First case where triangles are like that:
-        //       P1
-        //        -
-        //       --
-        //      - -
-        //     -  -
-        // P2 -   -
-        //     -  -
-        //      - -
-        //        -
-        //       P3
-        else {
-            for(var y = p1.y >> 0; y <= p3.y >> 0; y++) {
-                if(y < p2.y) {
-                    this.processScanLine(y, p1, p2, p1, p3, color);
-                } else {
-                    this.processScanLine(y, p2, p3, p1, p3, color);
-                }
-            }
-        }
-    };
-    // Clamping values to keep them between 0 and 1
-    Renderer.prototype.clamp = function (value, min, max) {
-        if (typeof min === "undefined") { min = 0; }
-        if (typeof max === "undefined") { max = 1; }
-        return Math.max(min, Math.min(value, max));
-    };
-
-    // Interpolating the value between 2 vertices
-    // min is the starting point, max the ending point
-    // and gradient the % between the 2 points
-    Renderer.prototype.interpolate2 = function (min, max, gradient) {
-        return min + (max - min) * this.clamp(gradient);
-    };
-
-    // drawing line between 2 points from left to right
-    // papb -> pcpd
-    // pa, pb, pc, pd must then be sorted before
-    Renderer.prototype.processScanLine = function (y, pa, pb, pc, pd, color) {
-        // Thanks to current Y, we can compute the gradient to compute others values like
-        // the starting X (sx) and ending X (ex) to draw between
-        // if pa.Y == pb.Y or pc.Y == pd.Y, gradient is forced to 1
-        var gradient1 = pa.y != pb.y ? (y - pa.y) / (pb.y - pa.y) : 1;
-        var gradient2 = pc.y != pd.y ? (y - pc.y) / (pd.y - pc.y) : 1;
-
-        var sx = this.interpolate2(pa.x, pb.x, gradient1) >> 0;
-        var ex = this.interpolate2(pc.x, pd.x, gradient2) >> 0;
-
-        // starting Z & ending Z
-        var z1 = this.interpolate2(pa.z, pb.z, gradient1);
-        var z2 = this.interpolate2(pc.z, pd.z, gradient2);
-
-        // drawing a line from left (sx) to right (ex)
-        for(var x = sx; x < ex; x++) {
-            var gradient = (x - sx) / (ex - sx);
-            var z = this.interpolate2(z1, z2, gradient);
-            this.drawPixel(x, y, z, color);
-            // this.drawPoint(new BABYLON.Vector3(x, y, z), color);
-        }
-    };
 
     return Renderer;
 });

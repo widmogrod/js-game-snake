@@ -65,34 +65,36 @@ define([
             for (var f = 0, fl = mesh.faces.length; f < fl; f++) {
                 face = mesh.faces[f];
 
-                var vertexA = mesh.vertices[face.face.a].word;
-                var vertexB = mesh.vertices[face.face.b].word;
-                var vertexC = mesh.vertices[face.face.c].word;
+                var vertexA = mesh.vertices[face.face.a]
+                var vertexB = mesh.vertices[face.face.b]
+                var vertexC = mesh.vertices[face.face.c]
 
-                var pointA = this.project(vertexA);
-                var pointB = this.project(vertexB);
-                var pointC = this.project(vertexC);
+                var pointA = this.project(vertexA.word);
+                var pointB = this.project(vertexB.word);
+                var pointC = this.project(vertexC.word);
 
                 if (pointA.z > 1 || pointA.z < -1) continue;
                 if (pointB.z > 1 || pointB.z < -1) continue;
                 if (pointC.z > 1 || pointC.z < -1) continue;
 
+                vertexA.projection = pointA;
+                vertexB.projection = pointB;
+                vertexC.projection = pointC;
+
                 facesDepth.push({
                     z: Math.min(vertexA.z, vertexB.z, vertexC.z),
-                    a: pointA,
-                    b: pointB,
-                    c: pointC,
-                    color: mesh.color,
-                    normal: face.normal
+                    a: vertexA,
+                    b: vertexB,
+                    c: vertexC,
+                    normal: face.normal,
+                    texture: mesh.texture
                 });
             }
         }
 
         facesDepth.sort(compareNumbers);
         facesDepth.forEach(function(o) {
-            this.renderer.color = o.color;
-            this.renderer.fillTriangle(o.a, o.b, o.c, o.normal);
-            // this.renderer.drawTriangle(o.a, o.b, o.c, o.color);
+            this.renderer.fillTriangle(o.a, o.b, o.c, o.texture);
         }.bind(this));
     }
     ShapeRender.prototype.clean = function() {

@@ -1,17 +1,19 @@
 define([
     'shape/mesh/interface',
+    'math/vector2',
     'math/vector3',
     'shape/face'
 ], function(
     MeshInterface,
+    Vector2,
     Vector3,
     Face
 ) {
     'use strict';
 
-    function TriangleMesh(x, y, z, width, color) {
+    function TriangleMesh(x, y, z, width, texture) {
         // invoke parent constructor
-        MeshInterface.call(this, x, y, z);
+        MeshInterface.call(this, x, y, z, texture);
 
         var hw = width/2 >> 0;
 
@@ -19,19 +21,25 @@ define([
             coordinates: new Vector3(- hw,   hw, - hw),
             word: null,
             normal: null,
+            projection: null,
             faces: [],
+            texture: new Vector2(0, 0)
         });
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw, - hw),
             word: null,
             normal: null,
+            projection: null,
             faces: [],
+            texture: new Vector2(0, hw)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw, - hw),
             word: null,
             normal: null,
+            projection: null,
             faces: [],
+            texture: new Vector2(hw, hw)
         })
 
         this.faces.push({
@@ -44,7 +52,6 @@ define([
         }.bind(this));
 
         this.width = width;
-        this.color = color;
     }
     TriangleMesh.prototype = Object.create(MeshInterface.prototype);
 
