@@ -23,7 +23,6 @@ define([
         this.viewportMatrix = Matrix4.viewportMatrix(viewport.width, viewport.height);
         // temporary callculation
         this.transformationMatrix = this.viewportMatrix.multiply(this.projectionMatrix).multiply(this.viewMatrix)
-        // this.cammeraPossition = new Vector3(0, 0, 700)
     }
     ShapeRender.prototype.update = function(meshes) {
         var wordMatrix, mesh;
@@ -56,7 +55,6 @@ define([
     }
     ShapeRender.prototype.render = function(meshes) {
         var mesh, face, facesDepth = [];
-
 
         this.renderer.clipTo(this.viewport);
 
@@ -130,22 +128,6 @@ define([
         result.z = vector4.z / w;
 
         return result;
-    }
-    ShapeRender.prototype.drawLine = function(a, b) {
-        this.renderer.beginPath();
-        this.renderer.moveTo(a);
-        this.renderer.lineTo(b);
-        this.renderer.closePath();
-        this.renderer.stroke();
-    }
-    ShapeRender.prototype.drawTriangle = function(a, b, c) {
-        this.renderer.beginPath();
-        this.renderer.moveTo(a);
-        this.renderer.lineTo(b);
-        this.renderer.lineTo(c);
-        this.renderer.lineTo(a);
-        this.renderer.closePath();
-        this.renderer.stroke();
     }
 
     return ShapeRender;

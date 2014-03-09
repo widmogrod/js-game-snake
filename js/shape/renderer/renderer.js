@@ -1,11 +1,7 @@
 define([
-    'shape/viewport',
-    'math/vector3',
-    'shape/color'
+    'shape/viewport'
 ], function(
-    Viewport,
-    Vector3,
-    Color
+    Viewport
 ) {
     'use strict';
 
@@ -117,8 +113,8 @@ define([
     Renderer.prototype.clipTo = function(viewport) {
         this.viewport = viewport;
     }
-    Renderer.prototype.drawPoint = function(point) {
-        this.drawPixel(point.x, point.y, point.z, this.color)
+    Renderer.prototype.drawPoint = function(point, color) {
+        this.drawPixel(point.x, point.y, point.z, color);
     }
     Renderer.prototype.drawPixel = function(x, y, z, color) {
         if (this.viewport.isIn(x, y)) {

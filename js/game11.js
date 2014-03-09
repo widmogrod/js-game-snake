@@ -124,9 +124,9 @@ function(
         );
     }
     SomeGame.prototype.update = function() {
-        this.bigMesh.rotation.x += 15;
-        this.bigMesh.rotation.y += 15;
-        // this.bigMesh.rotation.z += 15;
+        this.bigMesh.rotation.x += 10;
+        this.bigMesh.rotation.y += 10;
+        this.bigMesh.rotation.z += 5;
 
         this.cube.rotation.x += 5;
         this.cube.rotation.y += -5;

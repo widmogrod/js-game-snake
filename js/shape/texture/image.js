@@ -17,6 +17,7 @@ define([
         this.load(path);
     }
 
+    ImageTexture.constructor = ImageTexture;
     ImageTexture.prototype = Object.create(TextureInterface.prototype);
     ImageTexture.prototype.load = function (path) {
         var imageTexture = new Image();
