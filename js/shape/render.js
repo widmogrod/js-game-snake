@@ -57,6 +57,9 @@ define([
     ShapeRender.prototype.render = function(meshes) {
         var mesh, face, facesDepth = [];
 
+
+        this.renderer.clipTo(this.viewport);
+
         this.transformationMatrix = this.viewportMatrix.multiply(this.projectionMatrix).multiply(this.viewMatrix)
 
         for (var i = 0, length = meshes.length; i < length; i++) {

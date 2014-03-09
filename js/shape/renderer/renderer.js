@@ -1,102 +1,32 @@
-define(['math/vector3', 'shape/color'], function(Vector3, Color){
+define([
+    'shape/viewport',
+    'math/vector3',
+    'shape/color'
+], function(
+    Viewport,
+    Vector3,
+    Color
+) {
     'use strict';
-
-    function isInfinity(value) {
-        return value === Infinity || value === -Infinity; // || isNaN(value);
-    }
 
     function Renderer(canvas) {
         this.context = canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
-        this.buffer = [];
+        this.viewport = new Viewport(0, 0, this.width, this.height);
         this.zbuffer = Array(this.width * this.height);
-        this.nullPoint = Vector3.zero();
-        this.position = this.nullPoint;
-        this.color = Color.fromName('black');
-        this.lightPosition = new Vector3(0, 0, 1);
     }
 
     Renderer.constructor = Renderer;
     Renderer.prototype.clean = function() {
         this.context.clearRect(0, 0, this.width, this.height);
         this.imageData = this.context.getImageData(0, 0, this.width, this.height);
-        this.buffer = []
         this.zbuffer = Array(this.width * this.height)
-        this.position = this.nullPoint;
-        this.color = Color.fromName('black');
     }
     Renderer.prototype.render = function() {
         this.flush();
     };
     Renderer.prototype.flush = function() {
-        var method, args;
-        var i = 0,
-        buffer = this.buffer,
-        length = buffer.length;
-
-        this.buffer = [];
-        this.position = this.nullPoint;
-        var colors = [this.color];
-        var fill = [];
-
-        for (; i < length; i++) {
-            method = buffer[i][0];
-            args = buffer[i][1];
-            switch(method) {
-                case 'stroke':
-                    // fill = [];
-                    break;
-
-                case 'fill':
-                    if (fill.length < 3) break;
-                // console.log(fill);
-                // console.log(fill.pop(), fill.pop(), fill.pop())
-                // this.fillTriangle(fill[0], fill[1], fill[2]);
-                // this.fillTriangle(fill[2], fill[3], fill[0]);
-                fill = [];
-                break;
-
-                // case 'fillRect':     this.context.fillRect(args[0].x, args[0].y, args[1], args[2]); break;
-                case 'fillStyle':
-                    colors.push(
-                        args[0] instanceof Color ? args[0] : Color.fromName('black')
-                );
-                // this.context.fillStyle = 'rgba('+ this.color.r +','+ this.color.g +','+ this.color.b +',1)';
-                break;
-
-                // case 'fillText':     this.context.fillText(args[0], args[1].x, args[1].y); break;
-                case 'beginPath':
-                    this.color = colors.length ? colors[colors.length - 1] : this.color;
-                break;
-
-                case 'closePath':
-                    // colors.shift();
-                    break;
-                case 'moveTo':
-                    // this.context.moveTo(args[0].x, args[0].y);
-                    this.position = args[0];
-                // fill.push(args[0]);
-                break;
-
-                case 'lineTo':
-                    // this.context.lineTo(args[0].x, args[0].y);
-                    // this.context.stroke();
-
-                    this.drawCline(this.position, args[0]);
-                // this.drawBline(this.position, args[0]);
-                // this.drawLine(this.position, args[0]);
-                this.position = args[0];
-                fill.push(args[0]);
-                break;
-
-                // case 'font':         this.context.font = args[0]; break;
-                // case 'textBaseline': this.context.textBaseline = args[0]; break;
-                // case 'putImageData': this.context.putImageData(args[0], args[1], args[2], args[3], args[4], args[5], args[6]); break;
-                // case 'drawImage':    this.context.drawImage(args[0], args[1].x, args[1].y, args[2], args[3]); break;
-            }
-        }
-
         this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
     }
     Renderer.prototype.fillTriangle = function(v1, v2, v3, texture) {
@@ -110,29 +40,23 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         }
     }
     Renderer.prototype.topMiddleBottom = function(v1, v2, v3) {
-        var temp;
-
-        if(v1.projection.y > v2.projection.y) {
-            temp = v2;
-            v2 = v1;
-            v1 = temp;
-        }
-        if(v2.projection.y > v3.projection.y) {
-            temp = v2;
-            v2 = v3;
-            v3 = temp;
-        }
-        if(v1.projection.y > v2.projection.y) {
-            temp = v2;
-            v2 = v1;
-            v1 = temp;
-        }
-
-        return {
+        var result = {
             bottom: v1,
             middle: v2,
             top: v3
         };
+
+        if(result.bottom.projection.y > result.middle.projection.y) {
+            this.swap(result, 'bottom', 'middle');
+        }
+        if(result.middle.projection.y > result.top.projection.y) {
+            this.swap(result, 'top', 'middle');
+        }
+        if(result.bottom.projection.y > result.middle.projection.y) {
+            this.swap(result, 'bottom', 'middle');
+        }
+
+        return result;
     }
     Renderer.prototype.swap = function(object, key1, key2) {
         var temp = object[key2];
@@ -190,12 +114,16 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         if (y1 === y2) return x1;
         return ((y - y1)/(y2 - y1) * (x2 - x1)) + x1;
     }
+    Renderer.prototype.clipTo = function(viewport) {
+        this.viewport = viewport;
+    }
     Renderer.prototype.drawPoint = function(point) {
         this.drawPixel(point.x, point.y, point.z, this.color)
     }
     Renderer.prototype.drawPixel = function(x, y, z, color) {
-        if (x < 0 || x > this.width || y < 0 || y > this.height) return;
-        this.putPixel(x, y, z, color);
+        if (this.viewport.isIn(x, y)) {
+            this.putPixel(x, y, z, color);
+        }
     }
     Renderer.prototype.putPixel = function(x, y, z, color) {
         var index = (y * this.width) + x;
@@ -208,44 +136,6 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         this.imageData.data[index4 + 1] = color.g;
         this.imageData.data[index4 + 2] = color.b;
         this.imageData.data[index4 + 3] = color.a;
-    }
-    Renderer.prototype.fillRect = function(point, width, height) {
-        this.buffer.push(['fillRect', [point, width, height]]);
-    }
-    Renderer.prototype.beginPath = function() {
-        this.buffer.push(['beginPath']);
-    }
-    Renderer.prototype.closePath = function() {
-        this.buffer.push(['closePath']);
-    }
-    Renderer.prototype.fill = function() {
-        this.buffer.push(['fill']);
-    }
-    Renderer.prototype.stroke = function() {
-        this.buffer.push(['stroke']);
-    }
-    Renderer.prototype.moveTo = function(point) {
-        this.buffer.push(['moveTo', [point]]);
-    }
-    Renderer.prototype.lineTo = function(point) {
-        this.buffer.push(['lineTo', [point]]);
-    }
-    Renderer.prototype.fillStyle = function(style) {
-        this.buffer.push(['fillStyle', [style]]);
-    }
-    Renderer.prototype.fillText = function(text, point, options) {
-        this.buffer.push(['font', [options.style + ' ' + options.weigth + ' ' + options.size + ' ' + options.font]]);
-        this.buffer.push(['textBaseline', [options.baseline]]);
-        this.buffer.push(['fillText', [text, point]]);
-    }
-    Renderer.prototype.getImageData = function(x, y, width, height) {
-        return this.context.getImageData(x, y, width, height);
-    }
-    Renderer.prototype.putImageData = function(imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
-        this.buffer.push(['putImageData', [imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight]]);
-    }
-    Renderer.prototype.drawImage = function(img, point, width, height) {
-        this.buffer.push(['drawImage', [img, point, width, height]]);
     }
 
     return Renderer;
