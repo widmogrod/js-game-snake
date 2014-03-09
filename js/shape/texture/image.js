@@ -38,8 +38,8 @@ define([
     ImageTexture.prototype.map = function (tu, tv) {
         if (this.internalBuffer) {
             // using a % operator to cycle/repeat the texture if needed
-            var u = abs(((tu + this.width) % this.width)) >> 0;
-            var v = abs(((tv + this.height) % this.height)) >> 0;
+            var u = abs(((tu * this.width) % this.width)) >> 0;
+            var v = abs(((tv * this.height) % this.height)) >> 0;
 
             var index = (u + v * this.width);
 

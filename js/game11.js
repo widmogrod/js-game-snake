@@ -89,8 +89,9 @@ function(
         this.triangle2 = new TriangleMesh(0, 0, 80, 190, new ColorTexture(Color.fromName('blue')));
         this.meshes.push(this.triangle2);
 
-        this.bigMesh = new CubeMesh(0, 0, 0, GameConfig.BOARD_WIDTH, new ColorTexture(Color.fromName('green')));
-        // this.meshes.push(this.bigMesh);
+        this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture3.jpg', 512, 512));
+        // this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture2.jpg', 768,512));
+        this.meshes.push(this.bigMesh);
     }
     SomeGame.prototype.captureKeys = function(e) {
         switch(e.keyCode) {
@@ -123,9 +124,9 @@ function(
         );
     }
     SomeGame.prototype.update = function() {
-        this.bigMesh.rotation.x += 1;
-        this.bigMesh.rotation.y += 1;
-        this.bigMesh.rotation.z += 1;
+        this.bigMesh.rotation.x += 15;
+        this.bigMesh.rotation.y += 15;
+        // this.bigMesh.rotation.z += 15;
 
         this.cube.rotation.x += 5;
         this.cube.rotation.y += -5;

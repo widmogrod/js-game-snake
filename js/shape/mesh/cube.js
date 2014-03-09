@@ -1,9 +1,11 @@
 define([
     'shape/mesh/interface',
+    'math/vector2',
     'math/vector3',
     'shape/face'
 ], function(
     MeshInterface,
+    Vector2,
     Vector3,
     Face
 ) {
@@ -20,48 +22,56 @@ define([
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(0, 0)
         });
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw, - hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw, - hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw, - hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw,   hw,   hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw,   hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(1, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw,   hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(0, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw,   hw),
             word: null,
             normal: null,
             faces: [],
+            texture: new Vector2(0, 0)
         })
 
         this.faces.push({

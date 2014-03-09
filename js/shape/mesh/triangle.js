@@ -31,7 +31,7 @@ define([
             normal: null,
             projection: null,
             faces: [],
-            texture: new Vector2(0, hw)
+            texture: new Vector2(0, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw, - hw),
@@ -39,7 +39,7 @@ define([
             normal: null,
             projection: null,
             faces: [],
-            texture: new Vector2(hw, hw)
+            texture: new Vector2(1, 0)
         })
 
         this.faces.push({

@@ -156,11 +156,12 @@ define(['math/vector3', 'shape/color'], function(Vector3, Color){
         // interpolate depth
         data.z1 = this.interpolate(p1.z, p2.z, p1.y, p2.y, y);
         data.z2 = this.interpolate(p1.z, p3.z, p1.y, p3.y, y);
+
         // interpolate start and end texture point
-        data.u1 = this.interpolate(t1.x, t2.x, t1.y, t2.y, y);
-        data.v1 = this.interpolate(t1.y, t2.y, t1.x, t2.x, data.x1);
-        data.u2 = this.interpolate(t1.x, t3.x, t1.y, t3.y, y);
-        data.v2 = this.interpolate(t1.y, t3.y, t1.x, t3.x, data.x2);
+        data.u1 = this.interpolate(t1.x, t2.x, p1.y, p2.y, y);
+        data.u2 = this.interpolate(t1.x, t3.x, p1.y, p3.y, y);
+        data.v1 = this.interpolate(t1.y, t2.y, p1.x, p2.x, data.x1);
+        data.v2 = this.interpolate(t1.y, t3.y, p1.x, p3.x, data.x2);
 
         if (data.x1 === data.x2) return;
 
