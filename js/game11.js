@@ -91,7 +91,7 @@ function(
 
         this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture(location.href + 'assets/texture3.jpg', 512, 512));
         // this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture2.jpg', 768,512));
-        // this.meshes.push(this.bigMesh);
+        this.meshes.push(this.bigMesh);
     }
     SomeGame.prototype.captureKeys = function(e) {
         switch(e.keyCode) {
@@ -125,7 +125,7 @@ function(
         );
     }
     SomeGame.prototype.update = function() {
-        this.bigMesh.rotation.x += 10;
+        this.bigMesh.rotation.x += 15;
         this.bigMesh.rotation.y += 10;
         this.bigMesh.rotation.z += 5;
 
@@ -166,7 +166,7 @@ function(
         this.engine.flush();
 
         // requestAnimationFrame(this.run.bind(this));
-        // setTimeout(this.run.bind(this), 1000/30)
+        setTimeout(this.run.bind(this), 1000/30)
     }
 
     return SomeGame;

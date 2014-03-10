@@ -29,35 +29,35 @@ define([
             word: null,
             normal: null,
             projection: null,
-            texture: new Vector2(0, 0)
+            texture: new Vector2(0, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw, - hw),
             word: null,
             normal: null,
             projection: null,
-            texture: new Vector2(0, 0)
+            texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw, - hw),
             word: null,
             normal: null,
             projection: null,
-            texture: new Vector2(0, 0)
+            texture: new Vector2(1, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw,   hw,   hw),
             word: null,
             normal: null,
             projection: null,
-            texture: new Vector2(0, 0)
+            texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw,   hw),
             word: null,
             normal: null,
             projection: null,
-            texture: new Vector2(0, 0)
+            texture: new Vector2(0, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw,   hw),
@@ -71,59 +71,67 @@ define([
             word: null,
             normal: null,
             projection: null,
-            texture: new Vector2(0, 0)
+            texture: new Vector2(1, 0)
         })
 
         this.faces.push({
             face: new Face(1, 0, 5),
+            texture: new Face(new Vector2(1, 0), new Vector2(0, 0), new Vector2(1, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(0, 4, 5),
+            texture: new Face(new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(1, 2, 3),
+            texture: new Face(new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(3, 0, 1),
+            texture: new Face(new Vector2(0, 1), new Vector2(0, 0), new Vector2(1, 0)),
             normal: null
         });
-
         this.faces.push({
             face: new Face(3, 2, 6),
+            texture: new Face(new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1)),
             normal: null
         });
-        // a
         this.faces.push({
             face: new Face(3, 6, 7),
+            texture: new Face(new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 1)),
             normal: null
         });
-
         this.faces.push({
             face: new Face(2, 1, 6),
+            texture: new Face(new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(5, 6, 1),
+            texture: new Face(new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0)),
             normal: null
         });
-        // b
         this.faces.push({
             face: new Face(0, 3, 7),
+            texture: new Face(new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(4, 0, 7),
+            texture: new Face(new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(6, 5, 4),
+            texture: new Face(new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0)),
             normal: null
         });
         this.faces.push({
             face: new Face(7, 6, 4),
+            texture: new Face(new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 0)),
             normal: null
         });
 

@@ -36,11 +36,12 @@ define([
             word: null,
             normal: null,
             projection: null,
-            texture: new Vector2(.998, 0)
+            texture: new Vector2(1, 0)
         })
 
         this.faces.push({
             face: new Face(1, 0, 2),
+            texture: new Face(new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0)),
             normal: null
         });
 

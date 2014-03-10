@@ -87,7 +87,7 @@ define([
                     a: vertexA,
                     b: vertexB,
                     c: vertexC,
-                    normal: face.normal,
+                    face: face,
                     texture: mesh.texture
                 });
             }
@@ -95,7 +95,7 @@ define([
 
         facesDepth.sort(compareNumbers);
         facesDepth.forEach(function(o) {
-            this.renderer.fillTriangle(o.a, o.b, o.c, o.texture);
+            this.renderer.fillTriangle(o.a, o.b, o.c, o.texture, o.face);
         }.bind(this));
     }
     ShapeRender.prototype.clean = function() {

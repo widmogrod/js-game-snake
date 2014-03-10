@@ -25,8 +25,8 @@ define([
     Renderer.prototype.flush = function() {
         this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
     }
-    Renderer.prototype.fillTriangle = function(v1, v2, v3, texture) {
-        var order = this.topMiddleBottom(v1, v2, v3);
+    Renderer.prototype.fillTriangle = function(v1, v2, v3, texture, face) {
+        var order = this.topMiddleBottom(v1, v2, v3, face);
 
         for (var y = order.bottom.projection.y >> 0; y < order.middle.projection.y >> 0; y++) {
             this.processLine(y, order.bottom, order.middle, order.top, texture);
@@ -35,12 +35,16 @@ define([
             this.processLine(y, order.top, order.middle, order.bottom, texture);
         }
     }
-    Renderer.prototype.topMiddleBottom = function(v1, v2, v3) {
+    Renderer.prototype.topMiddleBottom = function(v1, v2, v3, face) {
         var result = {
             bottom: v1,
             middle: v2,
             top: v3
         };
+
+        result.bottom.texture = face.texture.a;
+        result.middle.texture = face.texture.b;
+        result.top.texture = face.texture.c;
 
         if(result.bottom.projection.y > result.middle.projection.y) {
             this.swap(result, 'bottom', 'middle');
@@ -81,8 +85,6 @@ define([
         data.u2 = this.interpolate(t1.x, t3.x, p1.y, p3.y, y);
         data.v1 = this.interpolate(t1.y, t2.y, p1.x, p2.x, data.x1);
         data.v2 = this.interpolate(t1.y, t3.y, p1.x, p3.x, data.x2);
-        // data.v1 = this.interpolate(t1.y, t2.y, t1.x, t2.x, data.u1);
-        // data.v2 = this.interpolate(t1.y, t3.y, t1.x, t3.x, data.u2);
 
         if (data.x1 === data.x2) return;
 
