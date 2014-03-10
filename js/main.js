@@ -11,7 +11,7 @@ define('shape/viewport',[],function() {
 
     Viewport.constructor = Viewport;
     Viewport.prototype.isIn = function(x, y) {
-        return (x > this.x || x < (this.x + this.width)) && (y > this.y || y < (this.y + this.height));
+        return (x >= this.x || x <= (this.x + this.width)) && (y >= this.y || y <= (this.y + this.height));
     }
 
     return Viewport;
@@ -44,8 +44,8 @@ define('shape/renderer/renderer',[
     Renderer.prototype.flush = function() {
         this.context.putImageData(this.imageData, 0, 0, 0, 0, this.width, this.height)
     }
-    Renderer.prototype.fillTriangle = function(v1, v2, v3, texture) {
-        var order = this.topMiddleBottom(v1, v2, v3);
+    Renderer.prototype.fillTriangle = function(v1, v2, v3, texture, face) {
+        var order = this.topMiddleBottom(v1, v2, v3, face);
 
         for (var y = order.bottom.projection.y >> 0; y < order.middle.projection.y >> 0; y++) {
             this.processLine(y, order.bottom, order.middle, order.top, texture);
@@ -54,12 +54,16 @@ define('shape/renderer/renderer',[
             this.processLine(y, order.top, order.middle, order.bottom, texture);
         }
     }
-    Renderer.prototype.topMiddleBottom = function(v1, v2, v3) {
+    Renderer.prototype.topMiddleBottom = function(v1, v2, v3, face) {
         var result = {
             bottom: v1,
             middle: v2,
             top: v3
         };
+
+        result.bottom.texture = face.texture.a;
+        result.middle.texture = face.texture.b;
+        result.top.texture = face.texture.c;
 
         if(result.bottom.projection.y > result.middle.projection.y) {
             this.swap(result, 'bottom', 'middle');
@@ -95,7 +99,6 @@ define('shape/renderer/renderer',[
         // interpolate depth
         data.z1 = this.interpolate(p1.z, p2.z, p1.y, p2.y, y);
         data.z2 = this.interpolate(p1.z, p3.z, p1.y, p3.y, y);
-
         // interpolate start and end texture point
         data.u1 = this.interpolate(t1.x, t2.x, p1.y, p2.y, y);
         data.u2 = this.interpolate(t1.x, t3.x, p1.y, p3.y, y);
@@ -127,6 +130,7 @@ define('shape/renderer/renderer',[
     }
     Renderer.prototype.interpolate = function(x1, x2, y1, y2, y) {
         if (y1 === y2) return x1;
+        if (x1 === x2) return x1;
         return ((y - y1)/(y2 - y1) * (x2 - x1)) + x1;
     }
     Renderer.prototype.clipTo = function(viewport) {
@@ -136,11 +140,11 @@ define('shape/renderer/renderer',[
         this.drawPixel(point.x, point.y, point.z, color);
     }
     Renderer.prototype.drawPixel = function(x, y, z, color) {
-        if (this.viewport.isIn(x, y)) {
-            this.putPixel(x, y, z, color);
-        }
+        this.putPixel(x, y, z, color);
     }
     Renderer.prototype.putPixel = function(x, y, z, color) {
+        if (!this.viewport.isIn(x, y)) return;
+
         var index = (y * this.width) + x;
         var index4 = index * 4;
 
@@ -788,7 +792,7 @@ define('shape/render',[
                     a: vertexA,
                     b: vertexB,
                     c: vertexC,
-                    normal: face.normal,
+                    face: face,
                     texture: mesh.texture
                 });
             }
@@ -796,7 +800,7 @@ define('shape/render',[
 
         facesDepth.sort(compareNumbers);
         facesDepth.forEach(function(o) {
-            this.renderer.fillTriangle(o.a, o.b, o.c, o.texture);
+            this.renderer.fillTriangle(o.a, o.b, o.c, o.texture, o.face);
         }.bind(this));
     }
     ShapeRender.prototype.clean = function() {
@@ -1065,109 +1069,117 @@ define('shape/mesh/cube',[
             coordinates: new Vector3(- hw,   hw, - hw),
             word: null,
             normal: null,
-            faces: [],
+            projection: null,
             texture: new Vector2(0, 0)
         });
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw, - hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(1, 0)
+            projection: null,
+            texture: new Vector2(0, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw, - hw),
             word: null,
             normal: null,
-            faces: [],
+            projection: null,
             texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw, - hw),
             word: null,
             normal: null,
-            faces: [],
+            projection: null,
             texture: new Vector2(1, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw,   hw,   hw),
             word: null,
             normal: null,
-            faces: [],
+            projection: null,
             texture: new Vector2(1, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw,   hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(1, 1)
+            projection: null,
+            texture: new Vector2(0, 1)
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw,   hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(0, 1)
+            projection: null,
+            texture: new Vector2(0, 0)
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw,   hw),
             word: null,
             normal: null,
-            faces: [],
-            texture: new Vector2(0, 0)
+            projection: null,
+            texture: new Vector2(1, 0)
         })
 
         this.faces.push({
             face: new Face(1, 0, 5),
+            texture: new Face(new Vector2(1, 0), new Vector2(0, 0), new Vector2(1, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(0, 4, 5),
+            texture: new Face(new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(1, 2, 3),
+            texture: new Face(new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(3, 0, 1),
+            texture: new Face(new Vector2(0, 1), new Vector2(0, 0), new Vector2(1, 0)),
             normal: null
         });
-
         this.faces.push({
             face: new Face(3, 2, 6),
+            texture: new Face(new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1)),
             normal: null
         });
-        // a
         this.faces.push({
             face: new Face(3, 6, 7),
+            texture: new Face(new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 1)),
             normal: null
         });
-
         this.faces.push({
             face: new Face(2, 1, 6),
+            texture: new Face(new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(5, 6, 1),
+            texture: new Face(new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0)),
             normal: null
         });
-        // b
         this.faces.push({
             face: new Face(0, 3, 7),
+            texture: new Face(new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(4, 0, 7),
+            texture: new Face(new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1)),
             normal: null
         });
         this.faces.push({
             face: new Face(6, 5, 4),
+            texture: new Face(new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0)),
             normal: null
         });
         this.faces.push({
             face: new Face(7, 6, 4),
+            texture: new Face(new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 0)),
             normal: null
         });
 
@@ -1206,7 +1218,6 @@ define('shape/mesh/triangle',[
             word: null,
             normal: null,
             projection: null,
-            faces: [],
             texture: new Vector2(0, 0)
         });
         this.vertices.push({
@@ -1214,7 +1225,6 @@ define('shape/mesh/triangle',[
             word: null,
             normal: null,
             projection: null,
-            faces: [],
             texture: new Vector2(0, 1)
         })
         this.vertices.push({
@@ -1222,12 +1232,12 @@ define('shape/mesh/triangle',[
             word: null,
             normal: null,
             projection: null,
-            faces: [],
             texture: new Vector2(1, 0)
         })
 
         this.faces.push({
             face: new Face(1, 0, 2),
+            texture: new Face(new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0)),
             normal: null
         });
 
@@ -2069,7 +2079,6 @@ function(
         this.meshes.push(this.triangle2);
 
         this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture(location.href + 'assets/texture3.jpg', 512, 512));
-        // this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture2.jpg', 768,512));
         this.meshes.push(this.bigMesh);
     }
     SomeGame.prototype.captureKeys = function(e) {
@@ -2086,6 +2095,7 @@ function(
                 this.triangle.rotation = Vector3.zero();
                 this.triangle.translation = Vector3.zero();
                 break;
+            case 9: e.preventDefault(); this.run(); break;
             default: console.log(e.keyCode);
         }
     }
@@ -2103,15 +2113,13 @@ function(
         );
     }
     SomeGame.prototype.update = function() {
-        this.bigMesh.rotation.x += 10;
+        this.bigMesh.rotation.x += 15;
         this.bigMesh.rotation.y += 10;
         this.bigMesh.rotation.z += 5;
 
         this.cube.rotation.x += 5;
         this.cube.rotation.y += -5;
         this.cube.rotation.z += -2;
-
-        this.texture.map(0, 1)
     }
     SomeGame.prototype.run = function() {
         this.currentTime = Date.now();
