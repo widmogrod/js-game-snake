@@ -21,57 +21,49 @@ define([
             coordinates: new Vector3(- hw,   hw, - hw),
             word: null,
             normal: null,
-            projection: null,
-            texture: new Vector2(0, 0)
+            projection: null
         });
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw, - hw),
             word: null,
             normal: null,
-            projection: null,
-            texture: new Vector2(0, 1)
+            projection: null
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw, - hw),
             word: null,
             normal: null,
-            projection: null,
-            texture: new Vector2(1, 0)
+            projection: null
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw, - hw),
             word: null,
             normal: null,
-            projection: null,
-            texture: new Vector2(1, 1)
+            projection: null
         })
         this.vertices.push({
             coordinates: new Vector3(- hw,   hw,   hw),
             word: null,
             normal: null,
-            projection: null,
-            texture: new Vector2(1, 0)
+            projection: null
         })
         this.vertices.push({
             coordinates: new Vector3(  hw,   hw,   hw),
             word: null,
             normal: null,
-            projection: null,
-            texture: new Vector2(0, 1)
+            projection: null
         })
         this.vertices.push({
             coordinates: new Vector3(  hw, - hw,   hw),
             word: null,
             normal: null,
-            projection: null,
-            texture: new Vector2(0, 0)
+            projection: null
         })
         this.vertices.push({
             coordinates: new Vector3(- hw, - hw,   hw),
             word: null,
             normal: null,
-            projection: null,
-            texture: new Vector2(1, 0)
+            projection: null
         })
 
         this.faces.push({
