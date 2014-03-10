@@ -82,15 +82,14 @@ function(
         this.meshes = []
         // this.meshes.push(this.cube);
 
-        this.texture = new ImageTexture(location.href + 'assets/texture3.jpg', 512, 512);
+        this.texture = new ImageTexture(location.href + 'assets/texture.jpg', 512, 512);
         this.triangle = new TriangleMesh(0, 0, 0, 100, this.texture);
         this.meshes.push(this.triangle);
 
         this.triangle2 = new TriangleMesh(0, 0, 80, 190, new ColorTexture(Color.fromName('blue')));
-        // this.meshes.push(this.triangle2);
+        this.meshes.push(this.triangle2);
 
         this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture(location.href + 'assets/texture3.jpg', 512, 512));
-        // this.bigMesh = new CubeMesh(0, 0, -30, 50, new ImageTexture('assets/texture2.jpg', 768,512));
         this.meshes.push(this.bigMesh);
     }
     SomeGame.prototype.captureKeys = function(e) {
@@ -148,21 +147,21 @@ function(
         this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
         this.engine.render(this.meshes);
 
-//         this.engine.viewMatrix = this.cameraX;
-//         this.engine.viewport = this.viewportX;
-//         this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
-//         this.engine.render(this.meshes);
-//
-//         this.engine.viewMatrix = this.cameraY;
-//         this.engine.viewport = this.viewportY;
-//         this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
-//         this.engine.render(this.meshes);
-//
-//         this.engine.viewMatrix = this.cameraZ;
-//         this.engine.viewport = this.viewportZ;
-//         this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
-//         this.engine.render(this.meshes);
-//
+        this.engine.viewMatrix = this.cameraX;
+        this.engine.viewport = this.viewportX;
+        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+        this.engine.render(this.meshes);
+
+        this.engine.viewMatrix = this.cameraY;
+        this.engine.viewport = this.viewportY;
+        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+        this.engine.render(this.meshes);
+
+        this.engine.viewMatrix = this.cameraZ;
+        this.engine.viewport = this.viewportZ;
+        this.engine.viewportMatrix = Matrix4.viewportMatrix(this.engine.viewport.width, this.engine.viewport.height);
+        this.engine.render(this.meshes);
+
         this.engine.flush();
 
         // requestAnimationFrame(this.run.bind(this));
