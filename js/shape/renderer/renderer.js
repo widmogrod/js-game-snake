@@ -64,10 +64,12 @@ define([
         object[key1] = temp;
     }
     Renderer.prototype.processLine = function(y, v1, v2, v3, texture) {
+        // Projected coordinates
         var p1 = v1.projection;
         var p2 = v2.projection;
         var p3 = v3.projection;
 
+        // Texture coordiantes
         var t1 = v1.texture;
         var t2 = v2.texture;
         var t3 = v3.texture;
@@ -95,6 +97,7 @@ define([
             this.swap(data, 'v1', 'v2');
         }
 
+        // Interpolate z, u, v acros x
         var dx = data.x2 - data.x1;
         var dz = (data.z2 - data.z1)/dx;
         var du = (data.u2 - data.u1)/dx;
